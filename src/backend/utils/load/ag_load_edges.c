@@ -110,7 +110,7 @@ void edge_row_cb(int delim __attribute__((unused)), void *data)
         insert_edge_simple(cr->graph_id, cr->object_name,
                            object_graph_id, start_vertex_graph_id,
                            end_vertex_graph_id, props);
-
+        pfree(props);
     }
 
     for (i = 0; i < n_fields; ++i)

@@ -137,6 +137,7 @@ void vertex_row_cb(int delim __attribute__((unused)), void *data)
                                         n_fields, label_id_int);
         insert_vertex_simple(cr->graph_id, cr->object_name,
                              object_graph_id, props);
+        pfree(props);
     }
 
 
@@ -188,7 +189,7 @@ int create_labels_from_csv_file(char *file_path,
                                 int object_id,
                                 bool id_field_exists)
 {
-
+    FILE *fp_out;
     FILE *fp;
     struct csv_parser p;
     char buf[1024];
@@ -226,10 +227,18 @@ int create_labels_from_csv_file(char *file_path,
     cr.object_id = object_id;
     cr.id_field_exists = id_field_exists;
 
-
+    fp_out = fopen("/home/rafsun42/Desktop/last.txt", "w");
 
     while ((bytes_read=fread(buf, 1, 1024, fp)) > 0)
     {
+        // fprintf(fp_out, "%d\n", cr.row);
+        // fflush(fp_out);
+
+        if (cr.row > 613618)
+        {
+            printf("hi");
+        }
+
         if (csv_parse(&p, buf, bytes_read, vertex_field_cb,
                       vertex_row_cb, &cr) != bytes_read)
         {

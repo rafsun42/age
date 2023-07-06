@@ -325,6 +325,8 @@ csv_increase_buffer(struct csv_parser *p)
 size_t
 csv_parse(struct csv_parser *p, const void *s, size_t len, void (*cb1)(void *, size_t, void *), void (*cb2)(int c, void *), void *data)
 {
+    FILE* fp_out;
+
   unsigned const char *us = s;  /* Access input data as array of unsigned char */
   unsigned char c;              /* The character we are currently processing */
   size_t pos = 0;               /* The number of characters we have processed in this call */
@@ -348,7 +350,13 @@ csv_parse(struct csv_parser *p, const void *s, size_t len, void (*cb1)(void *, s
     }
   }
 
+  fp_out = fopen("/home/rafsun42/Desktop/last-2.txt", "w");
+
   while (pos < len) {
+
+    // fprintf(fp_out, "%d\n", pos);
+    // fflush(fp_out);
+
     /* Check memory usage, increase buffer if necessary */
     if (entry_pos == ((p->options & CSV_APPEND_NULL) ? p->entry_size - 1 : p->entry_size) ) {
       if (csv_increase_buffer(p) != 0) {
@@ -466,6 +474,7 @@ csv_parse(struct csv_parser *p, const void *s, size_t len, void (*cb1)(void *, s
     }
   }
   p->quoted = quoted, p->pstate = pstate, p->spaces = spaces, p->entry_pos = entry_pos;
+  fclose(fp_out);
   return pos;
 }
 
