@@ -30,7 +30,16 @@
 #include "catalog/pg_type.h"
 
 typedef int64 graphid;
+typedef int64 eid;
 #define F_GRAPHIDEQ F_INT8EQ
+#define EID_MIN 1
+#define EID_MAX 9223372036854775807
+
+/*
+ * Sequences used for generating vertex and edge ID.
+ */
+#define VERTEX_ID_SEQ "vertex_id_seq"
+#define EDGE_ID_SEQ "edge_id_seq" // TODO: move thjis to header
 
 #define LABEL_ID_MIN 1
 #define LABEL_ID_MAX PG_UINT16_MAX
@@ -54,6 +63,7 @@ typedef int64 graphid;
 #define AG_RETURN_GRAPHID(x) return GRAPHID_GET_DATUM(x)
 
 /* Oid accessors for GRAPHID */
+#define EIDOID get_EIDOID()
 #define GRAPHIDOID get_GRAPHIDOID()
 #define GRAPHIDARRAYOID get_GRAPHIDARRAYOID()
 
@@ -64,6 +74,7 @@ graphid make_graphid(const int32 label_id, const int64 entry_id);
 int32 get_graphid_label_id(const graphid gid);
 int64 get_graphid_entry_id(const graphid gid);
 Oid get_GRAPHIDOID(void);
+Oid get_EIDOID(void);
 Oid get_GRAPHIDARRAYOID(void);
 void clear_global_Oids_GRAPHID(void);
 

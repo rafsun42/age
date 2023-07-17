@@ -71,9 +71,6 @@ USING btree (graph, id);
 
 CREATE UNIQUE INDEX ag_label_relation_index ON ag_label USING btree (relation);
 
-CREATE UNIQUE INDEX ag_label_seq_name_graph_index
-ON ag_label
-USING btree (seq_name, graph);
 
 --
 -- catalog lookup functions
