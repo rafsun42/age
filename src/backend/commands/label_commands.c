@@ -293,13 +293,18 @@ void create_label(char *graph_name, char *label_name, char label_type,
     }
     graph_oid = cache_data->oid;
     nsp_id = cache_data->namespace;
-
-    // create a sequence for the new label to generate unique IDs for vertices
     schema_name = get_namespace_name(nsp_id);
     rel_name = gen_label_relation_name(label_name);
-    seq_name = ChooseRelationName(rel_name, "id", "seq", nsp_id, false);
-    seq_range_var = makeRangeVar(schema_name, seq_name, -1);
-    create_sequence_for_label(seq_range_var);
+    seq_name = (label_type == LABEL_TYPE_VERTEX ? VERTEX_ID_SEQ : EDGE_ID_SEQ);
+
+    // create sequence for the default label; child labels will inherit
+    if (IS_DEFAULT_LABEL_VERTEX(label_name) ||
+        IS_DEFAULT_LABEL_EDGE(label_name))
+    {
+        seq_range_var = makeRangeVar(schema_name, seq_name, -1);
+        create_sequence_for_label(seq_range_var);
+        // alter_sequence_owned_by_for_label(seq_range_var, rel_name); TODO: this needs to be called after create_table
+    }
 
     // create a table for the new label
     create_table_for_label(graph_name, label_name, schema_name, rel_name,
@@ -307,14 +312,6 @@ void create_label(char *graph_name, char *label_name, char label_type,
 
     // record the new label in ag_label
     relation_id = get_relname_relid(rel_name, nsp_id);
-
-    // If a label has parents, switch the parents id default, with its own.
-    if (list_length(parents) != 0)
-        change_label_id_default(graph_name, label_name, schema_name, seq_name,
-                                relation_id);
-
-    // associate the sequence with the "id" column
-    alter_sequence_owned_by_for_label(seq_range_var, rel_name);
 
     // get a new "id" for the new label
     label_id = get_new_label_id(graph_oid, nsp_id);
@@ -384,9 +381,9 @@ static void create_table_for_label(char *graph_name, char *label_name,
 }
 
 // CREATE TABLE `schema_name`.`rel_name` (
-//   "id" graphid PRIMARY KEY DEFAULT "ag_catalog"."_graphid"(...),
-//   "start_id" graphid NOT NULL
-//   "end_id" graphid NOT NULL
+//   "id" eid PRIMARY KEY DEFAULT nextval(...),
+//   "start_id" eid NOT NULL
+//   "end_id" eid NOT NULL
 //   "properties" agtype NOT NULL DEFAULT "ag_catalog"."agtype_build_map"()
 // )
 static List *create_edge_table_elements(char *graph_name, char *label_name,
@@ -398,19 +395,19 @@ static List *create_edge_table_elements(char *graph_name, char *label_name,
     ColumnDef *end_id;
     ColumnDef *props;
 
-    // "id" graphid PRIMARY KEY DEFAULT "ag_catalog"."_graphid"(...)
-    id = makeColumnDef(AG_EDGE_COLNAME_ID, GRAPHIDOID, -1, InvalidOid);
+    // "id" eid PRIMARY KEY DEFAULT "ag_catalog"."_graphid"(...)
+    id = makeColumnDef(AG_EDGE_COLNAME_ID, EIDOID, -1, InvalidOid);
     id->constraints = list_make2(build_pk_constraint(),
                                  build_id_default(graph_name, label_name,
                                                   schema_name, seq_name));
 
-    // "start_id" graphid NOT NULL
-    start_id = makeColumnDef(AG_EDGE_COLNAME_START_ID, GRAPHIDOID, -1,
+    // "start_id" eid NOT NULL
+    start_id = makeColumnDef(AG_EDGE_COLNAME_START_ID, EIDOID, -1,
                              InvalidOid);
     start_id->constraints = list_make1(build_not_null_constraint());
 
-    // "end_id" graphid NOT NULL
-    end_id = makeColumnDef(AG_EDGE_COLNAME_END_ID, GRAPHIDOID, -1, InvalidOid);
+    // "end_id" eid NOT NULL
+    end_id = makeColumnDef(AG_EDGE_COLNAME_END_ID, EIDOID, -1, InvalidOid);
     end_id->constraints = list_make1(build_not_null_constraint());
 
     // "properties" agtype NOT NULL DEFAULT "ag_catalog"."agtype_build_map"()
@@ -423,7 +420,7 @@ static List *create_edge_table_elements(char *graph_name, char *label_name,
 }
 
 // CREATE TABLE `schema_name`.`rel_name` (
-//   "id" graphid PRIMARY KEY DEFAULT "ag_catalog"."_graphid"(...),
+//   "id" eid PRIMARY KEY DEFAULT nextval(...),
 //   "properties" agtype NOT NULL DEFAULT "ag_catalog"."agtype_build_map"()
 // )
 static List *create_vertex_table_elements(char *graph_name, char *label_name,
@@ -433,8 +430,8 @@ static List *create_vertex_table_elements(char *graph_name, char *label_name,
     ColumnDef *id;
     ColumnDef *props;
 
-    // "id" graphid PRIMARY KEY DEFAULT "ag_catalog"."_graphid"(...)
-    id = makeColumnDef(AG_VERTEX_COLNAME_ID, GRAPHIDOID, -1, InvalidOid);
+    // "id" eid PRIMARY KEY DEFAULT "ag_catalog"."_graphid"(...)
+    id = makeColumnDef(AG_VERTEX_COLNAME_ID, EIDOID, -1, InvalidOid);
     id->constraints = list_make2(build_pk_constraint(),
                                  build_id_default(graph_name, label_name,
                                                   schema_name, seq_name));
@@ -448,13 +445,14 @@ static List *create_vertex_table_elements(char *graph_name, char *label_name,
     return list_make2(id, props);
 }
 
-// CREATE SEQUENCE `seq_range_var` MAXVALUE `LOCAL_ID_MAX`
+// CREATE SEQUENCE `seq_range_var` MAXVALUE `ENTRY_ID_MAX`
 static void create_sequence_for_label(RangeVar *seq_range_var)
 {
     ParseState *pstate;
     CreateSeqStmt *seq_stmt;
     char buf[32]; // greater than MAXINT8LEN+1
     DefElem *maxvalue;
+    DefElem *data_type;
 
     pstate = make_parsestate(NULL);
     pstate->p_sourcetext = "(generated CREATE SEQUENCE command)";
@@ -463,7 +461,8 @@ static void create_sequence_for_label(RangeVar *seq_range_var)
     seq_stmt->sequence = seq_range_var;
     pg_lltoa(ENTRY_ID_MAX, buf);
     maxvalue = makeDefElem("maxvalue", (Node *)makeFloat(pstrdup(buf)), -1);
-    seq_stmt->options = list_make1(maxvalue);
+    data_type = makeDefElem("as", (Node *)SystemTypeName("int8"), -1);
+    seq_stmt->options = list_make2(maxvalue, data_type);
     seq_stmt->ownerId = InvalidOid;
     seq_stmt->for_identity = false;
     seq_stmt->if_not_exists = false;
@@ -497,34 +496,12 @@ static Constraint *build_pk_constraint(void)
 static FuncCall *build_id_default_func_expr(char *graph_name, char *label_name,
                                             char *schema_name, char *seq_name)
 {
-    List *label_id_func_name;
-    A_Const *graph_name_const;
-    A_Const *label_name_const;
-    List *label_id_func_args;
-    FuncCall *label_id_func;
     List *nextval_func_name;
     char *qualified_seq_name;
     A_Const *qualified_seq_name_const;
     TypeCast *regclass_cast;
     List *nextval_func_args;
     FuncCall *nextval_func;
-    List *graphid_func_name;
-    List *graphid_func_args;
-    FuncCall *graphid_func;
-
-    // Build a node that gets the label id
-    label_id_func_name = list_make2(makeString("ag_catalog"),
-                                    makeString("_label_id"));
-    graph_name_const = makeNode(A_Const);
-    graph_name_const->val.sval.type = T_String;
-    graph_name_const->val.sval.sval = graph_name;
-    graph_name_const->location = -1;
-    label_name_const = makeNode(A_Const);
-    label_name_const->val.sval.type = T_String;
-    label_name_const->val.sval.sval = label_name;
-    label_name_const->location = -1;
-    label_id_func_args = list_make2(graph_name_const, label_name_const);
-    label_id_func = makeFuncCall(label_id_func_name, label_id_func_args, COERCE_SQL_SYNTAX, -1);
 
     //Build a node that will get the next val from the label's sequence
     nextval_func_name = SystemFuncName("nextval");
@@ -538,18 +515,10 @@ static FuncCall *build_id_default_func_expr(char *graph_name, char *label_name,
     regclass_cast->arg = (Node *)qualified_seq_name_const;
     regclass_cast->location = -1;
     nextval_func_args = list_make1(regclass_cast);
-    nextval_func = makeFuncCall(nextval_func_name, nextval_func_args, COERCE_SQL_SYNTAX, -1);
+    nextval_func = makeFuncCall(nextval_func_name, nextval_func_args,
+                                COERCE_SQL_SYNTAX, -1);
 
-    /*
-     * Build a node that constructs the graphid from the label id function
-     * and the next val function for the given sequence.
-     */
-    graphid_func_name = list_make2(makeString("ag_catalog"),
-                                   makeString("_graphid"));
-    graphid_func_args = list_make2(label_id_func, nextval_func);
-    graphid_func = makeFuncCall(graphid_func_name, graphid_func_args, COERCE_SQL_SYNTAX, -1);
-
-    return graphid_func;
+    return nextval_func;
 }
 
 /*
@@ -606,6 +575,7 @@ static Constraint *build_properties_default(void)
     return props_default;
 }
 
+// TODO: get rid of it since child tables sequence is now inherited form parents.
 /*
  * Alter the default constraint on the label's id to the use the given
  * sequence.

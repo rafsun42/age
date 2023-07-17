@@ -30,6 +30,7 @@ static int graphid_btree_fast_cmp(Datum x, Datum y, SortSupport ssup);
 /* global storage of  OID for graphid and _graphid */
 static Oid g_GRAPHIDOID = InvalidOid;
 static Oid g_GRAPHIDARRAYOID = InvalidOid;
+static Oid g_EIDOID = InvalidOid;
 
 /* helper function to quickly set, if necessary, and retrieve GRAPHIDOID */
 Oid get_GRAPHIDOID(void)
@@ -42,6 +43,19 @@ Oid get_GRAPHIDOID(void)
     }
 
     return g_GRAPHIDOID;
+}
+
+/* helper function to quickly set, if necessary, and retrieve EIDOID */
+Oid get_EIDOID(void)
+{
+    if (g_EIDOID == InvalidOid)
+    {
+        g_EIDOID = GetSysCacheOid2(TYPENAMENSP, Anum_pg_type_oid,
+                                   CStringGetDatum("int8"),
+                                   ObjectIdGetDatum(pg_catalog_namespace_id()));
+    }
+
+    return g_EIDOID;
 }
 
 /* helper function to quickly set, if necessary, and retrieve GRAPHIDARRAYOID */
