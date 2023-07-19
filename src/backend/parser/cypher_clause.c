@@ -4874,7 +4874,7 @@ static Node *make_edge_expr(cypher_parsestate *cpstate,
     ParseState *pstate = (ParseState *)cpstate;
     Oid label_name_func_oid;
     Oid func_oid;
-    Node *id, *start_id, *end_id;
+    Node *id, *start_id, *end_id, *label_id;
     Const *graph_oid_const;
     Node *props;
     List *args, *label_name_args;
@@ -4890,14 +4890,16 @@ static Node *make_edge_expr(cypher_parsestate *cpstate,
 
     end_id = scanNSItemForColumn(pstate, pnsi, 0, AG_EDGE_COLNAME_END_ID, -1);
 
-    label_name_func_oid = get_ag_func_oid("_label_name", 2, OIDOID,
-                                          GRAPHIDOID);
+    label_id = scanNSItemForColumn(pstate, pnsi, 0, AG_EDGE_COLNAME_LABEL_ID,
+                                   -1);
+
+    label_name_func_oid = get_ag_func_oid("_label_name", 2, OIDOID, INT4OID);
 
     graph_oid_const = makeConst(OIDOID, -1, InvalidOid, sizeof(Oid),
                                 ObjectIdGetDatum(cpstate->graph_oid), false,
                                 true);
 
-    label_name_args = list_make2(graph_oid_const, id);
+    label_name_args = list_make2(graph_oid_const, label_id);
 
     label_name_func_expr = makeFuncExpr(label_name_func_oid, CSTRINGOID,
                                         label_name_args, InvalidOid,
@@ -4921,7 +4923,7 @@ static Node *make_vertex_expr(cypher_parsestate *cpstate,
     ParseState *pstate = (ParseState *)cpstate;
     Oid label_name_func_oid;
     Oid func_oid;
-    Node *id;
+    Node *id, *label_id;
     Const *graph_oid_const;
     Node *props;
     List *args, *label_name_args;
@@ -4935,14 +4937,16 @@ static Node *make_vertex_expr(cypher_parsestate *cpstate,
 
     id = scanNSItemForColumn(pstate, pnsi, 0, AG_VERTEX_COLNAME_ID, -1);
 
-    label_name_func_oid = get_ag_func_oid("_label_name", 2, OIDOID,
-                                          GRAPHIDOID);
+    label_id = scanNSItemForColumn(pstate, pnsi, 0, AG_VERTEX_COLNAME_LABEL_ID,
+                                   -1);
+
+    label_name_func_oid = get_ag_func_oid("_label_name", 2, OIDOID, INT4OID);
 
     graph_oid_const = makeConst(OIDOID, -1, InvalidOid, sizeof(Oid),
                                 ObjectIdGetDatum(cpstate->graph_oid), false,
                                 true);
 
-    label_name_args = list_make2(graph_oid_const, id);
+    label_name_args = list_make2(graph_oid_const, label_id);
 
     label_name_func_expr = makeFuncExpr(label_name_func_oid, CSTRINGOID,
                                         label_name_args, InvalidOid,
@@ -5278,6 +5282,11 @@ transform_create_cypher_edge(cypher_parsestate *cpstate, List **target_list,
                                      ENT_EDGE);
 
     rel->prop_attr_num = resno - 1;
+
+    // Build label ID expression using default logic
+    rel->label_id_expr = (Expr *)build_column_default(
+        label_relation, Anum_ag_label_edge_table_label_id);
+
     te = makeTargetEntry(props, resno, alias, false);
 
     *target_list = lappend(*target_list, te);
@@ -5549,6 +5558,11 @@ transform_create_cypher_new_node(cypher_parsestate *cpstate,
                                      ENT_VERTEX);
 
     rel->prop_attr_num = resno - 1;
+
+    // label_id
+    rel->label_id_expr = (Expr *)build_column_default(
+        label_relation, Anum_ag_label_vertex_table_label_id);
+
     te = makeTargetEntry(props, resno, alias, false);
     *target_list = lappend(*target_list, te);
 
@@ -6298,6 +6312,8 @@ static cypher_target_node *get_referenced_variable(ParseState *pstate,
             _cpy->id_expr_state = ctn->id_expr_state;
             _cpy->prop_expr = ctn->prop_expr;
             _cpy->prop_expr_state = ctn->prop_expr_state;
+            _cpy->label_id_expr = ctn->label_id_expr;
+            _cpy->label_id_expr_state = ctn->label_id_expr_state;
             _cpy->prop_attr_num = ctn->prop_attr_num;
             _cpy->resultRelInfo = ctn->resultRelInfo;
             _cpy->elemTupleSlot = ctn->elemTupleSlot;

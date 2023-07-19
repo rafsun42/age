@@ -28,19 +28,23 @@
 
 #define Anum_ag_label_vertex_table_id 1
 #define Anum_ag_label_vertex_table_properties 2
+#define Anum_ag_label_vertex_table_label_id 3
 
 #define Anum_ag_label_edge_table_id 1
 #define Anum_ag_label_edge_table_start_id 2
 #define Anum_ag_label_edge_table_end_id 3
 #define Anum_ag_label_edge_table_properties 4
+#define Anum_ag_label_edge_table_label_id 5
 
 #define vertex_tuple_id Anum_ag_label_vertex_table_id - 1
 #define vertex_tuple_properties Anum_ag_label_vertex_table_properties - 1
+#define vertex_tuple_label_id Anum_ag_label_vertex_table_label_id - 1
 
 #define edge_tuple_id Anum_ag_label_edge_table_id - 1
 #define edge_tuple_start_id Anum_ag_label_edge_table_start_id - 1
 #define edge_tuple_end_id Anum_ag_label_edge_table_end_id - 1
 #define edge_tuple_properties Anum_ag_label_edge_table_properties - 1
+#define edge_tuple_label_id Anum_ag_label_edge_table_label_id - 1
 
 
 

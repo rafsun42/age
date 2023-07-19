@@ -1,0 +1,83 @@
+--
+-- NOTE: TESTS IN THESE FILE WILL BE MOVED TO EXISTING TEST FILES ONCE THEY ARE UPDATED.
+--
+LOAD 'age'; SET search_path TO ag_catalog;
+--
+-- Tests vertex\edge ID, ID sequences label_id column
+--
+SELECT create_graph('graph1');
+NOTICE:  graph "graph1" has been created
+ create_graph 
+--------------
+ 
+(1 row)
+
+SELECT * FROM cypher('graph1',
+$$
+		CREATE (:Teacher{name:'John'})-[:Teaches{from:2011}]->(:Class{title:'DS'}),
+		(:Student{name:'Smith'})-[:Learns{from:2013}]->(:Class{title:'AI'}),
+		({name:'Bob'})-[:Learns{from:2022}]->({title:'Swimming'})
+$$)
+as (a agtype);
+ a 
+---
+(0 rows)
+
+-- labels
+SELECT name, id, kind, relation, seq_name
+FROM ag_catalog.ag_label
+WHERE graph IN (
+    SELECT graphid
+    FROM ag_catalog.ag_graph
+    WHERE name = 'graph1'
+)
+ORDER BY id;
+       name       | id | kind |        relation         |   seq_name    
+------------------+----+------+-------------------------+---------------
+ _ag_label_vertex |  1 | v    | graph1._ag_label_vertex | vertex_id_seq
+ _ag_label_edge   |  2 | e    | graph1._ag_label_edge   | edge_id_seq
+ Teacher          |  3 | v    | graph1."Teacher"        | vertex_id_seq
+ Teaches          |  4 | e    | graph1."Teaches"        | edge_id_seq
+ Class            |  5 | v    | graph1."Class"          | vertex_id_seq
+ Student          |  6 | v    | graph1."Student"        | vertex_id_seq
+ Learns           |  7 | e    | graph1."Learns"         | edge_id_seq
+(7 rows)
+
+-- vertices
+SELECT * FROM graph1._ag_label_vertex ORDER BY id;
+ id |      properties       | label_id 
+----+-----------------------+----------
+  1 | {"name": "John"}      |        3
+  2 | {"title": "DS"}       |        5
+  3 | {"name": "Smith"}     |        6
+  4 | {"title": "AI"}       |        5
+  5 | {"name": "Bob"}       |        1
+  6 | {"title": "Swimming"} |        1
+(6 rows)
+
+-- edges
+SELECT * FROM graph1._ag_label_edge ORDER BY id;
+ id | start_id | end_id |   properties   | label_id 
+----+----------+--------+----------------+----------
+  1 |        1 |      2 | {"from": 2011} |        4
+  2 |        3 |      4 | {"from": 2013} |        7
+  3 |        5 |      6 | {"from": 2022} |        7
+(3 rows)
+
+SELECT drop_graph('graph1', true);
+NOTICE:  drop cascades to 9 other objects
+DETAIL:  drop cascades to sequence graph1.vertex_id_seq
+drop cascades to table graph1._ag_label_vertex
+drop cascades to sequence graph1.edge_id_seq
+drop cascades to table graph1._ag_label_edge
+drop cascades to table graph1."Teacher"
+drop cascades to table graph1."Teaches"
+drop cascades to table graph1."Class"
+drop cascades to table graph1."Student"
+drop cascades to table graph1."Learns"
+NOTICE:  graph "graph1" has been dropped
+ drop_graph 
+------------
+ 
+(1 row)
+

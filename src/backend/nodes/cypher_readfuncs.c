@@ -218,6 +218,8 @@ void read_cypher_target_node(struct ExtensibleNode *node)
     READ_NODE_FIELD(id_expr_state);
     READ_NODE_FIELD(prop_expr);
     READ_NODE_FIELD(prop_expr_state);
+    READ_NODE_FIELD(label_id_expr);
+    READ_NODE_FIELD(label_id_expr_state);
     READ_INT_FIELD(prop_attr_num);
     READ_NODE_FIELD(resultRelInfo);
     READ_NODE_FIELD(elemTupleSlot);

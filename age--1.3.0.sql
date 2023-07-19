@@ -366,6 +366,13 @@ STABLE
 PARALLEL SAFE
 AS 'MODULE_PATHNAME';
 
+CREATE FUNCTION ag_catalog._label_name(graph_oid oid, integer)
+RETURNS cstring
+LANGUAGE c
+STABLE
+PARALLEL SAFE
+AS 'MODULE_PATHNAME', '_label_name_from_label_id';
+
 CREATE FUNCTION ag_catalog._extract_label_id(graphid)
 RETURNS label_id
 LANGUAGE c

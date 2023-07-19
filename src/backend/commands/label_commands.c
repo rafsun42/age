@@ -80,12 +80,17 @@ static FuncCall *build_id_default_func_expr(char *graph_name, char *label_name,
                                             char *schema_name, char *seq_name);
 static Constraint *build_not_null_constraint(void);
 static Constraint *build_properties_default(void);
+static Constraint *build_label_id_default(char *graph_name, char *label_name);
+static FuncCall *build_label_id_default_func_call(char *graph_name,
+                                                  char *label_name);
 static void alter_sequence_owned_by_for_label(RangeVar *seq_range_var,
                                               char *rel_name);
 static int32 get_new_label_id(Oid graph_oid, Oid nsp_id);
 static void change_label_id_default(char *graph_name, char *label_name,
                                     char *schema_name, char *seq_name,
                                     Oid relid);
+static void alter_label_id_default(char *graph_name, char *label_name,
+                                   char *schema_name, Oid relid);
 
 // drop
 static void remove_relation(List *qname);
@@ -303,7 +308,8 @@ void create_label(char *graph_name, char *label_name, char label_type,
     {
         seq_range_var = makeRangeVar(schema_name, seq_name, -1);
         create_sequence_for_label(seq_range_var);
-        // alter_sequence_owned_by_for_label(seq_range_var, rel_name); TODO: this needs to be called after create_table
+        // TODO: this needs to be called after create_table and only for default labels
+        // alter_sequence_owned_by_for_label(seq_range_var, rel_name);
     }
 
     // create a table for the new label
@@ -312,6 +318,9 @@ void create_label(char *graph_name, char *label_name, char label_type,
 
     // record the new label in ag_label
     relation_id = get_relname_relid(rel_name, nsp_id);
+
+    // overrides parent's label_id default
+    alter_label_id_default(graph_name, label_name, schema_name, relation_id);
 
     // get a new "id" for the new label
     label_id = get_new_label_id(graph_oid, nsp_id);
@@ -385,15 +394,18 @@ static void create_table_for_label(char *graph_name, char *label_name,
 //   "start_id" eid NOT NULL
 //   "end_id" eid NOT NULL
 //   "properties" agtype NOT NULL DEFAULT "ag_catalog"."agtype_build_map"()
+//   "label_id" integer NOT NULL DEFAULT "ag_catalog"."_label_id(...)"
 // )
 static List *create_edge_table_elements(char *graph_name, char *label_name,
                                         char *schema_name, char *rel_name,
                                         char *seq_name)
 {
+    List *column_defs = NIL;
     ColumnDef *id;
     ColumnDef *start_id;
     ColumnDef *end_id;
     ColumnDef *props;
+    ColumnDef *label_id;
 
     // "id" eid PRIMARY KEY DEFAULT "ag_catalog"."_graphid"(...)
     id = makeColumnDef(AG_EDGE_COLNAME_ID, EIDOID, -1, InvalidOid);
@@ -416,19 +428,32 @@ static List *create_edge_table_elements(char *graph_name, char *label_name,
     props->constraints = list_make2(build_not_null_constraint(),
                                     build_properties_default());
 
-    return list_make4(id, start_id, end_id, props);
+    // "label_id" integer NOT NULL DEFAULT "ag_catalog"."_label_id(...)"
+    label_id = makeColumnDef(AG_EDGE_COLNAME_LABEL_ID, INT4OID, -1,
+                             InvalidOid);
+    label_id->constraints =
+        list_make2(build_not_null_constraint(),
+                   build_label_id_default(graph_name, label_name));
+
+    column_defs = list_make4(id, start_id, end_id, props);
+    column_defs = lappend(column_defs, label_id);
+
+    return column_defs;
 }
 
 // CREATE TABLE `schema_name`.`rel_name` (
 //   "id" eid PRIMARY KEY DEFAULT nextval(...),
 //   "properties" agtype NOT NULL DEFAULT "ag_catalog"."agtype_build_map"()
+//   "label_id" integer NOT NULL DEFAULT "ag_catalog"."_label_id(...)"
 // )
 static List *create_vertex_table_elements(char *graph_name, char *label_name,
                                           char *schema_name, char *rel_name,
                                           char *seq_name)
 {
+    List *column_defs = NIL;
     ColumnDef *id;
     ColumnDef *props;
+    ColumnDef *label_id;
 
     // "id" eid PRIMARY KEY DEFAULT "ag_catalog"."_graphid"(...)
     id = makeColumnDef(AG_VERTEX_COLNAME_ID, EIDOID, -1, InvalidOid);
@@ -442,7 +467,14 @@ static List *create_vertex_table_elements(char *graph_name, char *label_name,
     props->constraints = list_make2(build_not_null_constraint(),
                                     build_properties_default());
 
-    return list_make2(id, props);
+    // "label_id" integer NOT NULL DEFAULT "ag_catalog"."_label_id(...)"
+    label_id = makeColumnDef(AG_VERTEX_COLNAME_LABEL_ID, INT4OID, -1,
+                             InvalidOid);
+    label_id->constraints =
+        list_make2(build_not_null_constraint(),
+                   build_label_id_default(graph_name, label_name));
+
+    return list_make3(id, props, label_id);
 }
 
 // CREATE SEQUENCE `seq_range_var` MAXVALUE `ENTRY_ID_MAX`
@@ -584,7 +616,50 @@ static Constraint *build_properties_default(void)
     return props_default;
 }
 
+static FuncCall *build_label_id_default_func_call(char *graph_name,
+                                                  char *label_name)
+{
+    A_Const *graph_name_const;
+    A_Const *label_name_const;
+    List *label_id_func_name;
+    List *label_id_func_args;
+    FuncCall *label_id_func;
+
+    graph_name_const = makeNode(A_Const);
+    graph_name_const->val.type = T_String;
+    graph_name_const->val.val.str = graph_name;
+    graph_name_const->location = -1;
+
+    label_name_const = makeNode(A_Const);
+    label_name_const->val.type = T_String;
+    label_name_const->val.val.str = label_name;
+    label_name_const->location = -1;
+
+    label_id_func_name = list_make2(makeString("ag_catalog"),
+                                    makeString("_label_id"));
+    label_id_func_args = list_make2(graph_name_const, label_name_const);
+    label_id_func = makeFuncCall(label_id_func_name, label_id_func_args, -1);
+
+    return label_id_func;
+}
+
+// DEFAULT "ag_catalog"."_label_id(...)"
+static Constraint *build_label_id_default(char *graph_name, char *label_name)
+{
+    Constraint *label_id_default;
+
+    label_id_default = makeNode(Constraint);
+    label_id_default->contype = CONSTR_DEFAULT;
+    label_id_default->location = -1;
+    label_id_default->raw_expr =
+        (Node *)build_label_id_default_func_call(graph_name, label_name);
+    label_id_default->cooked_expr = NULL;
+
+    return label_id_default;
+}
+
 // TODO: get rid of it since child tables sequence is now inherited form parents.
+// TODO: this function name is misleading it should be called change_graphid_default
 /*
  * Alter the default constraint on the label's id to the use the given
  * sequence.
@@ -615,6 +690,47 @@ static void change_label_id_default(char *graph_name, char *label_name,
     tbl_cmd = makeNode(AlterTableCmd);
     tbl_cmd->subtype = AT_ColumnDefault;
     tbl_cmd->name = "id";
+    tbl_cmd->def = (Node *)func_call;
+
+    tbl_stmt->cmds = list_make1(tbl_cmd);
+
+    atuc.relid = relid;
+    atuc.queryEnv = pstate->p_queryEnv;
+    atuc.queryString = pstate->p_sourcetext;
+
+    AlterTable(tbl_stmt, AccessExclusiveLock, &atuc);
+
+    CommandCounterIncrement();
+}
+
+/*
+ * Alter the default constraint on the label_id column to the use the given
+ * label_name.
+ */
+static void alter_label_id_default(char *graph_name, char *label_name,
+                                   char *schema_name, Oid relid)
+{
+    ParseState *pstate;
+    AlterTableStmt *tbl_stmt;
+    AlterTableCmd *tbl_cmd;
+    RangeVar *rv;
+    FuncCall *func_call;
+    AlterTableUtilityContext atuc;
+
+    func_call = build_label_id_default_func_call(graph_name, label_name);
+
+    rv = makeRangeVar(schema_name, label_name, -1);
+
+    pstate = make_parsestate(NULL);
+    pstate->p_sourcetext = "(generated ALTER TABLE command)";
+
+    tbl_stmt = makeNode(AlterTableStmt);
+    tbl_stmt->relation = rv;
+    tbl_stmt->missing_ok = false;
+
+    tbl_cmd = makeNode(AlterTableCmd);
+    tbl_cmd->subtype = AT_ColumnDefault;
+    tbl_cmd->name = "label_id";
     tbl_cmd->def = (Node *)func_call;
 
     tbl_stmt->cmds = list_make1(tbl_cmd);
