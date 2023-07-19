@@ -76,7 +76,8 @@ EXTENSION = age
 DATA = age--1.3.0.sql
 
 # sorted in dependency order
-REGRESS = scan \
+REGRESS = label_redesign_rafsun \
+          scan \
           graphid \
           agtype \
           catalog \

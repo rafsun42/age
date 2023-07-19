@@ -295,6 +295,9 @@ typedef struct cypher_target_node
 
     Expr *prop_expr;
     ExprState *prop_expr_state;
+
+    Expr *label_id_expr;
+    ExprState *label_id_expr_state;
     /*
      * Attribute Number that this entity's properties
      * are stored in the CustomScanState's child TupleTableSlot

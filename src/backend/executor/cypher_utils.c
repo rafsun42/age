@@ -172,6 +172,7 @@ TupleTableSlot *populate_edge_tts(
  */
 bool entity_exists(EState *estate, Oid graph_oid, graphid id)
 {
+    int i;
     label_cache_data *label;
     ScanKeyData scan_keys[1];
     TableScanDesc scan_desc;
@@ -183,28 +184,41 @@ bool entity_exists(EState *estate, Oid graph_oid, graphid id)
      * Extract the label id from the graph id and get the table name
      * the entity is part of.
      */
-    label = search_label_graph_oid_cache(graph_oid, GET_LABEL_ID(id));
 
-    // Setup the scan key to be the graphid
-    ScanKeyInit(&scan_keys[0], 1, BTEqualStrategyNumber,
-                F_GRAPHIDEQ, GRAPHID_GET_DATUM(id));
-
-    rel = table_open(label->relation, RowExclusiveLock);
-    scan_desc = table_beginscan(rel, estate->es_snapshot, 1, scan_keys);
-
-    tuple = heap_getnext(scan_desc, ForwardScanDirection);
-
-    /*
-     * If a single tuple was returned, the tuple is still valid, otherwise'
-     * set to false.
-     */
-    if (!HeapTupleIsValid(tuple))
+    // TODO: THIS IS A TEMPORARY HACK TO MAKE THIS FUNCTION WORK
+    //          IT LOOKS FOR THE VERTEX\EDGE IN ALL LABEL TABLE
+    //          (MAXIMUM 10)
+    for (i = 1; i < 10; i++)
     {
-        result = false;
-    }
+        label = search_label_graph_oid_cache(graph_oid, i);
 
-    table_endscan(scan_desc);
-    table_close(rel, RowExclusiveLock);
+        if (label == NULL)
+            return false;
+
+        // Setup the scan key to be the graphid
+        ScanKeyInit(&scan_keys[0], 1, BTEqualStrategyNumber, F_GRAPHIDEQ,
+                    GRAPHID_GET_DATUM(id));
+
+        rel = table_open(label->relation, RowExclusiveLock);
+        scan_desc = table_beginscan(rel, estate->es_snapshot, 1, scan_keys);
+
+        tuple = heap_getnext(scan_desc, ForwardScanDirection);
+
+        /*
+        * If a single tuple was returned, the tuple is still valid, otherwise'
+        * set to false.
+        */
+        if (HeapTupleIsValid(tuple))
+        {
+            result = true;
+            table_endscan(scan_desc);
+            table_close(rel, RowExclusiveLock);
+            break;
+        }
+
+        table_endscan(scan_desc);
+        table_close(rel, RowExclusiveLock);
+    }
 
     return result;
 }
@@ -249,7 +263,7 @@ HeapTuple insert_entity_tuple_cid(ResultRelInfo *resultRelInfo,
 
     // Insert the tuple normally
     table_tuple_insert(resultRelInfo->ri_RelationDesc, elemTupleSlot,
-                GetCurrentCommandId(true), 0, NULL);
+                       GetCurrentCommandId(true), 0, NULL);
 
     // Insert index entries for the tuple
     if (resultRelInfo->ri_NumIndices > 0)

@@ -30,21 +30,25 @@
 
 #define AG_VERTEX_COLNAME_ID "id"
 #define AG_VERTEX_COLNAME_PROPERTIES "properties"
+#define AG_VERTEX_COLNAME_LABEL_ID "label_id"
 
 #define AG_ACCESS_FUNCTION_ID "age_id"
 
 #define AG_VERTEX_ACCESS_FUNCTION_ID "age_id"
 #define AG_VERTEX_ACCESS_FUNCTION_PROPERTIES "age_properties"
+#define AG_VERTEX_ACCESS_FUNCTION_LABEL_ID "age_label_id"
 
 #define AG_EDGE_COLNAME_ID "id"
 #define AG_EDGE_COLNAME_START_ID "start_id"
 #define AG_EDGE_COLNAME_END_ID "end_id"
 #define AG_EDGE_COLNAME_PROPERTIES "properties"
+#define AG_EDGE_COLNAME_LABEL_ID "label_id"
 
 #define AG_EDGE_ACCESS_FUNCTION_ID "age_id"
 #define AG_EDGE_ACCESS_FUNCTION_START_ID "age_start_id"
 #define AG_EDGE_ACCESS_FUNCTION_END_ID "age_end_id"
 #define AG_EDGE_ACCESS_FUNCTION_PROPERTIES "age_properties"
+#define AG_EDGE_ACCESS_FUNCTION_LABEL_ID "age_label_id"
 
 #define IS_DEFAULT_LABEL_EDGE(str) \
     (str != NULL && strcmp(AG_DEFAULT_LABEL_EDGE, str) == 0)

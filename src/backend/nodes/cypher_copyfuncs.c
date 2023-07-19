@@ -111,6 +111,8 @@ void copy_cypher_target_node(ExtensibleNode *newnode, const ExtensibleNode *from
     COPY_NODE_FIELD(id_expr_state);
     COPY_NODE_FIELD(prop_expr);
     COPY_NODE_FIELD(prop_expr_state);
+    COPY_NODE_FIELD(label_id_expr);
+    COPY_NODE_FIELD(label_id_expr_state);
     COPY_NODE_FIELD(resultRelInfo);
     COPY_NODE_FIELD(elemTupleSlot);
 }
