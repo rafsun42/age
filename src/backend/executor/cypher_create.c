@@ -594,6 +594,9 @@ static Datum create_vertex(cypher_create_custom_scan_state *css,
                      errmsg("agtype must resolve to a vertex")));
         }
 
+        // extract the label id
+        label_id = get_label_id_from_entity_by_oid(v, css->graph_oid);
+
         // extract the id agtype field
         id_value = GET_AGTYPE_VALUE_OBJECT_VALUE(v, "id");
 
@@ -613,7 +616,7 @@ static Datum create_vertex(cypher_create_custom_scan_state *css,
          */
         if (!SAFE_TO_SKIP_EXISTENCE_CHECK(node->flags))
         {
-            if (!entity_exists(estate, css->graph_oid, DATUM_GET_GRAPHID(id)))
+            if (!entity_exists(estate, css->graph_oid, id, label_id))
             {
                 ereport(ERROR,
                     (errcode(ERRCODE_OBJECT_NOT_IN_PREREQUISITE_STATE),
