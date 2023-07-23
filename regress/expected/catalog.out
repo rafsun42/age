@@ -56,9 +56,11 @@ SELECT * FROM cypher('graph', $$CREATE (:v)$$) AS r(a agtype);
 
 -- DROP SCHEMA ... CASCADE should fail
 DROP SCHEMA graph CASCADE;
-NOTICE:  drop cascades to 4 other objects
+NOTICE:  drop cascades to 6 other objects
 DETAIL:  drop cascades to sequence graph._label_id_seq
+drop cascades to sequence graph.vertex_id_seq
 drop cascades to table graph._ag_label_vertex
+drop cascades to sequence graph.edge_id_seq
 drop cascades to table graph._ag_label_edge
 drop cascades to table graph.v
 ERROR:  table "v" is for label "v"
@@ -68,13 +70,17 @@ ERROR:  table "v" is for label "v"
 -- should fail (cascade = false)
 SELECT drop_graph('graph');
 ERROR:  cannot drop schema graph because other objects depend on it
-DETAIL:  table graph._ag_label_vertex depends on schema graph
+DETAIL:  sequence graph.vertex_id_seq depends on schema graph
+table graph._ag_label_vertex depends on schema graph
+sequence graph.edge_id_seq depends on schema graph
 table graph._ag_label_edge depends on schema graph
 table graph.v depends on schema graph
 HINT:  Use DROP ... CASCADE to drop the dependent objects too.
 SELECT drop_graph('graph', true);
-NOTICE:  drop cascades to 3 other objects
-DETAIL:  drop cascades to table graph._ag_label_vertex
+NOTICE:  drop cascades to 5 other objects
+DETAIL:  drop cascades to sequence graph.vertex_id_seq
+drop cascades to table graph._ag_label_vertex
+drop cascades to sequence graph.edge_id_seq
 drop cascades to table graph._ag_label_edge
 drop cascades to table graph.v
 NOTICE:  graph "graph" has been dropped
@@ -180,8 +186,10 @@ SELECT alter_graph('GraphX', 'RENAME', 'GraphB');
 ERROR:  schema "GraphB" already exists
 -- Remove graphs.
 SELECT drop_graph('GraphX', true);
-NOTICE:  drop cascades to 2 other objects
-DETAIL:  drop cascades to table "GraphX"._ag_label_vertex
+NOTICE:  drop cascades to 4 other objects
+DETAIL:  drop cascades to sequence "GraphX".vertex_id_seq
+drop cascades to table "GraphX"._ag_label_vertex
+drop cascades to sequence "GraphX".edge_id_seq
 drop cascades to table "GraphX"._ag_label_edge
 NOTICE:  graph "GraphX" has been dropped
  drop_graph 
@@ -190,8 +198,10 @@ NOTICE:  graph "GraphX" has been dropped
 (1 row)
 
 SELECT drop_graph('GraphB', true);
-NOTICE:  drop cascades to 2 other objects
-DETAIL:  drop cascades to table "GraphB"._ag_label_vertex
+NOTICE:  drop cascades to 4 other objects
+DETAIL:  drop cascades to sequence "GraphB".vertex_id_seq
+drop cascades to table "GraphB"._ag_label_vertex
+drop cascades to sequence "GraphB".edge_id_seq
 drop cascades to table "GraphB"._ag_label_edge
 NOTICE:  graph "GraphB" has been dropped
  drop_graph 
@@ -300,8 +310,10 @@ SELECT name, id, kind, relation FROM ag_label;
 (6 rows)
 
 SELECT drop_graph('graph', true);
-NOTICE:  drop cascades to 6 other objects
-DETAIL:  drop cascades to table graph._ag_label_vertex
+NOTICE:  drop cascades to 8 other objects
+DETAIL:  drop cascades to sequence graph.vertex_id_seq
+drop cascades to table graph._ag_label_vertex
+drop cascades to sequence graph.edge_id_seq
 drop cascades to table graph._ag_label_edge
 drop cascades to table graph.v1
 drop cascades to table graph.v3
@@ -395,8 +407,10 @@ SELECT create_elabel(NULL, NULL);
 ERROR:  graph name must not be NULL
 -- dropping the graph
 SELECT drop_graph('graph', true);
-NOTICE:  drop cascades to 2 other objects
-DETAIL:  drop cascades to table graph._ag_label_vertex
+NOTICE:  drop cascades to 4 other objects
+DETAIL:  drop cascades to sequence graph.vertex_id_seq
+drop cascades to table graph._ag_label_vertex
+drop cascades to sequence graph.edge_id_seq
 drop cascades to table graph._ag_label_edge
 NOTICE:  graph "graph" has been dropped
  drop_graph 
