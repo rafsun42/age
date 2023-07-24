@@ -4808,14 +4808,14 @@ static Datum get_vertex(const char *graph, const char *vertex_label,
     /* get the tupdesc - we don't need to release this one */
     tupdesc = RelationGetDescr(graph_vertex_label);
     /* bail if the number of columns differs */
-    if (tupdesc->natts != 2)
+    if (tupdesc->natts != Natts_ag_label_vertex)
         ereport(ERROR,
                 (errcode(ERRCODE_UNDEFINED_TABLE),
                  errmsg("Invalid number of attributes for %s.%s", graph,
                         vertex_label )));
 
     /* get the id */
-    id = column_get_datum(tupdesc, tuple, 0, "id", GRAPHIDOID, true);
+    id = column_get_datum(tupdesc, tuple, 0, "id", INT8OID, true);
     /* get the properties */
     properties = column_get_datum(tupdesc, tuple, 1, "properties",
                                   AGTYPEOID, true);
