@@ -146,6 +146,12 @@ static void begin_cypher_merge(CustomScanState *node, EState *estate,
             cypher_node->prop_expr_state = ExecInitExpr(cypher_node->prop_expr,
                                                         (PlanState *)node);
         }
+
+        if (cypher_node->label_id_expr != NULL)
+        {
+            cypher_node->label_id_expr_state =
+                ExecInitExpr(cypher_node->label_id_expr, (PlanState *)node);
+        }
     }
 
     /*
@@ -633,6 +639,7 @@ static Datum merge_vertex(cypher_merge_custom_scan_state *css,
 {
     bool isNull;
     Datum id;
+    Datum label_id;
     EState *estate = css->css.ss.ps.state;
     ExprContext *econtext = css->css.ss.ps.ps_ExprContext;
     ResultRelInfo *resultRelInfo = node->resultRelInfo;
@@ -674,6 +681,11 @@ static Datum merge_vertex(cypher_merge_custom_scan_state *css,
         prop = ExecEvalExpr(node->prop_expr_state, econtext, &isNull);
         elemTupleSlot->tts_values[vertex_tuple_properties] = prop;
         elemTupleSlot->tts_isnull[vertex_tuple_properties] = isNull;
+
+        /* get the label id for this vertex */
+        label_id = ExecEvalExpr(node->label_id_expr_state, econtext, &isNull);
+        elemTupleSlot->tts_values[vertex_tuple_label_id] = label_id;
+        elemTupleSlot->tts_isnull[vertex_tuple_label_id] = isNull;
 
         /*
          * Insert the new vertex.
@@ -860,6 +872,7 @@ static void merge_edge(cypher_merge_custom_scan_state *css,
     ResultRelInfo *old_estate_es_result_relation_info = NULL;
     TupleTableSlot *elemTupleSlot = node->elemTupleSlot;
     Datum id;
+    Datum label_id;
     Datum start_id, end_id, next_vertex_id;
     List *prev_path = css->path_values;
     Datum prop;
@@ -927,6 +940,11 @@ static void merge_edge(cypher_merge_custom_scan_state *css,
     prop = ExecEvalExpr(node->prop_expr_state, econtext, &isNull);
     elemTupleSlot->tts_values[edge_tuple_properties] = prop;
     elemTupleSlot->tts_isnull[edge_tuple_properties] = isNull;
+
+    // Edge's label id
+    label_id = ExecEvalExpr(node->label_id_expr_state, econtext, &isNull);
+    elemTupleSlot->tts_values[edge_tuple_label_id] = label_id;
+    elemTupleSlot->tts_isnull[edge_tuple_label_id] = isNull;
 
     // Insert the new edge
     insert_entity_tuple(resultRelInfo, elemTupleSlot, estate);
