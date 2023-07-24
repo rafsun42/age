@@ -6582,6 +6582,10 @@ transform_merge_cypher_edge(cypher_parsestate *cpstate, List **target_list,
     rel->prop_expr = cypher_create_properties(cpstate, rel, label_relation,
                                               edge->props, ENT_EDGE);
 
+    // Build label ID expression using default logic
+    rel->label_id_expr = (Expr *)build_column_default(
+        label_relation, Anum_ag_label_edge_table_label_id);
+
     // Keep the lock
     table_close(label_relation, NoLock);
 
@@ -6701,6 +6705,10 @@ transform_merge_cypher_node(cypher_parsestate *cpstate, List **target_list,
 
     rel->prop_expr = cypher_create_properties(cpstate, rel, label_relation,
                                               node->props, ENT_VERTEX);
+
+    // label_id
+    rel->label_id_expr = (Expr *)build_column_default(
+        label_relation, Anum_ag_label_vertex_table_label_id);
 
     table_close(label_relation, NoLock);
 
