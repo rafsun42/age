@@ -143,6 +143,45 @@ int32 get_label_id(const char *label_name, Oid graph_oid)
         return INVALID_LABEL_ID;
 }
 
+/*
+ * Returns label ID associated with the passed entity (must be a vertex
+ * or edge).
+ *
+ * This helper function is useful in the SET or DELETE executor when a
+ * vertex or edge is available as a agtype_value. In this form, label_id
+ * is not included. Moreover, default label name is an empty string,
+ * instead of AG_DEFAULT_LABEL_VERTEX\EDGE. This funciton provides
+ * the extra steps required to retrieve the label ID.
+ */
+int32 get_label_id_from_entity(agtype_value *entity, const char *graph_name)
+{
+    char *label_name;
+    graph_cache_data *gcd;
+    label_cache_data *lcd;
+    agtype_value *agtv_label;
+
+    if (entity->type != AGTV_VERTEX && entity->type != AGTV_EDGE)
+    {
+        ereport(ERROR, (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+                        errmsg("entity must be a vertex, or an edge")));
+    }
+
+    agtv_label = GET_AGTYPE_VALUE_OBJECT_VALUE(entity, "label");
+    label_name = pnstrdup(agtv_label->val.string.val,
+                          agtv_label->val.string.len);
+
+    // turns empty string into default label name
+    if (strcmp(label_name, "") == 0)
+    {
+        label_name = entity->type == AGTV_VERTEX ? AG_DEFAULT_LABEL_VERTEX :
+                                                   AG_DEFAULT_LABEL_EDGE;
+    }
+
+    gcd = search_graph_name_cache(graph_name);
+    lcd = search_label_name_graph_cache(label_name, gcd->oid);
+    return lcd->id;
+}
+
 Oid get_label_relation(const char *label_name, Oid graph_oid)
 {
     label_cache_data *cache_data;
