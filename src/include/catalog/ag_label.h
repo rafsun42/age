@@ -78,6 +78,7 @@ void insert_label(const char *label_name, Oid graph_oid, int32 label_id,
 void delete_label(Oid relation);
 
 int32 get_label_id(const char *label_name, Oid graph_oid);
+int32 get_label_id_from_entity(agtype_value *entity, const char *graph_name);
 Oid get_label_relation(const char *label_name, Oid graph_oid);
 char *get_label_relation_name(const char *label_name, Oid graph_oid);
 Oid get_label_oid(const char *label_name, Oid label_graph);

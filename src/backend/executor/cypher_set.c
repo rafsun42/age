@@ -36,6 +36,7 @@
 #include "nodes/cypher_nodes.h"
 #include "utils/agtype.h"
 #include "utils/graphid.h"
+#include "catalog/ag_label.h"
 
 static void begin_cypher_set(CustomScanState *node, EState *estate,
                                 int eflags);
@@ -414,6 +415,7 @@ static void process_update_list(CustomScanState *node)
         HeapTuple heap_tuple;
         char *clause_name = css->set_list->clause_name;
         int cid;
+        int32 label_id;
 
         update_item = (cypher_update_item *)lfirst(lc);
 
@@ -451,6 +453,8 @@ static void process_update_list(CustomScanState *node)
         label = GET_AGTYPE_VALUE_OBJECT_VALUE(original_entity_value, "label");
 
         label_name = pnstrdup(label->val.string.val, label->val.string.len);
+        label_id = get_label_id_from_entity(original_entity_value,
+                                            css->set_list->graph_name);
         /* get the properties we need to update */
         original_properties = GET_AGTYPE_VALUE_OBJECT_VALUE(original_entity_value,
                                                             "properties");
@@ -527,7 +531,7 @@ static void process_update_list(CustomScanState *node)
                                      CStringGetDatum(label_name),
                                      AGTYPE_P_GET_DATUM(agtype_value_to_agtype(altered_properties)));
 
-            slot = populate_vertex_tts(slot, id, altered_properties);
+            slot = populate_vertex_tts(slot, id, altered_properties, label_id);
         }
         else if (original_entity_value->type == AGTV_EDGE)
         {
@@ -541,7 +545,7 @@ static void process_update_list(CustomScanState *node)
                                    AGTYPE_P_GET_DATUM(agtype_value_to_agtype(altered_properties)));
 
             slot = populate_edge_tts(slot, id, startid, endid,
-                                     altered_properties);
+                                     altered_properties, label_id);
         }
         else
         {
