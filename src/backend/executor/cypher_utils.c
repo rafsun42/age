@@ -98,8 +98,9 @@ void destroy_entity_result_rel_info(ResultRelInfo *result_rel_info)
     table_close(result_rel_info->ri_RelationDesc, RowExclusiveLock);
 }
 
-TupleTableSlot *populate_vertex_tts(
-    TupleTableSlot *elemTupleSlot, agtype_value *id, agtype_value *properties)
+TupleTableSlot *populate_vertex_tts(TupleTableSlot *elemTupleSlot,
+                                    agtype_value *id, agtype_value *properties,
+                                    int32 label_id)
 {
     bool properties_isnull;
 
@@ -118,12 +119,16 @@ TupleTableSlot *populate_vertex_tts(
         AGTYPE_P_GET_DATUM(agtype_value_to_agtype(properties));
     elemTupleSlot->tts_isnull[vertex_tuple_properties] = properties_isnull;
 
+    elemTupleSlot->tts_values[vertex_tuple_label_id] = Int32GetDatum(label_id);
+    elemTupleSlot->tts_isnull[vertex_tuple_label_id] = false;
+
     return elemTupleSlot;
 }
 
-TupleTableSlot *populate_edge_tts(
-    TupleTableSlot *elemTupleSlot, agtype_value *id, agtype_value *startid,
-    agtype_value *endid, agtype_value *properties)
+TupleTableSlot *populate_edge_tts(TupleTableSlot *elemTupleSlot,
+                                  agtype_value *id, agtype_value *startid,
+                                  agtype_value *endid,
+                                  agtype_value *properties, int32 label_id)
 {
     bool properties_isnull;
 
@@ -162,9 +167,11 @@ TupleTableSlot *populate_edge_tts(
         AGTYPE_P_GET_DATUM(agtype_value_to_agtype(properties));
     elemTupleSlot->tts_isnull[edge_tuple_properties] = properties_isnull;
 
+    elemTupleSlot->tts_values[edge_tuple_label_id] = Int32GetDatum(label_id);
+    elemTupleSlot->tts_isnull[edge_tuple_label_id] = false;
+
     return elemTupleSlot;
 }
-
 
 /*
  * Find out if the entity still exists. This is for 'implicit' deletion

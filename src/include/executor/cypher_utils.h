@@ -94,10 +94,12 @@ typedef struct cypher_merge_custom_scan_state
 } cypher_merge_custom_scan_state;
 
 TupleTableSlot *populate_vertex_tts(TupleTableSlot *elemTupleSlot,
-                                    agtype_value *id, agtype_value *properties);
-TupleTableSlot *populate_edge_tts(
-    TupleTableSlot *elemTupleSlot, agtype_value *id, agtype_value *startid,
-    agtype_value *endid, agtype_value *properties);
+                                    agtype_value *id, agtype_value *properties,
+                                    int32 label_id);
+TupleTableSlot *populate_edge_tts(TupleTableSlot *elemTupleSlot,
+                                  agtype_value *id, agtype_value *startid,
+                                  agtype_value *endid,
+                                  agtype_value *properties, int32 label_id);
 
 ResultRelInfo *create_entity_result_rel_info(EState *estate, char *graph_name,
                                              char *label_name);
