@@ -57,6 +57,8 @@
 
 
 #define Natts_ag_label 6
+#define Natts_ag_label_vertex 3
+#define Natts_ag_label_edge 5
 
 #define ag_label_relation_id() ag_relation_id("ag_label", "table")
 #define ag_label_name_graph_index_id() \

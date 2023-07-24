@@ -6534,7 +6534,7 @@ transform_merge_cypher_edge(cypher_parsestate *cpstate, List **target_list,
      * isn't either and has the correct number of columns. However, for now,
      * we just check the number of columns.
      */
-    if (label_relation->rd_att->natts == 2) // TODO temporarily hardcoded
+    if (label_relation->rd_att->natts == Natts_ag_label_vertex)
     {
         ereport(ERROR, (errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
                         errmsg("Expecting edge label, found existing vertex label"),
@@ -6654,7 +6654,7 @@ transform_merge_cypher_node(cypher_parsestate *cpstate, List **target_list,
      * isn't either and has the correct number of columns. However, for now,
      * we just check the number of columns.
      */
-    if (label_relation->rd_att->natts == 4) // TODO temporarily hardcoded
+    if (label_relation->rd_att->natts == Natts_ag_label_edge)
     {
         ereport(ERROR, (errcode(ERRCODE_FEATURE_NOT_SUPPORTED),
                         errmsg("Expecting vertex label, found existing edge label"),
