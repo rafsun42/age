@@ -1635,44 +1635,46 @@ SELECT * FROM cypher('orderability_graph', $$ CREATE (:vertex {prop: null}), (:v
 (0 rows)
 
 SELECT * FROM cypher('orderability_graph', $$ MATCH (n) RETURN n ORDER BY n.prop $$) AS (sorted agtype);
-                                                                                                                                         sorted                                                                                                                                          
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 844424930131981, "label": "vertex", "properties": {"prop": [{"id": 0, "label": "v", "properties": {"i": 0}}::vertex, {"id": 2, "label": "e", "end_id": 1, "start_id": 0, "properties": {"i": 0}}::edge, {"id": 1, "label": "v", "properties": {"i": 0}}::vertex]::path}}::vertex
- {"id": 844424930131980, "label": "vertex", "properties": {"prop": {"id": 2, "label": "e", "end_id": 1, "start_id": 0, "properties": {"i": 0}}::edge}}::vertex
- {"id": 844424930131979, "label": "vertex", "properties": {"prop": {"id": 0, "label": "v", "properties": {"i": 0}}::vertex}}::vertex
- {"id": 844424930131978, "label": "vertex", "properties": {"prop": {"bool": true}}}::vertex
- {"id": 844424930131977, "label": "vertex", "properties": {"prop": {"i": 0, "bool": true}}}::vertex
- {"id": 844424930131975, "label": "vertex", "properties": {"prop": [1, 2, 3]}}::vertex
- {"id": 844424930131976, "label": "vertex", "properties": {"prop": [1, 2, 3, 4, 5]}}::vertex
- {"id": 844424930131973, "label": "vertex", "properties": {"prop": "string"}}::vertex
- {"id": 844424930131974, "label": "vertex", "properties": {"prop": "string_2"}}::vertex
- {"id": 844424930131972, "label": "vertex", "properties": {"prop": true}}::vertex
- {"id": 844424930131970, "label": "vertex", "properties": {"prop": 1}}::vertex
- {"id": 844424930131971, "label": "vertex", "properties": {"prop": 1.01}}::vertex
- {"id": 844424930131969, "label": "vertex", "properties": {}}::vertex
+                                                                                                                                   sorted                                                                                                                                   
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 13, "label": "vertex", "properties": {"prop": [{"id": 0, "label": "v", "properties": {"i": 0}}::vertex, {"id": 2, "label": "e", "end_id": 1, "start_id": 0, "properties": {"i": 0}}::edge, {"id": 1, "label": "v", "properties": {"i": 0}}::vertex]::path}}::vertex
+ {"id": 12, "label": "vertex", "properties": {"prop": {"id": 2, "label": "e", "end_id": 1, "start_id": 0, "properties": {"i": 0}}::edge}}::vertex
+ {"id": 11, "label": "vertex", "properties": {"prop": {"id": 0, "label": "v", "properties": {"i": 0}}::vertex}}::vertex
+ {"id": 10, "label": "vertex", "properties": {"prop": {"bool": true}}}::vertex
+ {"id": 9, "label": "vertex", "properties": {"prop": {"i": 0, "bool": true}}}::vertex
+ {"id": 7, "label": "vertex", "properties": {"prop": [1, 2, 3]}}::vertex
+ {"id": 8, "label": "vertex", "properties": {"prop": [1, 2, 3, 4, 5]}}::vertex
+ {"id": 5, "label": "vertex", "properties": {"prop": "string"}}::vertex
+ {"id": 6, "label": "vertex", "properties": {"prop": "string_2"}}::vertex
+ {"id": 4, "label": "vertex", "properties": {"prop": true}}::vertex
+ {"id": 2, "label": "vertex", "properties": {"prop": 1}}::vertex
+ {"id": 3, "label": "vertex", "properties": {"prop": 1.01}}::vertex
+ {"id": 1, "label": "vertex", "properties": {}}::vertex
 (13 rows)
 
 SELECT * FROM cypher('orderability_graph', $$ MATCH (n) RETURN n ORDER BY n.prop DESC $$) AS (sorted agtype);
-                                                                                                                                         sorted                                                                                                                                          
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 844424930131969, "label": "vertex", "properties": {}}::vertex
- {"id": 844424930131971, "label": "vertex", "properties": {"prop": 1.01}}::vertex
- {"id": 844424930131970, "label": "vertex", "properties": {"prop": 1}}::vertex
- {"id": 844424930131972, "label": "vertex", "properties": {"prop": true}}::vertex
- {"id": 844424930131974, "label": "vertex", "properties": {"prop": "string_2"}}::vertex
- {"id": 844424930131973, "label": "vertex", "properties": {"prop": "string"}}::vertex
- {"id": 844424930131976, "label": "vertex", "properties": {"prop": [1, 2, 3, 4, 5]}}::vertex
- {"id": 844424930131975, "label": "vertex", "properties": {"prop": [1, 2, 3]}}::vertex
- {"id": 844424930131977, "label": "vertex", "properties": {"prop": {"i": 0, "bool": true}}}::vertex
- {"id": 844424930131978, "label": "vertex", "properties": {"prop": {"bool": true}}}::vertex
- {"id": 844424930131979, "label": "vertex", "properties": {"prop": {"id": 0, "label": "v", "properties": {"i": 0}}::vertex}}::vertex
- {"id": 844424930131980, "label": "vertex", "properties": {"prop": {"id": 2, "label": "e", "end_id": 1, "start_id": 0, "properties": {"i": 0}}::edge}}::vertex
- {"id": 844424930131981, "label": "vertex", "properties": {"prop": [{"id": 0, "label": "v", "properties": {"i": 0}}::vertex, {"id": 2, "label": "e", "end_id": 1, "start_id": 0, "properties": {"i": 0}}::edge, {"id": 1, "label": "v", "properties": {"i": 0}}::vertex]::path}}::vertex
+                                                                                                                                   sorted                                                                                                                                   
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "vertex", "properties": {}}::vertex
+ {"id": 3, "label": "vertex", "properties": {"prop": 1.01}}::vertex
+ {"id": 2, "label": "vertex", "properties": {"prop": 1}}::vertex
+ {"id": 4, "label": "vertex", "properties": {"prop": true}}::vertex
+ {"id": 6, "label": "vertex", "properties": {"prop": "string_2"}}::vertex
+ {"id": 5, "label": "vertex", "properties": {"prop": "string"}}::vertex
+ {"id": 8, "label": "vertex", "properties": {"prop": [1, 2, 3, 4, 5]}}::vertex
+ {"id": 7, "label": "vertex", "properties": {"prop": [1, 2, 3]}}::vertex
+ {"id": 9, "label": "vertex", "properties": {"prop": {"i": 0, "bool": true}}}::vertex
+ {"id": 10, "label": "vertex", "properties": {"prop": {"bool": true}}}::vertex
+ {"id": 11, "label": "vertex", "properties": {"prop": {"id": 0, "label": "v", "properties": {"i": 0}}::vertex}}::vertex
+ {"id": 12, "label": "vertex", "properties": {"prop": {"id": 2, "label": "e", "end_id": 1, "start_id": 0, "properties": {"i": 0}}::edge}}::vertex
+ {"id": 13, "label": "vertex", "properties": {"prop": [{"id": 0, "label": "v", "properties": {"i": 0}}::vertex, {"id": 2, "label": "e", "end_id": 1, "start_id": 0, "properties": {"i": 0}}::edge, {"id": 1, "label": "v", "properties": {"i": 0}}::vertex]::path}}::vertex
 (13 rows)
 
 SELECT * FROM drop_graph('orderability_graph', true);
-NOTICE:  drop cascades to 3 other objects
-DETAIL:  drop cascades to table orderability_graph._ag_label_vertex
+NOTICE:  drop cascades to 5 other objects
+DETAIL:  drop cascades to sequence orderability_graph.vertex_id_seq
+drop cascades to table orderability_graph._ag_label_vertex
+drop cascades to sequence orderability_graph.edge_id_seq
 drop cascades to table orderability_graph._ag_label_edge
 drop cascades to table orderability_graph.vertex
 NOTICE:  graph "orderability_graph" has been dropped
@@ -2421,38 +2423,40 @@ NOTICE:  graph "agtype_null_duplicate_test" has been created
 (1 row)
 
 SELECT * FROM cypher('agtype_null_duplicate_test', $$ CREATE (a { a:NULL, b:'bb', c:'cc', d:'dd' }) RETURN a $$) AS (a agtype);
-                                               a                                               
------------------------------------------------------------------------------------------------
- {"id": 281474976710657, "label": "", "properties": {"b": "bb", "c": "cc", "d": "dd"}}::vertex
+                                        a                                        
+---------------------------------------------------------------------------------
+ {"id": 1, "label": "", "properties": {"b": "bb", "c": "cc", "d": "dd"}}::vertex
 (1 row)
 
 SELECT * FROM cypher('agtype_null_duplicate_test', $$ CREATE (a { a:'aa', b:'bb', c:'cc', d:'dd' }) RETURN a $$) AS (a agtype);
-                                                    a                                                     
-----------------------------------------------------------------------------------------------------------
- {"id": 281474976710658, "label": "", "properties": {"a": "aa", "b": "bb", "c": "cc", "d": "dd"}}::vertex
+                                             a                                              
+--------------------------------------------------------------------------------------------
+ {"id": 2, "label": "", "properties": {"a": "aa", "b": "bb", "c": "cc", "d": "dd"}}::vertex
 (1 row)
 
 SELECT * FROM cypher('agtype_null_duplicate_test', $$ CREATE (a { a:'aa', b:'bb', b:NULL , d:NULL }) RETURN a $$) AS (a agtype);
-                                    a                                    
--------------------------------------------------------------------------
- {"id": 281474976710659, "label": "", "properties": {"a": "aa"}}::vertex
+                             a                             
+-----------------------------------------------------------
+ {"id": 3, "label": "", "properties": {"a": "aa"}}::vertex
 (1 row)
 
 SELECT * FROM cypher('agtype_null_duplicate_test', $$ CREATE (a { a:'aa', b:'bb', b:'xx', d:NULL }) RETURN a $$) AS (a agtype);
-                                         a                                          
-------------------------------------------------------------------------------------
- {"id": 281474976710660, "label": "", "properties": {"a": "aa", "b": "xx"}}::vertex
+                                  a                                   
+----------------------------------------------------------------------
+ {"id": 4, "label": "", "properties": {"a": "aa", "b": "xx"}}::vertex
 (1 row)
 
 SELECT * FROM cypher('agtype_null_duplicate_test', $$ CREATE (a { a:NULL }) RETURN a $$) AS (a agtype);
-                               a                                
-----------------------------------------------------------------
- {"id": 281474976710661, "label": "", "properties": {}}::vertex
+                        a                         
+--------------------------------------------------
+ {"id": 5, "label": "", "properties": {}}::vertex
 (1 row)
 
 SELECT * FROM drop_graph('agtype_null_duplicate_test', true);
-NOTICE:  drop cascades to 2 other objects
-DETAIL:  drop cascades to table agtype_null_duplicate_test._ag_label_vertex
+NOTICE:  drop cascades to 4 other objects
+DETAIL:  drop cascades to sequence agtype_null_duplicate_test.vertex_id_seq
+drop cascades to table agtype_null_duplicate_test._ag_label_vertex
+drop cascades to sequence agtype_null_duplicate_test.edge_id_seq
 drop cascades to table agtype_null_duplicate_test._ag_label_edge
 NOTICE:  graph "agtype_null_duplicate_test" has been dropped
  drop_graph 
