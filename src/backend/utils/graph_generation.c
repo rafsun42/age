@@ -202,7 +202,7 @@ Datum create_complete_graph(PG_FUNCTION_ARGS)
     {
         vid = nextval_internal(vtx_seq_id, true);
         object_graph_id = make_graphid(vtx_label_id, vid);
-        insert_vertex_simple(graph_oid, vtx_name_str, object_graph_id, props);
+        insert_vertex_simple(graph_oid, vtx_name_str, object_graph_id, props, vtx_label_id);
     }
 
     lid = vid;
@@ -222,7 +222,7 @@ Datum create_complete_graph(PG_FUNCTION_ARGS)
 
             insert_edge_simple(graph_oid, edge_name_str, object_graph_id,
                                start_vertex_graph_id, end_vertex_graph_id,
-                               props);
+                               props, edge_label_id);
         }
     }
     PG_RETURN_VOID();
@@ -369,7 +369,7 @@ Datum age_create_barbell_graph(PG_FUNCTION_ARGS)
     // connect two nodes
     insert_edge_simple(graph_oid, edge_label_str,
                        object_graph_id, start_node_graph_id,
-                       end_node_graph_id, properties);
+                       end_node_graph_id, properties, edge_label_id);
 
     PG_RETURN_VOID();
 }

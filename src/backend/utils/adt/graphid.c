@@ -20,10 +20,13 @@
 #include "postgres.h"
 
 #include "fmgr.h"
+#include "commands/sequence.h"
 #include "utils/builtins.h"
 #include "utils/sortsupport.h"
+#include "utils/lsyscache.h"
 
 #include "utils/graphid.h"
+#include "catalog/ag_label.h"
 
 static int graphid_btree_fast_cmp(Datum x, Datum y, SortSupport ssup);
 
@@ -276,4 +279,37 @@ Datum graphid_hash_cmp(PG_FUNCTION_ARGS)
     int hash = (int) ((l >> 32) ^ l);// ^ seed;
 
     PG_RETURN_INT32(hash);
+}
+
+int64 get_new_id(char entity_type, Oid graphoid) {
+    Oid seq_id;
+    int count;
+
+    // get the OID of sequence
+    if (entity_type == LABEL_KIND_VERTEX) {
+        seq_id = get_relname_relid(VERTEX_ID_SEQ, graphoid);
+    } 
+    else if (entity_type == LABEL_KIND_EDGE)
+    {
+        seq_id = get_relname_relid(EDGE_ID_SEQ, graphoid);
+    }
+    else 
+    {
+        ereport(ERROR, errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+            errmsg(
+            "Invalid entity type value provided; expected a vertex or edge"));
+    }
+
+    for(count = EID_MIN; count <= EID_MAX; count++) 
+    {
+        int64 id;
+        id = (int64) nextval_internal(seq_id, true);
+        Assert(id_is_valid(id));
+        return (int64) id;
+    }
+    ereport(ERROR, (errcode(ERRCODE_PROGRAM_LIMIT_EXCEEDED),
+        errmsg("can not create a new entry"),
+        errhint("The maximum number of entries has been reached i.e; %ld",
+        EID_MAX)));
+    return 0;
 }

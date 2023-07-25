@@ -101,9 +101,8 @@ void vertex_row_cb(int delim __attribute__((unused)), void *data)
     csv_vertex_reader *cr = (csv_vertex_reader*)data;
     agtype *props = NULL;
     size_t i, n_fields;
-    graphid object_graph_id;
     int64 label_id_int;
-
+    int32 label_id;
     n_fields = cr->cur_field;
 
 
@@ -122,6 +121,7 @@ void vertex_row_cb(int delim __attribute__((unused)), void *data)
     }
     else
     {
+        int64 new_id = get_new_id(LABEL_KIND_VERTEX, cr->graph_oid);
         if (cr->id_field_exists)
         {
             label_id_int = strtol(cr->fields[0], NULL, 10);
@@ -130,13 +130,12 @@ void vertex_row_cb(int delim __attribute__((unused)), void *data)
         {
             label_id_int = (int64)cr->row;
         }
-
-        object_graph_id = make_graphid(cr->object_id, label_id_int);
+        label_id = get_label_id(cr->object_name, cr->graph_oid);
 
         props = create_agtype_from_list(cr->header, cr->fields,
                                         n_fields, label_id_int);
         insert_vertex_simple(cr->graph_oid, cr->object_name,
-                             object_graph_id, props);
+                             new_id, props, label_id);
     }
 
 
@@ -148,7 +147,7 @@ void vertex_row_cb(int delim __attribute__((unused)), void *data)
 
     if (cr->error)
     {
-        ereport(NOTICE,(errmsg("THere is some error")));
+        ereport(NOTICE,(errmsg("There is some error")));
     }
 
 

@@ -17,11 +17,17 @@
  * under the License.
  */
 
+#include "math.h"
+
 #include "postgres.h"
+
+#include "access/heapam.h"
+#include "utils/snapmgr.h"
 
 #include "utils/load/ag_load_edges.h"
 #include "utils/load/age_load.h"
 #include "utils/load/csv.h"
+#include "utils/agtype.h"
 
 void edge_field_cb(void *field, size_t field_len, void *data)
 {
@@ -60,15 +66,25 @@ void edge_row_cb(int delim __attribute__((unused)), void *data)
     csv_edge_reader *cr = (csv_edge_reader*)data;
 
     size_t i, n_fields;
+
     int64 start_id_int;
-    graphid start_vertex_graph_id;
-    int start_vertex_type_id;
+    int64 start_vertex_graph_id = 0;
 
     int64 end_id_int;
-    graphid end_vertex_graph_id;
-    int end_vertex_type_id;
+    int64 end_vertex_graph_id = 0;
 
-    graphid object_graph_id;
+    int label_id;
+
+    Snapshot snapshot;
+    TableScanDesc scan_desc;
+    HeapTuple tuple;
+    TupleDesc tupdesc;
+
+    Relation start_label_relation;
+    Oid start_label_table_oid;
+
+    Relation end_label_relaion;
+    Oid end_label_table_oid;
 
     agtype* props = NULL;
 
@@ -89,22 +105,112 @@ void edge_row_cb(int delim __attribute__((unused)), void *data)
     }
     else
     {
-        object_graph_id = make_graphid(cr->object_id, (int64)cr->row);
+        int64 new_id = get_new_id(LABEL_KIND_EDGE, cr->graph_oid);
 
         start_id_int = strtol(cr->fields[0], NULL, 10);
-        start_vertex_type_id = get_label_id(cr->fields[1], cr->graph_oid);
         end_id_int = strtol(cr->fields[2], NULL, 10);
-        end_vertex_type_id = get_label_id(cr->fields[3], cr->graph_oid);
 
-        start_vertex_graph_id = make_graphid(start_vertex_type_id, start_id_int);
-        end_vertex_graph_id = make_graphid(end_vertex_type_id, end_id_int);
+        snapshot = GetActiveSnapshot();
 
-        props = create_agtype_from_list_i(cr->header, cr->fields,
-                                          n_fields, 3);
+        start_label_table_oid = get_relname_relid(cr->fields[1], cr->graph_oid);
+        start_label_relation = table_open(start_label_table_oid, ShareLock);
+        scan_desc = table_beginscan(start_label_relation, snapshot, 0, NULL);
+        tupdesc = RelationGetDescr(start_label_relation);
 
-        insert_edge_simple(cr->graph_oid, cr->object_name,
-                           object_graph_id, start_vertex_graph_id,
-                           end_vertex_graph_id, props);
+        if (tupdesc->natts != Natts_ag_label_vertex)
+        {
+            ereport(ERROR,
+                    (errcode(ERRCODE_UNDEFINED_TABLE),
+                     errmsg("Invalid number of attributes for %s.%s",
+                     cr->graph_name, cr->fields[1])));
+        }
+
+        while((tuple = heap_getnext(scan_desc, ForwardScanDirection)) != NULL)
+        {
+            graphid vertex_id;
+            Datum vertex_properties;
+            agtype* vertex_properties_agt;
+            // agtype_value* vertex_properties_agtvp;
+            agtype_value* result;
+
+            /* something is wrong if this isn't true */
+            Assert(HeapTupleIsValid(tuple));
+            /* get the vertex id */
+            vertex_id = DatumGetInt64(column_get_datum(tupdesc, tuple, 0, "id",
+                                                       INT8OID, true));
+            /* get the vertex properties datum */
+            vertex_properties = column_get_datum(tupdesc, tuple, 1,
+                                                 "properties", AGTYPEOID, true);
+
+            vertex_properties_agt = DATUM_GET_AGTYPE_P(vertex_properties);
+
+            result = execute_map_access_operator_internal
+                        (vertex_properties_agt, NULL, "id", 2);
+
+            if (strtol(result->val.string.val, NULL, 10) == start_id_int) 
+            {
+                start_vertex_graph_id = vertex_id;
+                break;
+            }
+        }
+
+        /* end the scan and close the relation */
+        table_endscan(scan_desc);
+        table_close(start_label_relation, ShareLock);
+
+        end_label_table_oid = get_relname_relid(cr->fields[3], cr->graph_oid);
+        end_label_relaion = table_open(end_label_table_oid, ShareLock);
+        scan_desc = table_beginscan(end_label_relaion, snapshot, 0, NULL);
+        tupdesc = RelationGetDescr(end_label_relaion);
+
+        if (tupdesc->natts != Natts_ag_label_vertex)
+        {
+            ereport(ERROR,
+                    (errcode(ERRCODE_UNDEFINED_TABLE),
+                     errmsg("Invalid number of attributes for %s.%s",
+                     cr->graph_name, cr->fields[3])));
+        }
+
+        while((tuple = heap_getnext(scan_desc, ForwardScanDirection)) != NULL)
+        {
+            graphid vertex_id;
+            Datum vertex_properties;
+            agtype* vertex_properties_agt;
+            // agtype_value* vertex_properties_agtvp;
+            agtype_value* result;
+
+            /* something is wrong if this isn't true */
+            Assert(HeapTupleIsValid(tuple));
+            /* get the vertex id */
+            vertex_id = DatumGetInt64(column_get_datum(tupdesc, tuple, 0, "id",
+                                                       INT8OID, true));
+            /* get the vertex properties datum */
+            vertex_properties = column_get_datum(tupdesc, tuple, 1,
+                                                 "properties", AGTYPEOID, true);
+
+            vertex_properties_agt = DATUM_GET_AGTYPE_P(vertex_properties);
+
+            result = execute_map_access_operator_internal(vertex_properties_agt, NULL, "id", 2);
+
+            if (strtol(result->val.string.val, NULL, 10) == end_id_int) 
+            {
+                end_vertex_graph_id = vertex_id;
+                break;
+            }
+        }
+
+        /* end the scan and close the relation */
+        table_endscan(scan_desc);
+        table_close(end_label_relaion, ShareLock);
+
+        if (start_vertex_graph_id != 0 && end_vertex_graph_id != 0) {
+            props = create_agtype_from_list_i(cr->header, cr->fields,
+                                            n_fields, 3);
+            label_id = get_label_id(cr->object_name, cr->graph_oid);
+            insert_edge_simple(cr->graph_oid, cr->object_name,
+                            new_id, start_vertex_graph_id,
+                            end_vertex_graph_id, props, label_id);
+        }
     }
 
     for (i = 0; i < n_fields; ++i)
@@ -114,7 +220,7 @@ void edge_row_cb(int delim __attribute__((unused)), void *data)
 
     if (cr->error)
     {
-        ereport(NOTICE,(errmsg("THere is some error")));
+        ereport(NOTICE,(errmsg("There is some error")));
     }
 
 
