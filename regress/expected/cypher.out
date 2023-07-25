@@ -112,8 +112,10 @@ ERROR:  cannot cast type agtype to oid for column "c"
 LINE 1: SELECT * FROM cypher('cypher', $$RETURN 0$$) AS (c oid);
                       ^
 SELECT drop_graph('cypher', true);
-NOTICE:  drop cascades to 2 other objects
-DETAIL:  drop cascades to table cypher._ag_label_vertex
+NOTICE:  drop cascades to 4 other objects
+DETAIL:  drop cascades to sequence cypher.vertex_id_seq
+drop cascades to table cypher._ag_label_vertex
+drop cascades to sequence cypher.edge_id_seq
 drop cascades to table cypher._ag_label_edge
 NOTICE:  graph "cypher" has been dropped
  drop_graph 
