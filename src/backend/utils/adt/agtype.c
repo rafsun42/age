@@ -5532,17 +5532,17 @@ Datum age_tointeger(PG_FUNCTION_ARGS)
 
             /* convert it if it is a regular integer string */
             result = strtoi64(string, &endptr, 10);
-
+          
             /*
              * If it isn't an integer string, try converting it as a float
              * string.
              */
             result = float8in_internal_null(string, NULL, "double precision",
                                             string, &is_valid);
-
+ 
             if (*endptr != '\0')
             {
-                float8 f;
+                float f;
 
                 f = float8in_internal_null(string, NULL, "double precision",
                                            string, &is_valid);
@@ -5551,10 +5551,8 @@ Datum age_tointeger(PG_FUNCTION_ARGS)
                  * return null.
                  */
                 if (!is_valid || isnan(f) || isinf(f) ||
-                    f < (float8)PG_INT64_MIN || f > (float8)PG_INT64_MAX)
-                {
+                    f < PG_INT64_MIN || f > (double)PG_INT64_MAX)
                     PG_RETURN_NULL();
-                }
 
                 result = (int64) f;
             }
