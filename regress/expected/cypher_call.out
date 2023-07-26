@@ -133,10 +133,10 @@ LINE 2: SELECT * FROM cypher('cypher_call', $$ MATCH (a) CALL sqrt(6...
 HINT:  Name explicitly using `YIELD` instead
 /* MATCH CALL YIELD RETURN */
 SELECT * FROM cypher('cypher_call', $$ MATCH (a) CALL sqrt(64) YIELD sqrt RETURN a, sqrt $$) as (a agtype, sqrt agtype);
-                                   a                                    | sqrt 
-------------------------------------------------------------------------+------
- {"id": 281474976710657, "label": "", "properties": {"n": "a"}}::vertex | 8.0
- {"id": 281474976710658, "label": "", "properties": {"n": "b"}}::vertex | 8.0
+                            a                             | sqrt 
+----------------------------------------------------------+------
+ {"id": 1, "label": "", "properties": {"n": "a"}}::vertex | 8.0
+ {"id": 2, "label": "", "properties": {"n": "b"}}::vertex | 8.0
 (2 rows)
 
 /* MATCH CALL YIELD WHERE UPDATE/RETURN */
@@ -161,10 +161,10 @@ SELECT * FROM cypher('cypher_call', $$ MATCH (a) CALL sqrt(64) YIELD sqrt WHERE 
 (0 rows)
 
 SELECT * FROM cypher('cypher_call', $$ MATCH (a) CALL sqrt(64) YIELD sqrt WHERE sqrt = 8 RETURN a, sqrt $$) as (a agtype, sqrt agtype);
-                                   a                                    | sqrt 
-------------------------------------------------------------------------+------
- {"id": 281474976710657, "label": "", "properties": {"n": "a"}}::vertex | 8.0
- {"id": 281474976710658, "label": "", "properties": {"n": "b"}}::vertex | 8.0
+                            a                             | sqrt 
+----------------------------------------------------------+------
+ {"id": 1, "label": "", "properties": {"n": "a"}}::vertex | 8.0
+ {"id": 2, "label": "", "properties": {"n": "b"}}::vertex | 8.0
 (2 rows)
 
 SELECT * FROM cypher('cypher_call', $$ MATCH (a) CALL sqrt(64) YIELD sqrt WHERE b = 8 RETURN a, sqrt $$) as (a agtype, sqrt agtype);
@@ -193,17 +193,17 @@ SELECT * FROM cypher('cypher_call', $$ CALL sqrt(64) YIELD sqrt MATCH (a) WHERE 
 (0 rows)
 
 SELECT * FROM cypher('cypher_call', $$ CALL sqrt(64) YIELD sqrt MATCH (a) WHERE sqrt = 8 RETURN a, sqrt $$) as (a agtype, sqrt agtype);
-                                   a                                    | sqrt 
-------------------------------------------------------------------------+------
- {"id": 281474976710657, "label": "", "properties": {"n": "a"}}::vertex | 8.0
- {"id": 281474976710658, "label": "", "properties": {"n": "b"}}::vertex | 8.0
+                            a                             | sqrt 
+----------------------------------------------------------+------
+ {"id": 1, "label": "", "properties": {"n": "a"}}::vertex | 8.0
+ {"id": 2, "label": "", "properties": {"n": "b"}}::vertex | 8.0
 (2 rows)
 
 SELECT * FROM cypher('cypher_call', $$ CALL sqrt(64) YIELD sqrt WHERE sqrt = 8 MATCH (a) RETURN a, sqrt $$) as (a agtype, sqrt agtype);
-                                   a                                    | sqrt 
-------------------------------------------------------------------------+------
- {"id": 281474976710657, "label": "", "properties": {"n": "a"}}::vertex | 8.0
- {"id": 281474976710658, "label": "", "properties": {"n": "b"}}::vertex | 8.0
+                            a                             | sqrt 
+----------------------------------------------------------+------
+ {"id": 1, "label": "", "properties": {"n": "a"}}::vertex | 8.0
+ {"id": 2, "label": "", "properties": {"n": "b"}}::vertex | 8.0
 (2 rows)
 
 /* Multiple Calls: CALL YIELD CALL YIELD... RETURN */
@@ -243,8 +243,10 @@ LINE 1: ...LL sqrt(64) YIELD sqrt CALL agtype_sum(2,2) YIELD agtype_sum...
 DROP SCHEMA call_stmt_test CASCADE;
 NOTICE:  drop cascades to function call_stmt_test.add_agtype(agtype,agtype)
 SELECT drop_graph('cypher_call', true);
-NOTICE:  drop cascades to 2 other objects
-DETAIL:  drop cascades to table cypher_call._ag_label_vertex
+NOTICE:  drop cascades to 4 other objects
+DETAIL:  drop cascades to sequence cypher_call.vertex_id_seq
+drop cascades to table cypher_call._ag_label_vertex
+drop cascades to sequence cypher_call.edge_id_seq
 drop cascades to table cypher_call._ag_label_edge
 NOTICE:  graph "cypher_call" has been dropped
  drop_graph 
