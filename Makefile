@@ -69,14 +69,16 @@ OBJS = src/backend/age.o \
        src/backend/utils/load/ag_load_edges.o \
        src/backend/utils/load/age_load.o \
        src/backend/utils/load/libcsv.o \
-       src/backend/utils/name_validation.o
+       src/backend/utils/name_validation.o \
+       src/backend/utils/junction_table.o
 
 EXTENSION = age
 
 DATA = age--1.3.0.sql
 
 # sorted in dependency order
-REGRESS = label_redesign_rafsun \
+REGRESS = label_redesign_panos \
+	  label_redesign_rafsun \
           scan \
           graphid \
           agtype \

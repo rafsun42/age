@@ -44,6 +44,7 @@
 #include "utils/acl.h"
 #include "utils/builtins.h"
 #include "utils/inval.h"
+#include "utils/junction_table.h"
 #include "utils/lsyscache.h"
 
 #include "catalog/ag_graph.h"
@@ -63,7 +64,7 @@
 static void create_table_for_label(char *graph_name, char *label_name,
                                    char *schema_name, char *rel_name,
                                    char *seq_name, char label_type,
-                                   List *parents);
+                                   List *parents, Oid nsp_id);
 
 // common
 static List *create_edge_table_elements(char *graph_name, char *label_name,
@@ -98,8 +99,6 @@ static void range_var_callback_for_remove_relation(const RangeVar *rel,
                                                    Oid rel_oid,
                                                    Oid odl_rel_oid,
                                                    void *arg);
-
-
 
 PG_FUNCTION_INFO_V1(create_vlabel);
 
@@ -284,12 +283,6 @@ void create_label(char *graph_name, char *label_name, char label_type,
                         errmsg("label name is invalid")));
     }
 
-    if (!is_valid_label(label_name, label_type))
-    {
-        ereport(ERROR, (errcode(ERRCODE_UNDEFINED_SCHEMA),
-                        errmsg("label name is invalid")));
-    }
-
     cache_data = search_graph_name_cache(graph_name);
     if (!cache_data)
     {
@@ -312,9 +305,9 @@ void create_label(char *graph_name, char *label_name, char label_type,
         // alter_sequence_owned_by_for_label(seq_range_var, rel_name);
     }
 
-    // create a table for the new label
+    // create a table for the new label 
     create_table_for_label(graph_name, label_name, schema_name, rel_name,
-                           seq_name, label_type, parents);
+                           seq_name, label_type, parents, nsp_id);
 
     // record the new label in ag_label
     relation_id = get_relname_relid(rel_name, nsp_id);
@@ -340,10 +333,12 @@ void create_label(char *graph_name, char *label_name, char label_type,
 static void create_table_for_label(char *graph_name, char *label_name,
                                    char *schema_name, char *rel_name,
                                    char *seq_name, char label_type,
-                                   List *parents)
+                                   List *parents, Oid nsp_id)
 {
     CreateStmt *create_stmt;
     PlannedStmt *wrapper;
+    RangeVar *rv;
+    bool drop_properties = false;
 
     create_stmt = makeNode(CreateStmt);
 
@@ -355,19 +350,28 @@ static void create_table_for_label(char *graph_name, char *label_name,
      * Use the parents' column definition list instead, via Postgres'
      * inheritance system.
      */
-    if (list_length(parents) != 0)
+    if (list_length(parents) != 0) {
         create_stmt->tableElts = NIL;
+	create_stmt->inhRelations = parents;
+    }
     else if (label_type == LABEL_TYPE_EDGE)
         create_stmt->tableElts = create_edge_table_elements(
             graph_name, label_name, schema_name, rel_name, seq_name);
-    else if (label_type == LABEL_TYPE_VERTEX)
-        create_stmt->tableElts = create_vertex_table_elements(
-            graph_name, label_name, schema_name, rel_name, seq_name);
+    else if (label_type == LABEL_TYPE_VERTEX) {
+        rv = makeRangeVar(graph_name, AG_JUNCTION_TABLE, -1);
+	parents = NIL; 
+	parents = list_make1(rv);
+	create_stmt->inhRelations = parents;
+	create_stmt->tableElts = create_vertex_table_elements(
+	    graph_name, label_name, schema_name, rel_name, seq_name);
+	// A flag to check after the "_ag_label_vertex" is created, so we can
+	// drop the "properties" column of "_ag_junction_table"
+	drop_properties = true;
+    }
     else
         ereport(ERROR, (errcode(ERRCODE_INTERNAL_ERROR),
                         errmsg("undefined label type \'%c\'", label_type)));
 
-    create_stmt->inhRelations = parents;
     create_stmt->partbound = NULL;
     create_stmt->ofTypename = NULL;
     create_stmt->constraints = NIL;
@@ -386,6 +390,11 @@ static void create_table_for_label(char *graph_name, char *label_name,
     ProcessUtility(wrapper, "(generated CREATE TABLE command)",
                    PROCESS_UTILITY_SUBCOMMAND, NULL, NULL, None_Receiver,
                    NULL);
+    // Drop the "properties" of "_ag_junction_table". This will get called only once
+    // at the creation of the graph, after the creation of "_ag_label_vertex"
+    if (drop_properties) {
+          	drop_properties_column(AG_JUNCTION_TABLE, schema_name, nsp_id);
+    }
     // CommandCounterIncrement() is called in ProcessUtility()
 }
 

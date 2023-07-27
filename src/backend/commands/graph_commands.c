@@ -37,6 +37,7 @@
 #include "parser/parser.h"
 #include "utils/rel.h"
 #include "utils/relcache.h"
+#include "utils/junction_table.h"
 
 #include "catalog/ag_graph.h"
 #include "catalog/ag_label.h"
@@ -102,6 +103,8 @@ Datum create_graph(PG_FUNCTION_ARGS)
 
     //Create the default label tables
     graph = graph_name->data;
+    
+    create_junction_table(graph);
     create_label(graph, AG_DEFAULT_LABEL_VERTEX, LABEL_TYPE_VERTEX, NIL);
     create_label(graph, AG_DEFAULT_LABEL_EDGE, LABEL_TYPE_EDGE, NIL);
 

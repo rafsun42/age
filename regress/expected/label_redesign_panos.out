@@ -1,0 +1,76 @@
+--
+-- NOTE: TESTS IN THESE FILE WILL BE MOVED TO EXISTING TEST FILES ONCE THEY ARE UPDATED.
+--
+LOAD 'age'; SET search_path TO ag_catalog;
+--
+-- Tests if the junction table is created correctly
+--
+SELECT create_graph('graph');
+NOTICE:  merging column "id" with inherited definition
+NOTICE:  merging column "properties" with inherited definition
+NOTICE:  merging column "label_id" with inherited definition
+NOTICE:  graph "graph" has been created
+ create_graph 
+--------------
+ 
+(1 row)
+
+--
+-- Test if the inheritance is correct
+--
+SELECT * FROM cypher('graph',
+$$
+		CREATE (u {name: 'name'})
+		RETURN u
+$$)
+AS (u agtype);
+                               u                                
+----------------------------------------------------------------
+ {"id": 1, "label": "", "properties": {"name": "name"}}::vertex
+(1 row)
+
+SELECT * FROM cypher('graph',
+$$
+		CREATE (u:label)
+		RETURN u
+$$)
+AS (u agtype);
+                           u                           
+-------------------------------------------------------
+ {"id": 2, "label": "label", "properties": {}}::vertex
+(1 row)
+
+SELECT * FROM graph._ag_junction_table;
+ id | label_id 
+----+----------
+  1 |        1
+  2 |        3
+(2 rows)
+
+SELECT * FROM graph._ag_label_vertex;
+ id |    properties    | label_id 
+----+------------------+----------
+  1 | {"name": "name"} |        1
+  2 | {}               |        3
+(2 rows)
+
+SELECT * FROM graph.label;
+ id | properties | label_id 
+----+------------+----------
+  2 | {}         |        3
+(1 row)
+
+SELECT drop_graph('graph', true);
+NOTICE:  drop cascades to 6 other objects
+DETAIL:  drop cascades to table graph._ag_junction_table
+drop cascades to sequence graph.vertex_id_seq
+drop cascades to table graph._ag_label_vertex
+drop cascades to sequence graph.edge_id_seq
+drop cascades to table graph._ag_label_edge
+drop cascades to table graph.label
+NOTICE:  graph "graph" has been dropped
+ drop_graph 
+------------
+ 
+(1 row)
+
