@@ -131,8 +131,10 @@ NOTICE:  graph "mydatabase" renamed to "mydatabase1"
 
 -- clean up
 SELECT drop_graph('mydatabase1', true);
-NOTICE:  drop cascades to 2 other objects
-DETAIL:  drop cascades to table mydatabase1._ag_label_vertex
+NOTICE:  drop cascades to 4 other objects
+DETAIL:  drop cascades to sequence mydatabase1.vertex_id_seq
+drop cascades to table mydatabase1._ag_label_vertex
+drop cascades to sequence mydatabase1.edge_id_seq
 drop cascades to table mydatabase1._ag_label_edge
 NOTICE:  graph "mydatabase1" has been dropped
  drop_graph 
@@ -141,8 +143,10 @@ NOTICE:  graph "mydatabase1" has been dropped
 (1 row)
 
 SELECT drop_graph('mydätabase', true);
-NOTICE:  drop cascades to 2 other objects
-DETAIL:  drop cascades to table "mydätabase"._ag_label_vertex
+NOTICE:  drop cascades to 4 other objects
+DETAIL:  drop cascades to sequence "mydätabase".vertex_id_seq
+drop cascades to table "mydätabase"._ag_label_vertex
+drop cascades to sequence "mydätabase".edge_id_seq
 drop cascades to table "mydätabase"._ag_label_edge
 NOTICE:  graph "mydätabase" has been dropped
  drop_graph 
@@ -151,8 +155,10 @@ NOTICE:  graph "mydätabase" has been dropped
 (1 row)
 
 SELECT drop_graph('mydঅtabase', true);
-NOTICE:  drop cascades to 2 other objects
-DETAIL:  drop cascades to table "mydঅtabase"._ag_label_vertex
+NOTICE:  drop cascades to 4 other objects
+DETAIL:  drop cascades to sequence "mydঅtabase".vertex_id_seq
+drop cascades to table "mydঅtabase"._ag_label_vertex
+drop cascades to sequence "mydঅtabase".edge_id_seq
 drop cascades to table "mydঅtabase"._ag_label_edge
 NOTICE:  graph "mydঅtabase" has been dropped
  drop_graph 
@@ -161,8 +167,10 @@ NOTICE:  graph "mydঅtabase" has been dropped
 (1 row)
 
 SELECT drop_graph('mydatabase2', true);
-NOTICE:  drop cascades to 2 other objects
-DETAIL:  drop cascades to table mydatabase2._ag_label_vertex
+NOTICE:  drop cascades to 4 other objects
+DETAIL:  drop cascades to sequence mydatabase2.vertex_id_seq
+drop cascades to table mydatabase2._ag_label_vertex
+drop cascades to sequence mydatabase2.edge_id_seq
 drop cascades to table mydatabase2._ag_label_edge
 NOTICE:  graph "mydatabase2" has been dropped
  drop_graph 
@@ -171,8 +179,10 @@ NOTICE:  graph "mydatabase2" has been dropped
 (1 row)
 
 SELECT drop_graph('main.db', true);
-NOTICE:  drop cascades to 2 other objects
-DETAIL:  drop cascades to table "main.db"._ag_label_vertex
+NOTICE:  drop cascades to 4 other objects
+DETAIL:  drop cascades to sequence "main.db".vertex_id_seq
+drop cascades to table "main.db"._ag_label_vertex
+drop cascades to sequence "main.db".edge_id_seq
 drop cascades to table "main.db"._ag_label_edge
 NOTICE:  graph "main.db" has been dropped
  drop_graph 
@@ -181,8 +191,10 @@ NOTICE:  graph "main.db" has been dropped
 (1 row)
 
 SELECT drop_graph('main-db', true);
-NOTICE:  drop cascades to 2 other objects
-DETAIL:  drop cascades to table "main-db"._ag_label_vertex
+NOTICE:  drop cascades to 4 other objects
+DETAIL:  drop cascades to sequence "main-db".vertex_id_seq
+drop cascades to table "main-db"._ag_label_vertex
+drop cascades to sequence "main-db".edge_id_seq
 drop cascades to table "main-db"._ag_label_edge
 NOTICE:  graph "main-db" has been dropped
  drop_graph 
@@ -191,8 +203,10 @@ NOTICE:  graph "main-db" has been dropped
 (1 row)
 
 SELECT drop_graph('_mydatabase', true);
-NOTICE:  drop cascades to 2 other objects
-DETAIL:  drop cascades to table _mydatabase._ag_label_vertex
+NOTICE:  drop cascades to 4 other objects
+DETAIL:  drop cascades to sequence _mydatabase.vertex_id_seq
+drop cascades to table _mydatabase._ag_label_vertex
+drop cascades to sequence _mydatabase.edge_id_seq
 drop cascades to table _mydatabase._ag_label_edge
 NOTICE:  graph "_mydatabase" has been dropped
  drop_graph 
@@ -201,8 +215,10 @@ NOTICE:  graph "_mydatabase" has been dropped
 (1 row)
 
 SELECT drop_graph('my_database', true);
-NOTICE:  drop cascades to 2 other objects
-DETAIL:  drop cascades to table my_database._ag_label_vertex
+NOTICE:  drop cascades to 4 other objects
+DETAIL:  drop cascades to sequence my_database.vertex_id_seq
+drop cascades to table my_database._ag_label_vertex
+drop cascades to sequence my_database.edge_id_seq
 drop cascades to table my_database._ag_label_edge
 NOTICE:  graph "my_database" has been dropped
  drop_graph 
@@ -211,8 +227,10 @@ NOTICE:  graph "my_database" has been dropped
 (1 row)
 
 SELECT drop_graph('oiblpsacrufgxiilyevvoiblpsacrufgxiilyevvoiblpsacrufgxiilyevvsds', true);
-NOTICE:  drop cascades to 2 other objects
-DETAIL:  drop cascades to table oiblpsacrufgxiilyevvoiblpsacrufgxiilyevvoiblpsacrufgxiilyevvsds._ag_label_vertex
+NOTICE:  drop cascades to 4 other objects
+DETAIL:  drop cascades to sequence oiblpsacrufgxiilyevvoiblpsacrufgxiilyevvoiblpsacrufgxiilyevvsds.vertex_id_seq
+drop cascades to table oiblpsacrufgxiilyevvoiblpsacrufgxiilyevvoiblpsacrufgxiilyevvsds._ag_label_vertex
+drop cascades to sequence oiblpsacrufgxiilyevvoiblpsacrufgxiilyevvoiblpsacrufgxiilyevvsds.edge_id_seq
 drop cascades to table oiblpsacrufgxiilyevvoiblpsacrufgxiilyevvoiblpsacrufgxiilyevvsds._ag_label_edge
 NOTICE:  graph "oiblpsacrufgxiilyevvoiblpsacrufgxiilyevvoiblpsacrufgxiilyevvsds" has been dropped
  drop_graph 
@@ -371,8 +389,10 @@ SELECT * from cypher('graph123', $$ CREATE (:A)-[:`mylabel2`]->(:C) $$) as (a ag
 
 -- clean up
 SELECT drop_graph('graph123', true);
-NOTICE:  drop cascades to 18 other objects
-DETAIL:  drop cascades to table graph123._ag_label_vertex
+NOTICE:  drop cascades to 20 other objects
+DETAIL:  drop cascades to sequence graph123.vertex_id_seq
+drop cascades to table graph123._ag_label_vertex
+drop cascades to sequence graph123.edge_id_seq
 drop cascades to table graph123._ag_label_edge
 drop cascades to table graph123.labelx
 drop cascades to table graph123.labely
