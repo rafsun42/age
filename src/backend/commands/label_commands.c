@@ -364,8 +364,10 @@ static void create_table_for_label(char *graph_name, char *label_name,
 	create_stmt->inhRelations = parents;
 	create_stmt->tableElts = create_vertex_table_elements(
 	    graph_name, label_name, schema_name, rel_name, seq_name);
-	// A flag to check after the "_ag_label_vertex" is created, so we can
-	// drop the "properties" column of "_ag_junction_table"
+	/*
+	 * A flag to check after the "_ag_label_vertex" is created, so we can 
+	 * drop the "properties" column of "_ag_junction_table"
+	*/
 	drop_properties = true;
     }
     else
@@ -390,10 +392,14 @@ static void create_table_for_label(char *graph_name, char *label_name,
     ProcessUtility(wrapper, "(generated CREATE TABLE command)",
                    PROCESS_UTILITY_SUBCOMMAND, NULL, NULL, None_Receiver,
                    NULL);
-    // Drop the "properties" of "_ag_junction_table". This will get called only once
-    // at the creation of the graph, after the creation of "_ag_label_vertex"
-    if (drop_properties) {
-          	drop_properties_column(AG_JUNCTION_TABLE, schema_name, nsp_id);
+    /*
+     * Drop the "properties" of "_ag_junction_table". This will get called 
+     * only once at the creation of the graph, after the creation of 
+     * "_ag_label_vertex"
+    */
+    if (drop_properties)
+    {
+        drop_properties_column(AG_JUNCTION_TABLE, schema_name, nsp_id);
     }
     // CommandCounterIncrement() is called in ProcessUtility()
 }

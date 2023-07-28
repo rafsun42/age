@@ -35,12 +35,12 @@
 
 void create_junction_table(char *graph_name);
 static void create_table_for_junc_table(char *graph_name, char *label_name,
-				    char *schema_name, char *rel_name);
+					char *schema_name, char *rel_name);
 
 static List *create_junc_table_table_elements(char *graph_name, char *label_name,
-                                          char *schema_name, char *rel_name);
+					      char *schema_name, char *rel_name);
 void drop_properties_column (char *label_name,
-				    char *schema_name, Oid nsp_id);
+			     char *schema_name, Oid nsp_id);
 
 void create_junction_table(char *graph_name)
 {
@@ -78,7 +78,9 @@ static void create_table_for_junc_table(char *graph_name, char *label_name,
     // relpersistence is set to RELPERSISTENCE_PERMANENT by makeRangeVar()
     create_stmt->relation = makeRangeVar(schema_name, rel_name, -1);
 
-    create_stmt->tableElts = create_junc_table_table_elements(							  graph_name, label_name, schema_name, rel_name);
+    create_stmt->tableElts =
+        create_junc_table_table_elements(graph_name, label_name,
+					 schema_name, rel_name);
 
 
     create_stmt->inhRelations = NIL;
@@ -104,7 +106,7 @@ static void create_table_for_junc_table(char *graph_name, char *label_name,
 }
 
 static List *create_junc_table_table_elements(char *graph_name, char *label_name,
-                                          char *schema_name, char *rel_name)
+					      char *schema_name, char *rel_name)
 {
     ColumnDef *id;
     ColumnDef *props;
@@ -112,7 +114,7 @@ static List *create_junc_table_table_elements(char *graph_name, char *label_name
     Constraint *not_null;
     List *func_name;
     FuncCall *func;
-    Constraint *props_default;
+    Constraint *props_default, *pk;
 
     // "ag_catalog"."agtype_build_map"()
     func_name = list_make2(makeString("ag_catalog"),
@@ -125,16 +127,26 @@ static List *create_junc_table_table_elements(char *graph_name, char *label_name
     props_default->raw_expr = (Node *)func;
     props_default->cooked_expr = NULL;
 
+    pk = makeNode(Constraint);
+    pk->contype = CONSTR_PRIMARY;
+    pk->location = -1;
+    pk->keys = NULL;
+    pk->options = NIL;
+    pk->indexname = NULL;
+    pk->indexspace = NULL;
+
     not_null = makeNode(Constraint);
     not_null->contype = CONSTR_NOTNULL;
     not_null->location = -1;
 
     // "id" eid PRIMARY KEY DEFAULT "ag_catalog"."_graphid"(...)
     id = makeColumnDef(AG_VERTEX_COLNAME_ID, EIDOID, -1, InvalidOid);
-
-    // The "properties" column will be dropped after the creation of "_ag_label_vertex"
-    // We need it here so the "_ag_label_vertex" inherits the columns correctly and in the
-    // right order.
+    id->constraints = list_make1(pk);
+    /*
+     * The "properties" column will be dropped after the creation of "_ag_label_vertex" 
+     * We need it here so the "_ag_label_vertex" inherits the columns correctly and in the 
+     * right order.
+     */
 
     props = makeColumnDef(AG_VERTEX_COLNAME_PROPERTIES, AGTYPEOID, -1,
                           InvalidOid);
@@ -180,5 +192,4 @@ void drop_properties_column(char *label_name,
     AlterTable(tbl_stmt, AccessExclusiveLock, &atuc);
 
     CommandCounterIncrement();
-}  
-
+}
