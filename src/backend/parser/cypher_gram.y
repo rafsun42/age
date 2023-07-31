@@ -2124,6 +2124,9 @@ static Node *make_bool_const(bool b, int location)
 static Node *make_null_const(int location)
 {
     A_Const *n = makeNode(A_Const);
+    
+    n->isnull = true;
+    A_Const *n = makeNode(A_Const);
 
     n->isnull = true;
     n->location = location;

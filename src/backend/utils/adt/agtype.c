@@ -5551,7 +5551,7 @@ Datum age_tointeger(PG_FUNCTION_ARGS)
                  * return null.
                  */
                 if (!is_valid || isnan(f) || isinf(f) ||
-                    f < PG_INT64_MIN || f > (double)PG_INT64_MAX)
+                    f < (float8)PG_INT64_MIN || f > (float8)PG_INT64_MAX)
                 {
                     PG_RETURN_NULL();
                 }
