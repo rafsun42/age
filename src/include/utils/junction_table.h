@@ -21,11 +21,18 @@
 #define AG_JUNCTION_TABLE_COMMANDS_H
 
 #include "postgres.h"
+#include "utils/graphid.h"
+#include "nodes/cypher_nodes.h"
+#include "parser/cypher_parse_node.h"
 
 #define AG_JUNCTION_TABLE "_ag_junction_table"
 
 void create_junction_table(char *graph_name);
-void drop_properties_column (char *label_name,
-				    char *schema_name, Oid nsp_id);
+void init_junc_node(cypher_node *node);
+int32 junction_table_label_id(const char *graph_name, Oid graph_oid,
+			      graphid element_graphid);
+cypher_target_node *
+transform_junction_table_node(cypher_parsestate *cpstate, List **target_list,
+			      cypher_node *node);
 
 #endif

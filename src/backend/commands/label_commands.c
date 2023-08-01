@@ -337,8 +337,6 @@ static void create_table_for_label(char *graph_name, char *label_name,
 {
     CreateStmt *create_stmt;
     PlannedStmt *wrapper;
-    RangeVar *rv;
-    bool drop_properties = false;
 
     create_stmt = makeNode(CreateStmt);
 
@@ -350,30 +348,21 @@ static void create_table_for_label(char *graph_name, char *label_name,
      * Use the parents' column definition list instead, via Postgres'
      * inheritance system.
      */
-    if (list_length(parents) != 0) {
+    if (list_length(parents) != 0)
+    {
         create_stmt->tableElts = NIL;
-	create_stmt->inhRelations = parents;
     }
     else if (label_type == LABEL_TYPE_EDGE)
         create_stmt->tableElts = create_edge_table_elements(
             graph_name, label_name, schema_name, rel_name, seq_name);
     else if (label_type == LABEL_TYPE_VERTEX) {
-        rv = makeRangeVar(graph_name, AG_JUNCTION_TABLE, -1);
-	parents = NIL; 
-	parents = list_make1(rv);
-	create_stmt->inhRelations = parents;
 	create_stmt->tableElts = create_vertex_table_elements(
 	    graph_name, label_name, schema_name, rel_name, seq_name);
-	/*
-	 * A flag to check after the "_ag_label_vertex" is created, so we can 
-	 * drop the "properties" column of "_ag_junction_table"
-	*/
-	drop_properties = true;
     }
     else
         ereport(ERROR, (errcode(ERRCODE_INTERNAL_ERROR),
                         errmsg("undefined label type \'%c\'", label_type)));
-
+    create_stmt->inhRelations = parents;
     create_stmt->partbound = NULL;
     create_stmt->ofTypename = NULL;
     create_stmt->constraints = NIL;
@@ -392,15 +381,7 @@ static void create_table_for_label(char *graph_name, char *label_name,
     ProcessUtility(wrapper, "(generated CREATE TABLE command)",
                    PROCESS_UTILITY_SUBCOMMAND, NULL, NULL, None_Receiver,
                    NULL);
-    /*
-     * Drop the "properties" of "_ag_junction_table". This will get called 
-     * only once at the creation of the graph, after the creation of 
-     * "_ag_label_vertex"
-    */
-    if (drop_properties)
-    {
-        drop_properties_column(AG_JUNCTION_TABLE, schema_name, nsp_id);
-    }
+    
     // CommandCounterIncrement() is called in ProcessUtility()
 }
 

@@ -65,6 +65,7 @@
 #include "utils/ag_func.h"
 #include "utils/agtype.h"
 #include "utils/graphid.h"
+#include "utils/junction_table.h"
 
 /*
  * Variable string names for makeTargetEntry. As they are going to be variable
@@ -2236,12 +2237,16 @@ static bool match_check_valid_label(cypher_match *match,
 
     foreach(cell1, match->pattern)
     {
-        int i = 0;
+        int i = 1;
         path = (cypher_path*) lfirst(cell1);
 
         foreach(cell2, path->path)
         {
-            if (i % 2 == 0)
+	  /*
+	   * First node is for vertices, second node is for vertices
+	   * that will be inserted on the junction table.
+	   */
+	    if (!(i % 3 == 0))
             {
                 cypher_node *node = NULL;
 
@@ -3792,11 +3797,15 @@ static bool path_check_valid_label(cypher_path *path,
                                    cypher_parsestate *cpstate)
 {
     ListCell *lc = NULL;
-    int i = 0;
+    int i = 1;
 
     foreach (lc, path->path)
     {
-        if (i % 2 == 0)
+        /*
+         * First node is for vertices, second node is for vertices
+         * that will be inserted on the junction table.
+         */
+        if (!(i % 3 == 0))
         {
             cypher_node *node = NULL;
 
@@ -3847,7 +3856,7 @@ static List *transform_match_entities(cypher_parsestate *cpstate, Query *query,
     ParseState *pstate = (ParseState *)cpstate;
     ListCell *lc = NULL;
     List *entities = NIL;
-    int i = 0;
+    int i = 1;
     bool node_declared_in_prev_clause = false;
     transform_entity *prev_entity = NULL;
     bool special_VLE_case = false;
@@ -3865,10 +3874,12 @@ static List *transform_match_entities(cypher_parsestate *cpstate, Query *query,
     {
         Expr *expr = NULL;
         transform_entity *entity = NULL;
-
-
-        /* even increments of i are vertices */
-        if (i % 2 == 0)
+	
+	/*
+	 * First node is for vertices, second node is for vertices
+	 * that will be inserted on the junction table.
+	 */
+        if (!(i % 3 == 0))
         {
             cypher_node *node = NULL;
             bool output_node = false;
@@ -5075,11 +5086,20 @@ transform_cypher_create_path(cypher_parsestate *cpstate, List **target_list,
         if (is_ag_node(lfirst(lc), cypher_node))
         {
             cypher_node *node = lfirst(lc);
+	    cypher_node *j_node = make_ag_node(cypher_node);
             transform_entity *entity;
-
+	    transform_entity *j_entity;
+	    cypher_target_node *j_rel;
             cypher_target_node *rel =
-                transform_create_cypher_node(cpstate, target_list, node);
-
+	        transform_create_cypher_node(cpstate, target_list, node);
+	    
+	    /*
+	     * Helper function to initialize the node for the
+	     * junction table insertion.
+	     */
+	    init_junc_node(j_node);
+	    j_rel = transform_junction_table_node(cpstate, target_list,
+						  j_node);
             if (in_path)
             {
                 if (node->name && strcmp(node->name, path->var_name) == 0)
@@ -5094,11 +5114,14 @@ transform_cypher_create_path(cypher_parsestate *cpstate, List **target_list,
             }
 
             transformed_path = lappend(transformed_path, rel);
+	    transformed_path = lappend(transformed_path, j_rel);
 
             entity = make_transform_entity(cpstate, ENT_VERTEX, (Node *)node,
                                            NULL);
-
+	    j_entity = make_transform_entity(cpstate, ENT_VERTEX, (Node *)j_node,
+					     NULL);
             cpstate->entities = lappend(cpstate->entities, entity);
+	    cpstate->entities = lappend(cpstate->entities, j_entity);
         }
         else if (is_ag_node(lfirst(lc), cypher_relationship))
         {

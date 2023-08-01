@@ -50,6 +50,9 @@ static void create_edge(cypher_create_custom_scan_state *css,
 static Datum create_vertex(cypher_create_custom_scan_state *css,
                            cypher_target_node *node, ListCell *next,
                            List *list);
+static Datum create_junc_vertex(cypher_create_custom_scan_state *css, cypher_target_node *node,
+				Datum id, ListCell *next, List *list,
+				Datum j_id, Datum j_label_id);
 
 static void process_pattern(cypher_create_custom_scan_state *css);
 
@@ -477,6 +480,7 @@ static Datum create_vertex(cypher_create_custom_scan_state *css,
 {
     bool id_isnull;
     bool label_id_isnull;
+    bool create_junc_table_entry = false;
     Datum id;
     Datum label_id;
     EState *estate = css->css.ss.ps.state;
@@ -529,6 +533,11 @@ static Datum create_vertex(cypher_create_custom_scan_state *css,
 
         // Insert the new vertex
         insert_entity_tuple(resultRelInfo, elemTupleSlot, estate);
+	/*
+	 *  A flag that is true if and only if a new vertex was actually inserted,
+	 *  so we can also insert it in the junction table.
+	 */
+	create_junc_table_entry = true;
 
         /* restore the old result relation info */
         estate->es_result_relation_info = old_estate_es_result_relation_info;
@@ -628,6 +637,64 @@ static Datum create_vertex(cypher_create_custom_scan_state *css,
             css->path_values = lappend(css->path_values,
                                        DatumGetPointer(vertex));
         }
+    }
+    
+    // Check the flag and if "true" make the insertion on the junction table.
+    if (create_junc_table_entry)
+    {
+        create_junc_vertex(css, lfirst(next), id, lnext(list, next), list, id, label_id);
+    }
+    else
+    {
+        /* This modification is to skip the insertion of the vertex in the
+	 * junction table and move the list forward so we can proceed to
+	 * the creation of the edge.
+         */
+        next = lnext(list, next);
+        create_edge(css, lfirst(next), id, lnext(list, next), list);
+    }
+    return id;
+}
+
+/*
+ * This function follows the logic of the "create_vertex", but it is modified
+ * and simplified to just do the insertion of the vertex in the junction table,
+ * and then continue to the "create_edge" if appropriate.
+ */
+static Datum create_junc_vertex(cypher_create_custom_scan_state *css,
+				cypher_target_node *node, Datum prev_vertex_id,
+				ListCell *next, List *list,
+				Datum id, Datum label_id)
+{
+    bool id_isnull = false;
+    bool label_id_isnull = false;
+    EState *estate = css->css.ss.ps.state;
+    ResultRelInfo *resultRelInfo = node->resultRelInfo;
+    TupleTableSlot *elemTupleSlot = node->elemTupleSlot;
+
+    Assert(node->type == LABEL_KIND_VERTEX);
+
+    if (CYPHER_TARGET_NODE_INSERT_ENTITY(node->flags))
+    {
+        ResultRelInfo *old_estate_es_result_relation_info = NULL;
+
+        old_estate_es_result_relation_info = estate->es_result_relation_info;
+
+        estate->es_result_relation_info = resultRelInfo;
+
+        ExecClearTuple(elemTupleSlot);
+
+        elemTupleSlot->tts_values[vertex_tuple_id] = id;
+        elemTupleSlot->tts_isnull[vertex_tuple_id] = id_isnull;
+
+        elemTupleSlot->tts_values[vertex_tuple_label_id - 1] = label_id;
+        elemTupleSlot->tts_isnull[vertex_tuple_label_id - 1] = label_id_isnull;
+
+        // Insert the new vertex
+        insert_entity_tuple(resultRelInfo, elemTupleSlot, estate);
+
+        /* restore the old result relation info */
+        estate->es_result_relation_info = old_estate_es_result_relation_info;
     }
 
     // If the path continues, create the next edge, passing the vertex's id.
