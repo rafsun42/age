@@ -29,9 +29,9 @@ NOTICE:  graph "analyze" has been created
 (1 row)
 
 SELECT * FROM cypher('analyze', $$ CREATE (u) RETURN u $$) AS (result agtype);
-                             result                             
-----------------------------------------------------------------
- {"id": 281474976710657, "label": "", "properties": {}}::vertex
+                      result                      
+--------------------------------------------------
+ {"id": 1, "label": "", "properties": {}}::vertex
 (1 row)
 
 -- should error due to invalid input to cypher function
@@ -98,9 +98,9 @@ SELECT * FROM age_prepare_cypher('analyze', 'MATCH (u) RETURN (u)');
 (1 row)
 
 SELECT * FROM cypher(NULL, NULL) AS (result agtype);
-                             result                             
-----------------------------------------------------------------
- {"id": 281474976710657, "label": "", "properties": {}}::vertex
+                      result                      
+--------------------------------------------------
+ {"id": 1, "label": "", "properties": {}}::vertex
 (1 row)
 
 -- should error due to invalid input to cypher function
@@ -126,8 +126,10 @@ SELECT * FROM cypher(NULL) AS (result agtype);
 ERROR:  cypher function requires a minimum of 2 arguments
 -- drop graphs
 SELECT * FROM drop_graph('analyze', true);
-NOTICE:  drop cascades to 2 other objects
-DETAIL:  drop cascades to table "analyze"._ag_label_vertex
+NOTICE:  drop cascades to 4 other objects
+DETAIL:  drop cascades to sequence "analyze".vertex_id_seq
+drop cascades to table "analyze"._ag_label_vertex
+drop cascades to sequence "analyze".edge_id_seq
 drop cascades to table "analyze"._ag_label_edge
 NOTICE:  graph "analyze" has been dropped
  drop_graph 
