@@ -22,12 +22,21 @@
 #include "postgres.h"
 
 #include "access/heapam.h"
+#include "nodes/execnodes.h"
+#include "nodes/makefuncs.h"
+#include "nodes/pg_list.h"
 #include "utils/snapmgr.h"
 
 #include "utils/load/ag_load_edges.h"
 #include "utils/load/age_load.h"
 #include "utils/load/csv.h"
 #include "utils/agtype.h"
+#include "commands/label_commands.h"
+
+// Labels* labels = NULL;
+List* labels = NIL;
+vertices_lst_node* tbl_node = NULL;
+vertices_lst_node** tbl_data = &tbl_node;
 
 void edge_field_cb(void *field, size_t field_len, void *data)
 {
@@ -80,14 +89,18 @@ void edge_row_cb(int delim __attribute__((unused)), void *data)
     HeapTuple tuple;
     TupleDesc tupdesc;
 
-    Relation start_label_relation;
-    Oid start_label_table_oid;
-
-    Relation end_label_relaion;
-    Oid end_label_table_oid;
-
     agtype* props = NULL;
 
+
+    Relation label_relation;
+    Oid label_table_oid;
+
+    vertices_lst_node* start_node;
+
+    vertices_lst_node* iterator = NULL;
+
+    // Labels* lbls = labels;
+    
     n_fields = cr->cur_field;
 
     if (cr->row == 0)
@@ -110,108 +123,190 @@ void edge_row_cb(int delim __attribute__((unused)), void *data)
         start_id_int = strtol(cr->fields[0], NULL, 10);
         end_id_int = strtol(cr->fields[2], NULL, 10);
 
-        snapshot = GetActiveSnapshot();
+        if (!list_member(labels, cr->fields[1])) {
+            labels = lappend(labels, cr->fields[1]);
+            snapshot = GetActiveSnapshot();
 
-        start_label_table_oid = get_relname_relid(cr->fields[1], cr->graph_oid);
-        start_label_relation = table_open(start_label_table_oid, ShareLock);
-        scan_desc = table_beginscan(start_label_relation, snapshot, 0, NULL);
-        tupdesc = RelationGetDescr(start_label_relation);
+            label_table_oid = get_relname_relid(cr->fields[1], cr->graph_oid);
+            label_relation = table_open(label_table_oid, ShareLock);
+            scan_desc = table_beginscan(label_relation, snapshot, 0, NULL);
+            tupdesc = RelationGetDescr(label_relation);
 
-        if (tupdesc->natts != Natts_ag_label_vertex)
-        {
-            ereport(ERROR,
-                    (errcode(ERRCODE_UNDEFINED_TABLE),
-                     errmsg("Invalid number of attributes for %s.%s",
-                     cr->graph_name, cr->fields[1])));
+            if (tupdesc->natts != Natts_ag_label_vertex)
+            {
+                ereport(ERROR,
+                        (errcode(ERRCODE_UNDEFINED_TABLE),
+                        errmsg("Invalid number of attributes for %s.%s",
+                        cr->graph_name, cr->fields[1])));
+            }
+
+            start_node = *tbl_data;
+            if (start_node == NULL) 
+            {
+                // tbl_data = start_node;
+            }
+            else 
+            {
+                while (start_node->next_vertex != NULL )
+                {
+                    start_node = (vertices_lst_node*)(start_node->next_vertex);
+                }
+                start_node = start_node->next_vertex;
+            }
+
+
+            while((tuple = heap_getnext(scan_desc, ForwardScanDirection)) != NULL)
+            {
+                graphid vertex_id;
+                Datum vertex_properties;
+                int32 vertex_label_id;
+
+                /* something is wrong if this isn't true */
+                Assert(HeapTupleIsValid(tuple));
+                /* get the vertex id */
+                vertex_id = DatumGetInt64(column_get_datum(tupdesc, tuple, 0, "id",
+                                                        INT8OID, true));
+                /* get the vertex properties datum */
+                vertex_properties = column_get_datum(tupdesc, tuple, 1,
+                                                    "properties", AGTYPEOID, true);
+                vertex_label_id = DatumGetInt32(column_get_datum(tupdesc, tuple, 2,
+                                                    "label_id", INT4OID, true));
+                
+
+                start_node = (vertices_lst_node*)malloc(sizeof(vertices_lst_node));
+                start_node->vertex_id = vertex_id;
+                start_node->vertex_properties = vertex_properties;
+                start_node->vertex_label_id = vertex_label_id;
+                start_node->next_vertex = NULL;
+                if (*tbl_data == NULL)
+                {
+                    *tbl_data = start_node;
+                }
+                else 
+                {
+                    vertices_lst_node* temp = *tbl_data;
+                    while (temp->next_vertex != NULL)
+                    {
+                        temp = temp->next_vertex;
+                    }
+                    temp->next_vertex = start_node;
+                }
+                start_node = NULL;
+            }
+
+            /* end the scan and close the relation */
+            table_endscan(scan_desc);
+            table_close(label_relation, ShareLock);
         }
 
-        while((tuple = heap_getnext(scan_desc, ForwardScanDirection)) != NULL)
+
+        if (!list_member(labels, cr->fields[3])) {
+            labels = lappend(labels, cr->fields[3]);
+            snapshot = GetActiveSnapshot();
+
+            label_table_oid = get_relname_relid(cr->fields[3], cr->graph_oid);
+            label_relation = table_open(label_table_oid, ShareLock);
+            scan_desc = table_beginscan(label_relation, snapshot, 0, NULL);
+            tupdesc = RelationGetDescr(label_relation);
+
+            if (tupdesc->natts != Natts_ag_label_vertex)
+            {
+                ereport(ERROR,
+                        (errcode(ERRCODE_UNDEFINED_TABLE),
+                        errmsg("Invalid number of attributes for %s.%s",
+                        cr->graph_name, cr->fields[1])));
+            }
+
+            start_node = *tbl_data;
+            if (start_node == NULL) 
+            {
+                // tbl_data = start_node;
+            }
+            else 
+            {
+                while (start_node->next_vertex != NULL )
+                {
+                    start_node = (vertices_lst_node*)(start_node->next_vertex);
+                }
+                start_node = start_node->next_vertex;
+            }
+
+
+            while((tuple = heap_getnext(scan_desc, ForwardScanDirection)) != NULL)
+            {
+                graphid vertex_id;
+                Datum vertex_properties;
+                int32 vertex_label_id;
+
+                /* something is wrong if this isn't true */
+                Assert(HeapTupleIsValid(tuple));
+                /* get the vertex id */
+                vertex_id = DatumGetInt64(column_get_datum(tupdesc, tuple, 0, "id",
+                                                        INT8OID, true));
+                /* get the vertex properties datum */
+                vertex_properties = column_get_datum(tupdesc, tuple, 1,
+                                                    "properties", AGTYPEOID, true);
+                vertex_label_id = DatumGetInt32(column_get_datum(tupdesc, tuple, 2,
+                                                    "label_id", INT4OID, true));
+                
+
+                start_node = (vertices_lst_node*)malloc(sizeof(vertices_lst_node));
+                start_node->vertex_id = vertex_id;
+                start_node->vertex_properties = vertex_properties;
+                start_node->vertex_label_id = vertex_label_id;
+                start_node->next_vertex = NULL;
+                if (*tbl_data == NULL)
+                {
+                    *tbl_data = start_node;
+                }
+                else 
+                {
+                    vertices_lst_node* temp = *tbl_data;
+                    while (temp->next_vertex != NULL)
+                    {
+                        temp = temp->next_vertex;
+                    }
+                    temp->next_vertex = start_node;
+                }
+                start_node = NULL;
+            }
+
+            /* end the scan and close the relation */
+            table_endscan(scan_desc);
+            table_close(label_relation, ShareLock);
+        }
+        iterator = *tbl_data;
+        
+        while(PointerIsValid(iterator) && iterator != NULL && (start_vertex_graph_id == 0 || end_vertex_graph_id ==0))
         {
-            graphid vertex_id;
-            Datum vertex_properties;
-            agtype* vertex_properties_agt;
-            // agtype_value* vertex_properties_agtvp;
-            agtype_value* result;
-
-            /* something is wrong if this isn't true */
-            Assert(HeapTupleIsValid(tuple));
-            /* get the vertex id */
-            vertex_id = DatumGetInt64(column_get_datum(tupdesc, tuple, 0, "id",
-                                                       INT8OID, true));
-            /* get the vertex properties datum */
-            vertex_properties = column_get_datum(tupdesc, tuple, 1,
-                                                 "properties", AGTYPEOID, true);
-
-            vertex_properties_agt = DATUM_GET_AGTYPE_P(vertex_properties);
-
+            agtype_value* result = NULL;
+            agtype* vertex_properties_agt = DATUM_GET_AGTYPE_P(iterator->vertex_properties);
+            
             result = execute_map_access_operator_internal
                         (vertex_properties_agt, NULL, "id", 2);
-
-            if (strtol(result->val.string.val, NULL, 10) == start_id_int) 
+            if (!PointerIsValid(result) || result == NULL)
             {
-                start_vertex_graph_id = vertex_id;
                 break;
             }
-        }
-
-        /* end the scan and close the relation */
-        table_endscan(scan_desc);
-        table_close(start_label_relation, ShareLock);
-
-        end_label_table_oid = get_relname_relid(cr->fields[3], cr->graph_oid);
-        end_label_relaion = table_open(end_label_table_oid, ShareLock);
-        scan_desc = table_beginscan(end_label_relaion, snapshot, 0, NULL);
-        tupdesc = RelationGetDescr(end_label_relaion);
-
-        if (tupdesc->natts != Natts_ag_label_vertex)
-        {
-            ereport(ERROR,
-                    (errcode(ERRCODE_UNDEFINED_TABLE),
-                     errmsg("Invalid number of attributes for %s.%s",
-                     cr->graph_name, cr->fields[3])));
-        }
-
-        while((tuple = heap_getnext(scan_desc, ForwardScanDirection)) != NULL)
-        {
-            graphid vertex_id;
-            Datum vertex_properties;
-            agtype* vertex_properties_agt;
-            // agtype_value* vertex_properties_agtvp;
-            agtype_value* result;
-
-            /* something is wrong if this isn't true */
-            Assert(HeapTupleIsValid(tuple));
-            /* get the vertex id */
-            vertex_id = DatumGetInt64(column_get_datum(tupdesc, tuple, 0, "id",
-                                                       INT8OID, true));
-            /* get the vertex properties datum */
-            vertex_properties = column_get_datum(tupdesc, tuple, 1,
-                                                 "properties", AGTYPEOID, true);
-
-            vertex_properties_agt = DATUM_GET_AGTYPE_P(vertex_properties);
-
-            result = execute_map_access_operator_internal(vertex_properties_agt, NULL, "id", 2);
-
-            if (strtol(result->val.string.val, NULL, 10) == end_id_int) 
+            if(strtol(result->val.string.val, NULL, 10) == start_id_int && iterator->vertex_label_id == get_label_id(cr->fields[1], cr->graph_oid))
             {
-                end_vertex_graph_id = vertex_id;
-                break;
+                start_vertex_graph_id = iterator->vertex_id;
             }
-        }
+            else if(strtol(result->val.string.val, NULL, 10) == end_id_int && iterator->vertex_label_id == get_label_id(cr->fields[3], cr->graph_oid))
+            {
+                end_vertex_graph_id = iterator->vertex_id;
+            }
+            iterator = (vertices_lst_node*)iterator->next_vertex;
+        }    
 
-        /* end the scan and close the relation */
-        table_endscan(scan_desc);
-        table_close(end_label_relaion, ShareLock);
-
-        if (start_vertex_graph_id != 0 && end_vertex_graph_id != 0) {
-            props = create_agtype_from_list_i(cr->header, cr->fields,
+        props = create_agtype_from_list_i(cr->header, cr->fields,
                                             n_fields, 3);
-            label_id = get_label_id(cr->object_name, cr->graph_oid);
-            insert_edge_simple(cr->graph_oid, cr->object_name,
-                            new_id, start_vertex_graph_id,
-                            end_vertex_graph_id, props, label_id);
+        label_id = get_label_id(cr->object_name, cr->graph_oid);
+        insert_edge_simple(cr->graph_oid, cr->object_name,
+                        new_id, start_vertex_graph_id,
+                        end_vertex_graph_id, props, label_id);
+
         }
-    }
 
     for (i = 0; i < n_fields; ++i)
     {
@@ -305,6 +400,7 @@ int create_edges_from_csv_file(char *file_path,
         }
     }
 
+
     csv_fini(&p, edge_field_cb, edge_row_cb, &cr);
 
     if (ferror(fp))
@@ -313,6 +409,8 @@ int create_edges_from_csv_file(char *file_path,
     }
 
     fclose(fp);
+
+    // list_free_deep(labels);
 
     free(cr.fields);
     csv_free(&p);

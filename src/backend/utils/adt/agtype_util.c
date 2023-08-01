@@ -515,8 +515,9 @@ agtype_value *find_agtype_value_from_container(agtype_container *container,
 
                 fill_agtype_value(container, index, base_addr,
                                   get_agtype_offset(container, index), result);
-
+                Assert(PointerIsValid(result));
                 return result;
+                // return NULL;
             }
             else
             {

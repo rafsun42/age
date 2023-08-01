@@ -87,6 +87,18 @@ typedef struct {
 
 } csv_edge_reader;
 
+typedef struct {
+    int64 vertex_id;
+    Datum vertex_properties;
+    int32 vertex_label_id;
+    void *next_vertex;
+} vertices_lst_node;
+
+typedef struct {
+    Name label_name;
+    void* next_label;
+} Labels;
+
 
 void edge_field_cb(void *field, size_t field_len, void *data);
 void edge_row_cb(int delim __attribute__((unused)), void *data);
