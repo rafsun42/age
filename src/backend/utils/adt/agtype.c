@@ -5863,7 +5863,7 @@ PG_FUNCTION_INFO_V1(graphid_to_agtype);
 
 Datum graphid_to_agtype(PG_FUNCTION_ARGS)
 {
-    PG_RETURN_POINTER(integer_to_agtype(AG_GETARG_GRAPHID(0)));
+    PG_RETURN_POINTER((const void *) integer_to_agtype(AG_GETARG_GRAPHID(0)));
 }
 
 PG_FUNCTION_INFO_V1(agtype_to_graphid);
@@ -10829,5 +10829,5 @@ Datum agtype_volatile_wrapper(PG_FUNCTION_ARGS)
     }
 
     /* otherwise, just pass it through */
-    PG_RETURN_POINTER(PG_GETARG_DATUM(0));
+    PG_RETURN_POINTER((const void*) PG_GETARG_DATUM(0));
 }
