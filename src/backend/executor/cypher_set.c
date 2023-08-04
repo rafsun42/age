@@ -112,7 +112,7 @@ static HeapTuple update_entity_tuple(ResultRelInfo *resultRelInfo,
     TM_Result lock_result;
     Buffer buffer;
     Buffer old_buffer;
-    bool update_indexes;
+    TU_UpdateIndexes update_indexes;
     TM_Result   result;
     CommandId cid = GetCurrentCommandId(true);
     ResultRelInfo **saved_resultRels = estate->es_result_relations;
