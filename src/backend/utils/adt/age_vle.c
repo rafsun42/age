@@ -2000,17 +2000,17 @@ Datum age_match_vle_edge_to_id_qual(PG_FUNCTION_ARGS)
 
         gid = id->val.int_value;
     }
-    else if (types[1] == GRAPHIDOID)
+    else if (types[1] == INT8OID)
     {
 
-        gid = DATUM_GET_GRAPHID(args[1]);
+        gid = DatumGetInt64(args[1]);
 
     }
     else
     {
         ereport(ERROR,
                 (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
-                 errmsg("match_vle_terminal_edge() argument 1 must be an agtype integer or a graphid")));
+                 errmsg("match_vle_terminal_edge() argument 1 must be an agtype integer or a bigint")));
     }
 
     pos_agt = AG_GET_ARG_AGTYPE_P(2);
@@ -2242,15 +2242,15 @@ Datum age_match_vle_terminal_edge(PG_FUNCTION_ARGS)
                  errmsg("match_vle_terminal_edge() argument 1 must be non NULL")));
         }
     }
-    else if (types[0] == GRAPHIDOID)
+    else if (types[0] == INT8OID)
     {
-        vsid = DATUM_GET_GRAPHID(args[0]);
+        vsid = DatumGetInt64(args[0]);
     }
     else
     {
         ereport(ERROR,
             (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
-             errmsg("match_vle_terminal_edge() argument 1 must be an agtype integer or a graphid")));
+             errmsg("match_vle_terminal_edge() argument 1 must be an agtype integer or a bigint")));
     }
 
     /* get the veid */
@@ -2272,15 +2272,15 @@ Datum age_match_vle_terminal_edge(PG_FUNCTION_ARGS)
                  errmsg("match_vle_terminal_edge() argument 2 must be non NULL")));
         }
     }
-    else if (types[1] == GRAPHIDOID)
+    else if (types[1] == INT8OID)
     {
-        veid = DATUM_GET_GRAPHID(args[1]);
+        veid = DatumGetInt64(args[1]);
     }
     else
     {
         ereport(ERROR,
             (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
-             errmsg("match_vle_terminal_edge() argument 2 must be an agtype integer or a graphid")));
+             errmsg("match_vle_terminal_edge() argument 2 must be an agtype integer or a bigint")));
     }
 
     /* compare the path beginning or end points */
