@@ -177,9 +177,8 @@ TupleTableSlot *populate_edge_tts(TupleTableSlot *elemTupleSlot,
  * Find out if the entity still exists. This is for 'implicit' deletion
  * of an entity.
  */
-bool entity_exists(EState *estate, Oid graph_oid, graphid id)
+bool entity_exists(EState *estate, Oid graph_oid, int64 id, int32 label_id)
 {
-    int i;
     label_cache_data *label;
     ScanKeyData scan_keys[1];
     TableScanDesc scan_desc;
@@ -192,41 +191,26 @@ bool entity_exists(EState *estate, Oid graph_oid, graphid id)
      * the entity is part of.
      */
 
-    // TODO: THIS IS A TEMPORARY HACK TO MAKE THIS FUNCTION WORK
-    //          IT LOOKS FOR THE VERTEX\EDGE IN ALL LABEL TABLE
-    //          (MAXIMUM 10)
-    for (i = 1; i < 10; i++)
+    label = search_label_graph_oid_cache(graph_oid, label_id);
+    ScanKeyInit(&scan_keys[0], 1, BTEqualStrategyNumber,
+                F_GRAPHIDEQ, GRAPHID_GET_DATUM(id));
+
+    rel = table_open(label->relation, RowExclusiveLock);
+    scan_desc = table_beginscan(rel, estate->es_snapshot, 1, scan_keys);
+
+    tuple = heap_getnext(scan_desc, ForwardScanDirection);
+
+    /*
+     * If a single tuple was returned, the tuple is still valid, otherwise'
+     * set to false.
+     */
+    if (!HeapTupleIsValid(tuple))
     {
-        label = search_label_graph_oid_cache(graph_oid, i);
-
-        if (label == NULL)
-            return false;
-
-        // Setup the scan key to be the graphid
-        ScanKeyInit(&scan_keys[0], 1, BTEqualStrategyNumber, F_GRAPHIDEQ,
-                    GRAPHID_GET_DATUM(id));
-
-        rel = table_open(label->relation, RowExclusiveLock);
-        scan_desc = table_beginscan(rel, estate->es_snapshot, 1, scan_keys);
-
-        tuple = heap_getnext(scan_desc, ForwardScanDirection);
-
-        /*
-        * If a single tuple was returned, the tuple is still valid, otherwise'
-        * set to false.
-        */
-        if (HeapTupleIsValid(tuple))
-        {
-            result = true;
-            table_endscan(scan_desc);
-            table_close(rel, RowExclusiveLock);
-            break;
-        }
-
-        table_endscan(scan_desc);
-        table_close(rel, RowExclusiveLock);
+        result = false;
     }
 
+    table_endscan(scan_desc);
+    table_close(rel, RowExclusiveLock);
     return result;
 }
 

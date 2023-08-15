@@ -77,6 +77,7 @@ DATA = age--1.3.0.sql
 
 # sorted in dependency order
 REGRESS = label_redesign_rafsun \
+          label_redesign_wendel \
           scan \
           graphid \
           agtype \

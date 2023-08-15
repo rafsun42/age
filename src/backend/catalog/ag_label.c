@@ -155,8 +155,18 @@ int32 get_label_id(const char *label_name, Oid graph_oid)
  */
 int32 get_label_id_from_entity(agtype_value *entity, const char *graph_name)
 {
-    char *label_name;
+    Oid graph_oid;
     graph_cache_data *gcd;
+
+    gcd = search_graph_name_cache(graph_name);
+    graph_oid = get_label_id_from_entity_by_oid(entity, gcd->oid);
+
+    return graph_oid;
+}
+
+int32 get_label_id_from_entity_by_oid(agtype_value *entity, Oid graph_oid)
+{
+    char *label_name;
     label_cache_data *lcd;
     agtype_value *agtv_label;
 
@@ -177,8 +187,7 @@ int32 get_label_id_from_entity(agtype_value *entity, const char *graph_name)
                                                    AG_DEFAULT_LABEL_EDGE;
     }
 
-    gcd = search_graph_name_cache(graph_name);
-    lcd = search_label_name_graph_cache(label_name, gcd->oid);
+    lcd = search_label_name_graph_cache(label_name, graph_oid);
     return lcd->id;
 }
 

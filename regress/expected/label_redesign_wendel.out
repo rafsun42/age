@@ -1,0 +1,59 @@
+--
+-- NOTE: TESTS IN THESE FILE WILL BE MOVED TO EXISTING TEST FILES ONCE THEY ARE UPDATED.
+--
+LOAD 'age'; SET search_path TO ag_catalog;
+--
+-- Tests entity_exists function and get_label_id_from_entity
+--
+SELECT create_graph('graph1');
+NOTICE:  graph "graph1" has been created
+ create_graph 
+--------------
+ 
+(1 row)
+
+SELECT * FROM cypher('graph1', $$ CREATE (:Developer{name:'Brian'}) $$) AS (a agtype);
+ a 
+---
+(0 rows)
+
+-- get_label_id_from_entity from set clause
+SELECT * FROM cypher('graph1', $$ MATCH (x:Developer) SET x.yearOfBirth = 1982, x.surname = 'Jones' RETURN x $$) AS (vertex agtype);
+                                                      vertex                                                       
+-------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "Developer", "properties": {"name": "Brian", "surname": "Jones", "yearOfBirth": 1982}}::vertex
+(1 row)
+
+-- entity_exists returning false
+SELECT * FROM cypher('graph1', $$ MATCH (x:Developer) DELETE (x) CREATE p=(x)-[r:PARTICIPATES{from:2023}]->(y:Project{title:'Documentation'}) RETURN p $$) AS (path agtype);
+ERROR:  vertex assigned to variable x was deleted
+SELECT * FROM cypher('graph1', $$ MATCH (x:Developer) DELETE (x) MERGE p=(x)-[r:PARTICIPATES{from:2023}]->(y:Project{title:'Documentation'}) RETURN p $$) AS (path agtype);
+ERROR:  vertex assigned to variable x was deleted
+-- entity_exists returning true
+SELECT * FROM cypher('graph1', $$ MATCH (x:Developer) CREATE p=(x)-[r:PARTICIPATES{from:2021}]->(y:Project{title:'Dashboard'}) RETURN p $$) AS (path agtype);
+                                                                                                                                                    path                                                                                                                                                    
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 1, "label": "Developer", "properties": {"name": "Brian", "surname": "Jones", "yearOfBirth": 1982}}::vertex, {"id": 1, "label": "PARTICIPATES", "end_id": 2, "start_id": 1, "properties": {"from": 2021}}::edge, {"id": 2, "label": "Project", "properties": {"title": "Dashboard"}}::vertex]::path
+(1 row)
+
+SELECT * FROM cypher('graph1', $$ MATCH (x:Developer) MERGE p=(x)-[r:PARTICIPATES{from:2016}]->(y:Project{title:'Login Rework'}) RETURN p $$) AS (path agtype);
+                                                                                                                                                     path                                                                                                                                                      
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 1, "label": "Developer", "properties": {"name": "Brian", "surname": "Jones", "yearOfBirth": 1982}}::vertex, {"id": 2, "label": "PARTICIPATES", "end_id": 3, "start_id": 1, "properties": {"from": 2016}}::edge, {"id": 3, "label": "Project", "properties": {"title": "Login Rework"}}::vertex]::path
+(1 row)
+
+SELECT drop_graph('graph1', true);
+NOTICE:  drop cascades to 7 other objects
+DETAIL:  drop cascades to sequence graph1.vertex_id_seq
+drop cascades to table graph1._ag_label_vertex
+drop cascades to sequence graph1.edge_id_seq
+drop cascades to table graph1._ag_label_edge
+drop cascades to table graph1."Developer"
+drop cascades to table graph1."PARTICIPATES"
+drop cascades to table graph1."Project"
+NOTICE:  graph "graph1" has been dropped
+ drop_graph 
+------------
+ 
+(1 row)
+
