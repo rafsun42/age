@@ -77,6 +77,7 @@ DATA = age--1.3.0.sql
 
 # sorted in dependency order
 REGRESS = label_redesign_rafsun \
+          label_redesign_wendel \
           scan \
           graphid \
           agtype \
@@ -101,7 +102,6 @@ REGRESS = label_redesign_rafsun \
           graph_generation \
           name_validation \
           drop
-
 
 srcdir=`pwd`
 

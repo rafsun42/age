@@ -549,6 +549,9 @@ void add_agtype(Datum val, bool is_null, agtype_in_state *result, Oid val_type,
                 bool key_scalar);
 agtype_value *execute_map_access_operator_internal(
     agtype *map, agtype_value *map_value, char *key, int key_len);
+void pfree_agtype_value(agtype_value* value);
+void pfree_agtype_value_content(agtype_value* value);
+void pfree_agtype_in_state(agtype_in_state* value);
 
 /* Oid accessors for AGTYPE */
 Oid get_AGTYPEOID(void);

@@ -177,7 +177,7 @@ TupleTableSlot *populate_edge_tts(TupleTableSlot *elemTupleSlot,
  * Find out if the entity still exists. This is for 'implicit' deletion
  * of an entity.
  */
-bool entity_exists(EState *estate, Oid graph_oid, graphid id)
+bool entity_exists(EState *estate, Oid graph_oid, int64 id, int32 label_id)
 {
     int i;
     label_cache_data *label;
@@ -191,6 +191,13 @@ bool entity_exists(EState *estate, Oid graph_oid, graphid id)
      * Extract the label id from the graph id and get the table name
      * the entity is part of.
      */
+
+    label = search_label_graph_oid_cache(graph_oid, label_id);
+    ScanKeyInit(&scan_keys[0], 1, BTEqualStrategyNumber,
+                F_GRAPHIDEQ, GRAPHID_GET_DATUM(id));
+
+    rel = table_open(label->relation, RowExclusiveLock);
+    scan_desc = table_beginscan(rel, estate->es_snapshot, 1, scan_keys);
 
     // TODO: THIS IS A TEMPORARY HACK TO MAKE THIS FUNCTION WORK
     //          IT LOOKS FOR THE VERTEX\EDGE IN ALL LABEL TABLE
@@ -227,6 +234,8 @@ bool entity_exists(EState *estate, Oid graph_oid, graphid id)
         table_close(rel, RowExclusiveLock);
     }
 
+    table_endscan(scan_desc);
+    table_close(rel, RowExclusiveLock);
     return result;
 }
 
@@ -275,7 +284,8 @@ HeapTuple insert_entity_tuple_cid(ResultRelInfo *resultRelInfo,
     // Insert index entries for the tuple
     if (resultRelInfo->ri_NumIndices > 0)
     {
-        ExecInsertIndexTuples(elemTupleSlot, estate, false, NULL, NIL);
+        ExecInsertIndexTuples(resultRelInfo, elemTupleSlot, estate, false,
+                              false, NULL, NIL);
     }
 
     return tuple;

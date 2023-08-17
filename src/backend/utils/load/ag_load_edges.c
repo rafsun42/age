@@ -336,6 +336,7 @@ void edge_row_cb(int delim __attribute__((unused)), void *data)
         insert_edge_simple(cr->graph_oid, cr->object_name,
                            new_id, start_vertex_id,
                            end_vertex_id, props, cr->object_id);
+      pfree(props);
     }
 
     for (i = 0; i < n_fields; ++i)
