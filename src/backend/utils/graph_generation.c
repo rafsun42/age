@@ -48,32 +48,12 @@
 #include "utils/load/ag_load_edges.h"
 #include "utils/load/ag_load_labels.h"
 
-
-int64 get_nextval_internal(graph_cache_data* graph_cache,
-                           label_cache_data* label_cache);
-/*
- * Auxiliary function to get the next internal value in the graph,
- * so a new object (node or edge) graph id can be composed.
- */
-
-int64 get_nextval_internal(graph_cache_data* graph_cache,
-                           label_cache_data* label_cache)
-{
-    Oid obj_seq_id;
-    char* label_seq_name_str;
-
-    label_seq_name_str = NameStr(label_cache->seq_name);
-    obj_seq_id = get_relname_relid(label_seq_name_str,
-                                   graph_cache->namespace);
-
-    return nextval_internal(obj_seq_id, true);
-}
-
 PG_FUNCTION_INFO_V1(create_complete_graph);
 
 /*
-* SELECT * FROM ag_catalog.create_complete_graph('graph_name',no_of_nodes, 'edge_label', 'node_label'=NULL);
-*/
+ * SELECT * FROM ag_catalog.create_complete_graph('graph_name',no_of_nodes,
+                                            'edge_label', 'node_label'=NULL);
+ */
 
 Datum create_complete_graph(PG_FUNCTION_ARGS)
 {
@@ -81,7 +61,7 @@ Datum create_complete_graph(PG_FUNCTION_ARGS)
     Name graph_name;
 
     int64 no_vertices;
-    int64 i,j,vid = 1, eid, start_vid, end_vid;
+    int64 i,j,vtx_id = 1, edge_id, start_vtx_id, end_vtx_id;
 
     Name vtx_label_name = NULL;
     Name edge_label_name;
@@ -89,27 +69,10 @@ Datum create_complete_graph(PG_FUNCTION_ARGS)
     int32 edge_label_id;
 
     agtype *props = NULL;
-    graphid object_graph_id;
-    graphid start_vertex_graph_id;
-    graphid end_vertex_graph_id;
-
-    Oid vtx_seq_id;
-    Oid edge_seq_id;
 
     char* graph_name_str;
     char* vtx_name_str;
     char* edge_name_str;
-
-    graph_cache_data *graph_cache;
-    label_cache_data *vertex_cache;
-    label_cache_data *edge_cache;
-
-    Oid nsp_id;
-    Name vtx_seq_name;
-    char *vtx_seq_name_str;
-
-    Name edge_seq_name;
-    char *edge_seq_name_str;
 
     int64 lid;
 
@@ -180,50 +143,36 @@ Datum create_complete_graph(PG_FUNCTION_ARGS)
     vtx_label_id = get_label_id(vtx_name_str, graph_oid);
     edge_label_id = get_label_id(edge_name_str, graph_oid);
 
-    graph_cache = search_graph_name_cache(graph_name_str);
-    vertex_cache = search_label_name_graph_cache(vtx_name_str, graph_oid);
-    edge_cache = search_label_name_graph_cache(edge_name_str, graph_oid);
-
-    nsp_id = graph_cache->namespace;
-    vtx_seq_name = &(vertex_cache->seq_name);
-    vtx_seq_name_str = NameStr(*vtx_seq_name);
-
-    edge_seq_name = &(edge_cache->seq_name);
-    edge_seq_name_str = NameStr(*edge_seq_name);
-
-    vtx_seq_id = get_relname_relid(vtx_seq_name_str, nsp_id);
-    edge_seq_id = get_relname_relid(edge_seq_name_str, nsp_id);
-
     props = create_empty_agtype();
 
     /* Creating vertices*/
     for (i=(int64)1; i<=no_vertices; i++)
     {
-        vid = nextval_internal(vtx_seq_id, true);
-        object_graph_id = make_graphid(vtx_label_id, vid);
-        insert_vertex_simple(graph_oid, vtx_name_str, object_graph_id, props);
+        vtx_id = get_new_id(LABEL_KIND_VERTEX, graph_oid);
+
+        insert_vertex_simple(graph_oid, vtx_name_str, vtx_id, props,
+                             vtx_label_id);
     }
 
-    lid = vid;
+    lid = vtx_id;
 
     /* Creating edges*/
     for (i = 1; i<=no_vertices-1; i++)
     {
-        start_vid = lid-no_vertices+i;
+        start_vtx_id = lid-no_vertices+i;
+
         for(j=i+1; j<=no_vertices; j++)
         {
-            end_vid = lid-no_vertices+j;
-            eid = nextval_internal(edge_seq_id, true);
-            object_graph_id = make_graphid(edge_label_id, eid);
+            end_vtx_id = lid-no_vertices+j;
+            edge_id = get_new_id(LABEL_KIND_EDGE, graph_oid);
 
-            start_vertex_graph_id = make_graphid(vtx_label_id, start_vid);
-            end_vertex_graph_id = make_graphid(vtx_label_id, end_vid);
-
-            insert_edge_simple(graph_oid, edge_name_str, object_graph_id,
-                               start_vertex_graph_id, end_vertex_graph_id,
-                               props);
+            insert_edge_simple(graph_oid, edge_name_str, edge_id,
+                               start_vtx_id, end_vtx_id,
+                               props, edge_label_id,
+                               vtx_label_id, vtx_label_id);
         }
     }
+
     PG_RETURN_VOID();
 }
 
@@ -260,7 +209,7 @@ Datum age_create_barbell_graph(PG_FUNCTION_ARGS)
     Name graph_name;
     char* graph_name_str;
 
-    int64 start_node_index, end_node_index, nextval;
+    int64 start_node_id, end_node_id, edge_id;
 
     Name node_label_name = NULL;
     int32 node_label_id;
@@ -269,13 +218,6 @@ Datum age_create_barbell_graph(PG_FUNCTION_ARGS)
     Name edge_label_name;
     int32 edge_label_id;
     char* edge_label_str;
-
-    graphid object_graph_id;
-    graphid start_node_graph_id;
-    graphid end_node_graph_id;
-
-    graph_cache_data* graph_cache;
-    label_cache_data* edge_cache;
 
     agtype* properties = NULL;
 
@@ -318,6 +260,7 @@ Datum age_create_barbell_graph(PG_FUNCTION_ARGS)
     {
         node_label_name = PG_GETARG_NAME(3);
     }
+
     node_label_str = NameStr(*node_label_name);
 
     /* Name edge_label */
@@ -345,30 +288,21 @@ Datum age_create_barbell_graph(PG_FUNCTION_ARGS)
     node_label_id = get_label_id(node_label_str, graph_oid);
     edge_label_id = get_label_id(edge_label_str, graph_oid);
 
-    /*
-     * Fetching caches to get next values for graph id's, and access nodes
-     * to be connected with edges.
-     */
-    graph_cache = search_graph_name_cache(graph_name_str);
-    edge_cache = search_label_name_graph_cache(edge_label_str,graph_oid);
-
     // connect a node from each graph
-    start_node_index = 1; // first created node, from the first complete graph
-    end_node_index = arguments->args[1].value*2; // last created node, second graph
+    start_node_id = 1; // first created node, from the first complete graph
+    // last created node, second graph
+    end_node_id = arguments->args[1].value*2;
 
     // next index to be assigned to a node or edge
-    nextval = get_nextval_internal(graph_cache, edge_cache);
+    edge_id = get_new_id(LABEL_KIND_EDGE, graph_oid);
 
-    // build the graph id's of the edge to be created
-    object_graph_id = make_graphid(edge_label_id, nextval);
-    start_node_graph_id = make_graphid(node_label_id, start_node_index);
-    end_node_graph_id = make_graphid(node_label_id, end_node_index);
     properties = create_empty_agtype();
 
     // connect two nodes
     insert_edge_simple(graph_oid, edge_label_str,
-                       object_graph_id, start_node_graph_id,
-                       end_node_graph_id, properties);
+                       edge_id, start_node_id,
+                       end_node_id, properties,
+                       edge_label_id, node_label_id, node_label_id);
 
     PG_RETURN_VOID();
 }

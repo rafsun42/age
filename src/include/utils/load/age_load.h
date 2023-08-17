@@ -63,10 +63,11 @@ agtype* create_agtype_from_list(char **header, char **fields,
                                 size_t fields_len, int64 vertex_id);
 agtype* create_agtype_from_list_i(char **header, char **fields,
                                   size_t fields_len, size_t start_index);
-void insert_vertex_simple(Oid graph_oid, char *label_name, graphid vertex_id,
-                          agtype *vertex_properties);
-void insert_edge_simple(Oid graph_oid, char *label_name, graphid edge_id,
-                        graphid start_id, graphid end_id,
-                        agtype* end_properties);
+void insert_vertex_simple(Oid graph_oid, char *label_name, int64 vertex_id,
+                          agtype *vertex_properties, int32 label_id);
+void insert_edge_simple(Oid graph_oid, char *label_name, int64 edge_id,
+                        int64 start_id, int64 end_id,
+                        agtype* edge_properties, int32 label_id,
+                        int32 start_label_id, int32 end_label_id);
 
 #endif //AGE_ENTITY_CREATOR_H

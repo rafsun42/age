@@ -40,18 +40,18 @@ SELECT COUNT(*) FROM gp1."vertices";
 (1 row)
 
 SELECT * FROM cypher('gp1', $$MATCH (a)-[e]->(b) RETURN e$$) as (n agtype);
-                                                             n                                                              
-----------------------------------------------------------------------------------------------------------------------------
- {"id": 1125899906842625, "label": "edges", "end_id": 844424930131970, "start_id": 844424930131969, "properties": {}}::edge
- {"id": 1125899906842629, "label": "edges", "end_id": 844424930131971, "start_id": 844424930131970, "properties": {}}::edge
- {"id": 1125899906842626, "label": "edges", "end_id": 844424930131971, "start_id": 844424930131969, "properties": {}}::edge
- {"id": 1125899906842630, "label": "edges", "end_id": 844424930131972, "start_id": 844424930131970, "properties": {}}::edge
- {"id": 1125899906842627, "label": "edges", "end_id": 844424930131972, "start_id": 844424930131969, "properties": {}}::edge
- {"id": 1125899906842632, "label": "edges", "end_id": 844424930131972, "start_id": 844424930131971, "properties": {}}::edge
- {"id": 1125899906842631, "label": "edges", "end_id": 844424930131973, "start_id": 844424930131970, "properties": {}}::edge
- {"id": 1125899906842634, "label": "edges", "end_id": 844424930131973, "start_id": 844424930131972, "properties": {}}::edge
- {"id": 1125899906842633, "label": "edges", "end_id": 844424930131973, "start_id": 844424930131971, "properties": {}}::edge
- {"id": 1125899906842628, "label": "edges", "end_id": 844424930131973, "start_id": 844424930131969, "properties": {}}::edge
+                                                                                           n                                                                                            
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "edges", "end_id": 2, "start_id": 1, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 5, "label": "edges", "end_id": 3, "start_id": 2, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 2, "label": "edges", "end_id": 3, "start_id": 1, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 6, "label": "edges", "end_id": 4, "start_id": 2, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 3, "label": "edges", "end_id": 4, "start_id": 1, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 8, "label": "edges", "end_id": 4, "start_id": 3, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 7, "label": "edges", "end_id": 5, "start_id": 2, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 10, "label": "edges", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 9, "label": "edges", "end_id": 5, "start_id": 3, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 4, "label": "edges", "end_id": 5, "start_id": 1, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
 (10 rows)
 
 SELECT * FROM create_complete_graph('gp1',5,'edges','vertices');
@@ -92,8 +92,10 @@ SELECT * FROM create_complete_graph('gp5',5,'label','label');
 ERROR:  vertex and edge label can not be same
 -- DROPPING GRAPHS
 SELECT drop_graph('gp1', true);
-NOTICE:  drop cascades to 4 other objects
-DETAIL:  drop cascades to table gp1._ag_label_vertex
+NOTICE:  drop cascades to 6 other objects
+DETAIL:  drop cascades to sequence gp1.vertex_id_seq
+drop cascades to table gp1._ag_label_vertex
+drop cascades to sequence gp1.edge_id_seq
 drop cascades to table gp1._ag_label_edge
 drop cascades to table gp1.vertices
 drop cascades to table gp1.edges
@@ -104,8 +106,10 @@ NOTICE:  graph "gp1" has been dropped
 (1 row)
 
 SELECT drop_graph('gp2', true);
-NOTICE:  drop cascades to 3 other objects
-DETAIL:  drop cascades to table gp2._ag_label_vertex
+NOTICE:  drop cascades to 5 other objects
+DETAIL:  drop cascades to sequence gp2.vertex_id_seq
+drop cascades to table gp2._ag_label_vertex
+drop cascades to sequence gp2.edge_id_seq
 drop cascades to table gp2._ag_label_edge
 drop cascades to table gp2.edges
 NOTICE:  graph "gp2" has been dropped
@@ -137,29 +141,29 @@ SELECT COUNT(*) FROM gp1."vertices";
 (1 row)
 
 SELECT * FROM cypher('gp1', $$MATCH (a)-[e]->(b) RETURN e$$) as (n agtype);
-                                                             n                                                              
-----------------------------------------------------------------------------------------------------------------------------
- {"id": 1125899906842625, "label": "edges", "end_id": 844424930131970, "start_id": 844424930131969, "properties": {}}::edge
- {"id": 1125899906842629, "label": "edges", "end_id": 844424930131971, "start_id": 844424930131970, "properties": {}}::edge
- {"id": 1125899906842626, "label": "edges", "end_id": 844424930131971, "start_id": 844424930131969, "properties": {}}::edge
- {"id": 1125899906842627, "label": "edges", "end_id": 844424930131972, "start_id": 844424930131969, "properties": {}}::edge
- {"id": 1125899906842632, "label": "edges", "end_id": 844424930131972, "start_id": 844424930131971, "properties": {}}::edge
- {"id": 1125899906842630, "label": "edges", "end_id": 844424930131972, "start_id": 844424930131970, "properties": {}}::edge
- {"id": 1125899906842634, "label": "edges", "end_id": 844424930131973, "start_id": 844424930131972, "properties": {}}::edge
- {"id": 1125899906842628, "label": "edges", "end_id": 844424930131973, "start_id": 844424930131969, "properties": {}}::edge
- {"id": 1125899906842631, "label": "edges", "end_id": 844424930131973, "start_id": 844424930131970, "properties": {}}::edge
- {"id": 1125899906842633, "label": "edges", "end_id": 844424930131973, "start_id": 844424930131971, "properties": {}}::edge
- {"id": 1125899906842635, "label": "edges", "end_id": 844424930131975, "start_id": 844424930131974, "properties": {}}::edge
- {"id": 1125899906842639, "label": "edges", "end_id": 844424930131976, "start_id": 844424930131975, "properties": {}}::edge
- {"id": 1125899906842636, "label": "edges", "end_id": 844424930131976, "start_id": 844424930131974, "properties": {}}::edge
- {"id": 1125899906842637, "label": "edges", "end_id": 844424930131977, "start_id": 844424930131974, "properties": {}}::edge
- {"id": 1125899906842642, "label": "edges", "end_id": 844424930131977, "start_id": 844424930131976, "properties": {}}::edge
- {"id": 1125899906842640, "label": "edges", "end_id": 844424930131977, "start_id": 844424930131975, "properties": {}}::edge
- {"id": 1125899906842644, "label": "edges", "end_id": 844424930131978, "start_id": 844424930131977, "properties": {}}::edge
- {"id": 1125899906842638, "label": "edges", "end_id": 844424930131978, "start_id": 844424930131974, "properties": {}}::edge
- {"id": 1125899906842641, "label": "edges", "end_id": 844424930131978, "start_id": 844424930131975, "properties": {}}::edge
- {"id": 1125899906842643, "label": "edges", "end_id": 844424930131978, "start_id": 844424930131976, "properties": {}}::edge
- {"id": 1125899906842645, "label": "edges", "end_id": 844424930131978, "start_id": 844424930131969, "properties": {}}::edge
+                                                                                            n                                                                                            
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "edges", "end_id": 2, "start_id": 1, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 5, "label": "edges", "end_id": 3, "start_id": 2, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 2, "label": "edges", "end_id": 3, "start_id": 1, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 3, "label": "edges", "end_id": 4, "start_id": 1, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 8, "label": "edges", "end_id": 4, "start_id": 3, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 6, "label": "edges", "end_id": 4, "start_id": 2, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 10, "label": "edges", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 4, "label": "edges", "end_id": 5, "start_id": 1, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 7, "label": "edges", "end_id": 5, "start_id": 2, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 9, "label": "edges", "end_id": 5, "start_id": 3, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 11, "label": "edges", "end_id": 7, "start_id": 6, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 15, "label": "edges", "end_id": 8, "start_id": 7, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 12, "label": "edges", "end_id": 8, "start_id": 6, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 13, "label": "edges", "end_id": 9, "start_id": 6, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 18, "label": "edges", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 16, "label": "edges", "end_id": 9, "start_id": 7, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 20, "label": "edges", "end_id": 10, "start_id": 9, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 14, "label": "edges", "end_id": 10, "start_id": 6, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 17, "label": "edges", "end_id": 10, "start_id": 7, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 19, "label": "edges", "end_id": 10, "start_id": 8, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
+ {"id": 21, "label": "edges", "end_id": 10, "start_id": 1, "properties": {}, "end_label_id": 3, "end_label_name": "vertices", "start_label_id": 3, "start_label_name": "vertices"}::edge
 (21 rows)
 
 SELECT * FROM age_create_barbell_graph('gp1',5,0,'vertices',NULL,'edges',NULL);
@@ -205,8 +209,10 @@ SELECT * FROM age_create_barbell_graph('gp6',5,10,'label',NULL,'label',NULL);
 ERROR:  vertex and edge label can not be same
 -- DROPPING GRAPHS
 SELECT drop_graph('gp1', true);
-NOTICE:  drop cascades to 4 other objects
-DETAIL:  drop cascades to table gp1._ag_label_vertex
+NOTICE:  drop cascades to 6 other objects
+DETAIL:  drop cascades to sequence gp1.vertex_id_seq
+drop cascades to table gp1._ag_label_vertex
+drop cascades to sequence gp1.edge_id_seq
 drop cascades to table gp1._ag_label_edge
 drop cascades to table gp1.vertices
 drop cascades to table gp1.edges
@@ -217,8 +223,10 @@ NOTICE:  graph "gp1" has been dropped
 (1 row)
 
 SELECT drop_graph('gp2', true);
-NOTICE:  drop cascades to 4 other objects
-DETAIL:  drop cascades to table gp2._ag_label_vertex
+NOTICE:  drop cascades to 6 other objects
+DETAIL:  drop cascades to sequence gp2.vertex_id_seq
+drop cascades to table gp2._ag_label_vertex
+drop cascades to sequence gp2.edge_id_seq
 drop cascades to table gp2._ag_label_edge
 drop cascades to table gp2.vertices
 drop cascades to table gp2.edges
