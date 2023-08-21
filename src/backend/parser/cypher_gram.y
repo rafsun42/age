@@ -1521,12 +1521,10 @@ expr:
              * supported
              */
             else
-            {
                 ereport(ERROR,
                         (errcode(ERRCODE_SYNTAX_ERROR),
                          errmsg("invalid indirection syntax"),
                          ag_scanner_errposition(@1, scanner)));
-            }
         }
     | expr TYPECAST symbolic_name
         {
@@ -2125,9 +2123,6 @@ static Node *make_null_const(int location)
 {
     A_Const *n = makeNode(A_Const);
     
-    n->isnull = true;
-    A_Const *n = makeNode(A_Const);
-
     n->isnull = true;
     n->location = location;
 
