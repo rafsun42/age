@@ -141,31 +141,43 @@ $$) AS (a agtype);
 SELECT * FROM cypher('cypher_match', $$
     MATCH (:v1)-[e]-() RETURN e
 $$) AS (a agtype);
-ERROR:  function ag_catalog._extract_label_id(bigint) does not exist
-LINE 1: SELECT * FROM cypher('cypher_match', $$
-                                              ^
-HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+                                                             a                                                             
+---------------------------------------------------------------------------------------------------------------------------
+ {"id": 1407374883553282, "label": "e1", "end_id": 1125899906842626, "start_id": 1125899906842625, "properties": {}}::edge
+ {"id": 1407374883553281, "label": "e1", "end_id": 1125899906842627, "start_id": 1125899906842626, "properties": {}}::edge
+ {"id": 1407374883553282, "label": "e1", "end_id": 1125899906842626, "start_id": 1125899906842625, "properties": {}}::edge
+ {"id": 1407374883553281, "label": "e1", "end_id": 1125899906842627, "start_id": 1125899906842626, "properties": {}}::edge
+(4 rows)
+
 SELECT * FROM cypher('cypher_match', $$
     MATCH (:v1)-[e]-(:v1) RETURN e
 $$) AS (a agtype);
-ERROR:  function ag_catalog._extract_label_id(bigint) does not exist
-LINE 1: SELECT * FROM cypher('cypher_match', $$
-                                              ^
-HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+                                                             a                                                             
+---------------------------------------------------------------------------------------------------------------------------
+ {"id": 1407374883553282, "label": "e1", "end_id": 1125899906842626, "start_id": 1125899906842625, "properties": {}}::edge
+ {"id": 1407374883553281, "label": "e1", "end_id": 1125899906842627, "start_id": 1125899906842626, "properties": {}}::edge
+ {"id": 1407374883553282, "label": "e1", "end_id": 1125899906842626, "start_id": 1125899906842625, "properties": {}}::edge
+ {"id": 1407374883553281, "label": "e1", "end_id": 1125899906842627, "start_id": 1125899906842626, "properties": {}}::edge
+(4 rows)
+
 SELECT * FROM cypher('cypher_match', $$
     MATCH ()-[]-()-[e]-(:v1) RETURN e
 $$) AS (a agtype);
-ERROR:  function ag_catalog._extract_label_id(bigint) does not exist
-LINE 1: SELECT * FROM cypher('cypher_match', $$
-                                              ^
-HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+                                                             a                                                             
+---------------------------------------------------------------------------------------------------------------------------
+ {"id": 1407374883553282, "label": "e1", "end_id": 1125899906842626, "start_id": 1125899906842625, "properties": {}}::edge
+ {"id": 1407374883553281, "label": "e1", "end_id": 1125899906842627, "start_id": 1125899906842626, "properties": {}}::edge
+(2 rows)
+
 SELECT * FROM cypher('cypher_match', $$
     MATCH (a)-[]-()-[]-(:v1) RETURN a
 $$) AS (a agtype);
-ERROR:  function ag_catalog._extract_label_id(bigint) does not exist
-LINE 1: SELECT * FROM cypher('cypher_match', $$
-                                              ^
-HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+                                        a                                         
+----------------------------------------------------------------------------------
+ {"id": 1125899906842625, "label": "v1", "properties": {"id": "initial"}}::vertex
+ {"id": 1125899906842627, "label": "v1", "properties": {"id": "end"}}::vertex
+(2 rows)
+
 -- Right Path Test
 SELECT * FROM cypher('cypher_match', $$
 	MATCH (a:v1)-[:e1]->(b:v1)-[:e1]->(c:v1) RETURN a, b, c
@@ -218,24 +230,30 @@ $$) AS (a agtype);
 SELECT * FROM cypher('cypher_match', $$
     MATCH (:v1)-[e]->() RETURN e
 $$) AS (a agtype);
-ERROR:  function ag_catalog._extract_label_id(bigint) does not exist
-LINE 1: SELECT * FROM cypher('cypher_match', $$
-                                              ^
-HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+                                                             a                                                             
+---------------------------------------------------------------------------------------------------------------------------
+ {"id": 1407374883553281, "label": "e1", "end_id": 1125899906842627, "start_id": 1125899906842626, "properties": {}}::edge
+ {"id": 1407374883553282, "label": "e1", "end_id": 1125899906842626, "start_id": 1125899906842625, "properties": {}}::edge
+(2 rows)
+
 SELECT * FROM cypher('cypher_match', $$
     MATCH ()-[e]->(:v1) RETURN e
 $$) AS (a agtype);
-ERROR:  function ag_catalog._extract_label_id(bigint) does not exist
-LINE 1: SELECT * FROM cypher('cypher_match', $$
-                                              ^
-HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+                                                             a                                                             
+---------------------------------------------------------------------------------------------------------------------------
+ {"id": 1407374883553281, "label": "e1", "end_id": 1125899906842627, "start_id": 1125899906842626, "properties": {}}::edge
+ {"id": 1407374883553282, "label": "e1", "end_id": 1125899906842626, "start_id": 1125899906842625, "properties": {}}::edge
+(2 rows)
+
 SELECT * FROM cypher('cypher_match', $$
     MATCH (:v1)-[e]->(:v1) RETURN e
 $$) AS (a agtype);
-ERROR:  function ag_catalog._extract_label_id(bigint) does not exist
-LINE 1: SELECT * FROM cypher('cypher_match', $$
-                                              ^
-HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+                                                             a                                                             
+---------------------------------------------------------------------------------------------------------------------------
+ {"id": 1407374883553281, "label": "e1", "end_id": 1125899906842627, "start_id": 1125899906842626, "properties": {}}::edge
+ {"id": 1407374883553282, "label": "e1", "end_id": 1125899906842626, "start_id": 1125899906842625, "properties": {}}::edge
+(2 rows)
+
 --Left Path Test
 SELECT * FROM cypher('cypher_match', $$
 	MATCH (a:v1)<-[:e1]-(b:v1)<-[:e1]-(c:v1) RETURN a, b, c
@@ -288,10 +306,12 @@ $$) AS (a agtype);
 SELECT * FROM cypher('cypher_match', $$
     MATCH (:v1)<-[e]-(:v1) RETURN e
 $$) AS (a agtype);
-ERROR:  function ag_catalog._extract_label_id(bigint) does not exist
-LINE 1: SELECT * FROM cypher('cypher_match', $$
-                                              ^
-HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+                                                             a                                                             
+---------------------------------------------------------------------------------------------------------------------------
+ {"id": 1407374883553281, "label": "e1", "end_id": 1125899906842627, "start_id": 1125899906842626, "properties": {}}::edge
+ {"id": 1407374883553282, "label": "e1", "end_id": 1125899906842626, "start_id": 1125899906842625, "properties": {}}::edge
+(2 rows)
+
 --Divergent Path Tests
 SELECT * FROM cypher('cypher_match', $$
 	CREATE (:v2 {id:'initial'})<-[:e2]-(:v2 {id:'middle'})-[:e2]->(:v2 {id:'end'})
@@ -339,19 +359,35 @@ SELECT * FROM cypher('cypher_match', $$
     MATCH p=()-[]->()
     RETURN p
 $$) AS (i agtype);
-ERROR:  function ag_catalog._extract_label_id(bigint) does not exist
-LINE 1: SELECT * FROM cypher('cypher_match', $$
-                                              ^
-HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+                                                                                                                                                  i                                                                                                                                                   
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 1125899906842625, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 1407374883553282, "label": "e1", "end_id": 1125899906842626, "start_id": 1125899906842625, "properties": {}}::edge, {"id": 1125899906842626, "label": "v1", "properties": {"id": "middle"}}::vertex]::path
+ [{"id": 1125899906842625, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 1407374883553282, "label": "e1", "end_id": 1125899906842626, "start_id": 1125899906842625, "properties": {}}::edge, {"id": 1125899906842626, "label": "v1", "properties": {"id": "middle"}}::vertex]::path
+ [{"id": 1125899906842626, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1407374883553281, "label": "e1", "end_id": 1125899906842627, "start_id": 1125899906842626, "properties": {}}::edge, {"id": 1125899906842627, "label": "v1", "properties": {"id": "end"}}::vertex]::path
+ [{"id": 1125899906842626, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1407374883553281, "label": "e1", "end_id": 1125899906842627, "start_id": 1125899906842626, "properties": {}}::edge, {"id": 1125899906842627, "label": "v1", "properties": {"id": "end"}}::vertex]::path
+ [{"id": 1688849860263938, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 1970324836974594, "label": "e2", "end_id": 1688849860263937, "start_id": 1688849860263938, "properties": {}}::edge, {"id": 1688849860263937, "label": "v2", "properties": {"id": "initial"}}::vertex]::path
+ [{"id": 1688849860263938, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 1970324836974594, "label": "e2", "end_id": 1688849860263937, "start_id": 1688849860263938, "properties": {}}::edge, {"id": 1688849860263937, "label": "v2", "properties": {"id": "initial"}}::vertex]::path
+ [{"id": 1688849860263938, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 1970324836974593, "label": "e2", "end_id": 1688849860263939, "start_id": 1688849860263938, "properties": {}}::edge, {"id": 1688849860263939, "label": "v2", "properties": {"id": "end"}}::vertex]::path
+ [{"id": 1688849860263938, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 1970324836974593, "label": "e2", "end_id": 1688849860263939, "start_id": 1688849860263938, "properties": {}}::edge, {"id": 1688849860263939, "label": "v2", "properties": {"id": "end"}}::vertex]::path
+(8 rows)
+
 SELECT * FROM cypher('cypher_match', $$
     MATCH ()<-[]-(:v2)-[]->()
 	MATCH p=()-[]->()
     RETURN p
 $$) AS (i agtype);
-ERROR:  function ag_catalog._extract_label_id(bigint) does not exist
-LINE 1: SELECT * FROM cypher('cypher_match', $$
-                                              ^
-HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+                                                                                                                                                  i                                                                                                                                                   
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 1125899906842625, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 1407374883553282, "label": "e1", "end_id": 1125899906842626, "start_id": 1125899906842625, "properties": {}}::edge, {"id": 1125899906842626, "label": "v1", "properties": {"id": "middle"}}::vertex]::path
+ [{"id": 1125899906842625, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 1407374883553282, "label": "e1", "end_id": 1125899906842626, "start_id": 1125899906842625, "properties": {}}::edge, {"id": 1125899906842626, "label": "v1", "properties": {"id": "middle"}}::vertex]::path
+ [{"id": 1125899906842626, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1407374883553281, "label": "e1", "end_id": 1125899906842627, "start_id": 1125899906842626, "properties": {}}::edge, {"id": 1125899906842627, "label": "v1", "properties": {"id": "end"}}::vertex]::path
+ [{"id": 1125899906842626, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1407374883553281, "label": "e1", "end_id": 1125899906842627, "start_id": 1125899906842626, "properties": {}}::edge, {"id": 1125899906842627, "label": "v1", "properties": {"id": "end"}}::vertex]::path
+ [{"id": 1688849860263938, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 1970324836974594, "label": "e2", "end_id": 1688849860263937, "start_id": 1688849860263938, "properties": {}}::edge, {"id": 1688849860263937, "label": "v2", "properties": {"id": "initial"}}::vertex]::path
+ [{"id": 1688849860263938, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 1970324836974594, "label": "e2", "end_id": 1688849860263937, "start_id": 1688849860263938, "properties": {}}::edge, {"id": 1688849860263937, "label": "v2", "properties": {"id": "initial"}}::vertex]::path
+ [{"id": 1688849860263938, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 1970324836974593, "label": "e2", "end_id": 1688849860263939, "start_id": 1688849860263938, "properties": {}}::edge, {"id": 1688849860263939, "label": "v2", "properties": {"id": "end"}}::vertex]::path
+ [{"id": 1688849860263938, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 1970324836974593, "label": "e2", "end_id": 1688849860263939, "start_id": 1688849860263938, "properties": {}}::edge, {"id": 1688849860263939, "label": "v2", "properties": {"id": "end"}}::vertex]::path
+(8 rows)
+
 --Convergent Path Tests
 SELECT * FROM cypher('cypher_match', $$
 	CREATE (:v3 {id:'initial'})-[:e3]->(:v3 {id:'middle'})<-[:e3]-(:v3 {id:'end'})
@@ -374,10 +410,12 @@ SELECT * FROM cypher('cypher_match', $$
     MATCH (:v3)-[b:e3]->()
     RETURN b
 $$) AS (i agtype);
-ERROR:  function ag_catalog._extract_label_id(bigint) does not exist
-LINE 1: SELECT * FROM cypher('cypher_match', $$
-                                              ^
-HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+                                                             i                                                             
+---------------------------------------------------------------------------------------------------------------------------
+ {"id": 2533274790395905, "label": "e3", "end_id": 2251799813685250, "start_id": 2251799813685251, "properties": {}}::edge
+ {"id": 2533274790395906, "label": "e3", "end_id": 2251799813685250, "start_id": 2251799813685249, "properties": {}}::edge
+(2 rows)
+
 SELECT * FROM cypher('cypher_match', $$
 	MATCH ()-[]->(n:v1)<-[]-()
 	MATCH p=(n)<-[]-()
@@ -430,10 +468,11 @@ SELECT * FROM cypher('cypher_match', $$
 	where a.id = 'initial'
 	RETURN b       
 $$) AS (con_path agtype);
-ERROR:  function ag_catalog._extract_label_id(bigint) does not exist
-LINE 1: SELECT * FROM cypher('cypher_match', $$
-                                              ^
-HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+                                   con_path                                   
+------------------------------------------------------------------------------
+ {"id": 2251799813685251, "label": "v3", "properties": {"id": "end"}}::vertex
+(1 row)
+
 --Patterns
 SELECT * FROM cypher('cypher_match', $$
 	MATCH (a:v1), p=(a)-[]-()-[]-()
@@ -517,10 +556,22 @@ SELECT * FROM cypher('cypher_match', $$
 	MATCH (:v1)-[]-(c)
 	RETURN a.i, c.id
 $$) AS (i agtype,  c agtype);
-ERROR:  function ag_catalog._extract_label_id(bigint) does not exist
-LINE 1: SELECT * FROM cypher('cypher_match', $$
-                                              ^
-HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+ i |     c     
+---+-----------
+   | "initial"
+ 0 | "initial"
+ 1 | "initial"
+   | "middle"
+ 0 | "middle"
+ 1 | "middle"
+   | "middle"
+ 0 | "middle"
+ 1 | "middle"
+   | "end"
+ 0 | "end"
+ 1 | "end"
+(12 rows)
+
 --
 -- Property constraints
 --
@@ -1506,10 +1557,11 @@ SELECT * FROM cypher('cypher_match', $$
 	MATCH (u:duplicate)-[]-(:other_v)
 	RETURN DISTINCT u
 $$) AS (i agtype);
-ERROR:  function ag_catalog._extract_label_id(bigint) does not exist
-LINE 1: SELECT * FROM cypher('cypher_match', $$
-                                              ^
-HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+                                    i                                     
+--------------------------------------------------------------------------
+ {"id": 3377699720527873, "label": "duplicate", "properties": {}}::vertex
+(1 row)
+
 SELECT * FROM cypher('cypher_match', $$
 	MATCH p=(:duplicate)-[]-(:other_v)
 	RETURN DISTINCT p
@@ -1736,30 +1788,33 @@ SELECT * FROM cypher('test_retrieve_var', $$
     WHERE EXISTS((:A)<-[]-(c))
     RETURN a, r
 $$) AS (a agtype, r agtype);
-ERROR:  function ag_catalog._extract_label_id(bigint) does not exist
-LINE 1: SELECT * FROM cypher('test_retrieve_var', $$
-                                                   ^
-HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+                                a                                |                                                             r                                                              
+-----------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------
+ {"id": 844424930131969, "label": "A", "properties": {}}::vertex | {"id": 1125899906842625, "label": "incs", "end_id": 1407374883553281, "start_id": 844424930131969, "properties": {}}::edge
+(1 row)
+
 SELECT * FROM cypher('test_retrieve_var', $$
     MATCH (a:A)-[r:incs]->() WITH a, r
     OPTIONAL MATCH (a)-[r]->(c)
     WHERE EXISTS((c)<-[]-(:A))
     RETURN a, r
 $$) AS (a agtype, r agtype);
-ERROR:  function ag_catalog._extract_label_id(bigint) does not exist
-LINE 1: SELECT * FROM cypher('test_retrieve_var', $$
-                                                   ^
-HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+                                a                                |                                                             r                                                              
+-----------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------
+ {"id": 844424930131969, "label": "A", "properties": {}}::vertex | {"id": 1125899906842625, "label": "incs", "end_id": 1407374883553281, "start_id": 844424930131969, "properties": {}}::edge
+(1 row)
+
 SELECT * FROM cypher('test_retrieve_var', $$
     MATCH (a:A)-[r:incs]->() WITH a, r
     OPTIONAL MATCH (a)-[r]->(c)
     WHERE EXISTS((:C)<-[]-(:A))
     RETURN a, r
 $$) AS (a agtype, r agtype);
-ERROR:  function ag_catalog._extract_label_id(bigint) does not exist
-LINE 1: SELECT * FROM cypher('test_retrieve_var', $$
-                                                   ^
-HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+                                a                                |                                                             r                                                              
+-----------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------
+ {"id": 844424930131969, "label": "A", "properties": {}}::vertex | {"id": 1125899906842625, "label": "incs", "end_id": 1407374883553281, "start_id": 844424930131969, "properties": {}}::edge
+(1 row)
+
 SELECT * FROM cypher('test_retrieve_var', $$
     MATCH (a:A)-[r:incs]->() WITH a, r
     OPTIONAL MATCH (a)-[r]->(c)
