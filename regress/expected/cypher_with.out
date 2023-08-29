@@ -53,14 +53,14 @@ SELECT * FROM cypher('cypher_with', $$
     WITH n,e,m
     RETURN n,e,m
 $$) AS (N1 agtype, edge agtype, N2 agtype);
-                                             n1                                             |                                                            edge                                                            |                                             n2                                             
---------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------
- {"id": 281474976710657, "label": "", "properties": {"age": 36, "name": "Andres"}}::vertex  | {"id": 844424930131969, "label": "BLOCKS", "end_id": 281474976710658, "start_id": 281474976710657, "properties": {}}::edge | {"id": 281474976710658, "label": "", "properties": {"age": 25, "name": "Caesar"}}::vertex
- {"id": 281474976710659, "label": "", "properties": {"age": 55, "name": "Bossman"}}::vertex | {"id": 844424930131970, "label": "BLOCKS", "end_id": 281474976710660, "start_id": 281474976710659, "properties": {}}::edge | {"id": 281474976710660, "label": "", "properties": {"age": 35, "name": "David"}}::vertex
- {"id": 281474976710657, "label": "", "properties": {"age": 36, "name": "Andres"}}::vertex  | {"id": 1125899906842625, "label": "KNOWS", "end_id": 281474976710659, "start_id": 281474976710657, "properties": {}}::edge | {"id": 281474976710659, "label": "", "properties": {"age": 55, "name": "Bossman"}}::vertex
- {"id": 281474976710658, "label": "", "properties": {"age": 25, "name": "Caesar"}}::vertex  | {"id": 1125899906842626, "label": "KNOWS", "end_id": 281474976710661, "start_id": 281474976710658, "properties": {}}::edge | {"id": 281474976710661, "label": "", "properties": {"age": 37, "name": "George"}}::vertex
- {"id": 281474976710659, "label": "", "properties": {"age": 55, "name": "Bossman"}}::vertex | {"id": 1125899906842627, "label": "KNOWS", "end_id": 281474976710661, "start_id": 281474976710659, "properties": {}}::edge | {"id": 281474976710661, "label": "", "properties": {"age": 37, "name": "George"}}::vertex
- {"id": 281474976710660, "label": "", "properties": {"age": 35, "name": "David"}}::vertex   | {"id": 1125899906842628, "label": "KNOWS", "end_id": 281474976710657, "start_id": 281474976710660, "properties": {}}::edge | {"id": 281474976710657, "label": "", "properties": {"age": 36, "name": "Andres"}}::vertex
+                                      n1                                      |                                       edge                                       |                                      n2                                      
+------------------------------------------------------------------------------+----------------------------------------------------------------------------------+------------------------------------------------------------------------------
+ {"id": 1, "label": "", "properties": {"age": 36, "name": "Andres"}}::vertex  | {"id": 1, "label": "BLOCKS", "end_id": 2, "start_id": 1, "properties": {}}::edge | {"id": 2, "label": "", "properties": {"age": 25, "name": "Caesar"}}::vertex
+ {"id": 3, "label": "", "properties": {"age": 55, "name": "Bossman"}}::vertex | {"id": 4, "label": "BLOCKS", "end_id": 4, "start_id": 3, "properties": {}}::edge | {"id": 4, "label": "", "properties": {"age": 35, "name": "David"}}::vertex
+ {"id": 1, "label": "", "properties": {"age": 36, "name": "Andres"}}::vertex  | {"id": 2, "label": "KNOWS", "end_id": 3, "start_id": 1, "properties": {}}::edge  | {"id": 3, "label": "", "properties": {"age": 55, "name": "Bossman"}}::vertex
+ {"id": 2, "label": "", "properties": {"age": 25, "name": "Caesar"}}::vertex  | {"id": 3, "label": "KNOWS", "end_id": 5, "start_id": 2, "properties": {}}::edge  | {"id": 5, "label": "", "properties": {"age": 37, "name": "George"}}::vertex
+ {"id": 3, "label": "", "properties": {"age": 55, "name": "Bossman"}}::vertex | {"id": 5, "label": "KNOWS", "end_id": 5, "start_id": 3, "properties": {}}::edge  | {"id": 5, "label": "", "properties": {"age": 37, "name": "George"}}::vertex
+ {"id": 4, "label": "", "properties": {"age": 35, "name": "David"}}::vertex   | {"id": 6, "label": "KNOWS", "end_id": 1, "start_id": 4, "properties": {}}::edge  | {"id": 1, "label": "", "properties": {"age": 36, "name": "Andres"}}::vertex
 (6 rows)
 
 -- WITH/AS
@@ -132,14 +132,14 @@ SELECT * FROM cypher('cypher_with', $$
     WHERE path_length > 1 
     RETURN p
 $$) AS (pattern agtype);
-                                                                                                                                                                                                                                                                                             pattern                                                                                                                                                                                                                                                                                              
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 281474976710657, "label": "_ag_label_vertex", "properties": {"age": 36, "name": "Andres"}}::vertex, {"id": 1125899906842625, "label": "KNOWS", "end_id": 281474976710659, "start_id": 281474976710657, "properties": {}}::edge, {"id": 281474976710659, "label": "_ag_label_vertex", "properties": {"age": 55, "name": "Bossman"}}::vertex, {"id": 1125899906842627, "label": "KNOWS", "end_id": 281474976710661, "start_id": 281474976710659, "properties": {}}::edge, {"id": 281474976710661, "label": "_ag_label_vertex", "properties": {"age": 37, "name": "George"}}::vertex]::path
- [{"id": 281474976710657, "label": "_ag_label_vertex", "properties": {"age": 36, "name": "Andres"}}::vertex, {"id": 1125899906842625, "label": "KNOWS", "end_id": 281474976710659, "start_id": 281474976710657, "properties": {}}::edge, {"id": 281474976710659, "label": "_ag_label_vertex", "properties": {"age": 55, "name": "Bossman"}}::vertex, {"id": 844424930131970, "label": "BLOCKS", "end_id": 281474976710660, "start_id": 281474976710659, "properties": {}}::edge, {"id": 281474976710660, "label": "_ag_label_vertex", "properties": {"age": 35, "name": "David"}}::vertex]::path
- [{"id": 281474976710657, "label": "_ag_label_vertex", "properties": {"age": 36, "name": "Andres"}}::vertex, {"id": 844424930131969, "label": "BLOCKS", "end_id": 281474976710658, "start_id": 281474976710657, "properties": {}}::edge, {"id": 281474976710658, "label": "_ag_label_vertex", "properties": {"age": 25, "name": "Caesar"}}::vertex, {"id": 1125899906842626, "label": "KNOWS", "end_id": 281474976710661, "start_id": 281474976710658, "properties": {}}::edge, {"id": 281474976710661, "label": "_ag_label_vertex", "properties": {"age": 37, "name": "George"}}::vertex]::path
- [{"id": 281474976710659, "label": "_ag_label_vertex", "properties": {"age": 55, "name": "Bossman"}}::vertex, {"id": 844424930131970, "label": "BLOCKS", "end_id": 281474976710660, "start_id": 281474976710659, "properties": {}}::edge, {"id": 281474976710660, "label": "_ag_label_vertex", "properties": {"age": 35, "name": "David"}}::vertex, {"id": 1125899906842628, "label": "KNOWS", "end_id": 281474976710657, "start_id": 281474976710660, "properties": {}}::edge, {"id": 281474976710657, "label": "_ag_label_vertex", "properties": {"age": 36, "name": "Andres"}}::vertex]::path
- [{"id": 281474976710660, "label": "_ag_label_vertex", "properties": {"age": 35, "name": "David"}}::vertex, {"id": 1125899906842628, "label": "KNOWS", "end_id": 281474976710657, "start_id": 281474976710660, "properties": {}}::edge, {"id": 281474976710657, "label": "_ag_label_vertex", "properties": {"age": 36, "name": "Andres"}}::vertex, {"id": 1125899906842625, "label": "KNOWS", "end_id": 281474976710659, "start_id": 281474976710657, "properties": {}}::edge, {"id": 281474976710659, "label": "_ag_label_vertex", "properties": {"age": 55, "name": "Bossman"}}::vertex]::path
- [{"id": 281474976710660, "label": "_ag_label_vertex", "properties": {"age": 35, "name": "David"}}::vertex, {"id": 1125899906842628, "label": "KNOWS", "end_id": 281474976710657, "start_id": 281474976710660, "properties": {}}::edge, {"id": 281474976710657, "label": "_ag_label_vertex", "properties": {"age": 36, "name": "Andres"}}::vertex, {"id": 844424930131969, "label": "BLOCKS", "end_id": 281474976710658, "start_id": 281474976710657, "properties": {}}::edge, {"id": 281474976710658, "label": "_ag_label_vertex", "properties": {"age": 25, "name": "Caesar"}}::vertex]::path
+                                                                                                                                                                                                                             pattern                                                                                                                                                                                                                              
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 1, "label": "_ag_label_vertex", "properties": {"age": 36, "name": "Andres"}}::vertex, {"id": 2, "label": "KNOWS", "end_id": 3, "start_id": 1, "properties": {}}::edge, {"id": 3, "label": "_ag_label_vertex", "properties": {"age": 55, "name": "Bossman"}}::vertex, {"id": 5, "label": "KNOWS", "end_id": 5, "start_id": 3, "properties": {}}::edge, {"id": 5, "label": "_ag_label_vertex", "properties": {"age": 37, "name": "George"}}::vertex]::path
+ [{"id": 1, "label": "_ag_label_vertex", "properties": {"age": 36, "name": "Andres"}}::vertex, {"id": 2, "label": "KNOWS", "end_id": 3, "start_id": 1, "properties": {}}::edge, {"id": 3, "label": "_ag_label_vertex", "properties": {"age": 55, "name": "Bossman"}}::vertex, {"id": 4, "label": "BLOCKS", "end_id": 4, "start_id": 3, "properties": {}}::edge, {"id": 4, "label": "_ag_label_vertex", "properties": {"age": 35, "name": "David"}}::vertex]::path
+ [{"id": 1, "label": "_ag_label_vertex", "properties": {"age": 36, "name": "Andres"}}::vertex, {"id": 1, "label": "BLOCKS", "end_id": 2, "start_id": 1, "properties": {}}::edge, {"id": 2, "label": "_ag_label_vertex", "properties": {"age": 25, "name": "Caesar"}}::vertex, {"id": 3, "label": "KNOWS", "end_id": 5, "start_id": 2, "properties": {}}::edge, {"id": 5, "label": "_ag_label_vertex", "properties": {"age": 37, "name": "George"}}::vertex]::path
+ [{"id": 3, "label": "_ag_label_vertex", "properties": {"age": 55, "name": "Bossman"}}::vertex, {"id": 4, "label": "BLOCKS", "end_id": 4, "start_id": 3, "properties": {}}::edge, {"id": 4, "label": "_ag_label_vertex", "properties": {"age": 35, "name": "David"}}::vertex, {"id": 6, "label": "KNOWS", "end_id": 1, "start_id": 4, "properties": {}}::edge, {"id": 1, "label": "_ag_label_vertex", "properties": {"age": 36, "name": "Andres"}}::vertex]::path
+ [{"id": 4, "label": "_ag_label_vertex", "properties": {"age": 35, "name": "David"}}::vertex, {"id": 6, "label": "KNOWS", "end_id": 1, "start_id": 4, "properties": {}}::edge, {"id": 1, "label": "_ag_label_vertex", "properties": {"age": 36, "name": "Andres"}}::vertex, {"id": 2, "label": "KNOWS", "end_id": 3, "start_id": 1, "properties": {}}::edge, {"id": 3, "label": "_ag_label_vertex", "properties": {"age": 55, "name": "Bossman"}}::vertex]::path
+ [{"id": 4, "label": "_ag_label_vertex", "properties": {"age": 35, "name": "David"}}::vertex, {"id": 6, "label": "KNOWS", "end_id": 1, "start_id": 4, "properties": {}}::edge, {"id": 1, "label": "_ag_label_vertex", "properties": {"age": 36, "name": "Andres"}}::vertex, {"id": 1, "label": "BLOCKS", "end_id": 2, "start_id": 1, "properties": {}}::edge, {"id": 2, "label": "_ag_label_vertex", "properties": {"age": 25, "name": "Caesar"}}::vertex]::path
 (6 rows)
 
 -- MATCH/WHERE with WITH/WHERE
@@ -162,13 +162,13 @@ SELECT * FROM cypher('cypher_with', $$
     ORDER BY id(n)
     RETURN n
 $$) as (name agtype);
-                                            name                                            
---------------------------------------------------------------------------------------------
- {"id": 281474976710657, "label": "", "properties": {"age": 36, "name": "Andres"}}::vertex
- {"id": 281474976710658, "label": "", "properties": {"age": 25, "name": "Caesar"}}::vertex
- {"id": 281474976710659, "label": "", "properties": {"age": 55, "name": "Bossman"}}::vertex
- {"id": 281474976710660, "label": "", "properties": {"age": 35, "name": "David"}}::vertex
- {"id": 281474976710661, "label": "", "properties": {"age": 37, "name": "George"}}::vertex
+                                     name                                     
+------------------------------------------------------------------------------
+ {"id": 1, "label": "", "properties": {"age": 36, "name": "Andres"}}::vertex
+ {"id": 2, "label": "", "properties": {"age": 25, "name": "Caesar"}}::vertex
+ {"id": 3, "label": "", "properties": {"age": 55, "name": "Bossman"}}::vertex
+ {"id": 4, "label": "", "properties": {"age": 35, "name": "David"}}::vertex
+ {"id": 5, "label": "", "properties": {"age": 37, "name": "George"}}::vertex
 (5 rows)
 
 -- WITH/ORDER BY/DESC
@@ -234,10 +234,10 @@ SELECT * FROM cypher('cypher_with', $$
     WHERE end_node.name = 'George'
     RETURN id(start_node),start_node.name,id(end_node),end_node.name
 $$) AS (id1 agtype, name1 agtype, id2 agtype, name2 agtype);
-       id1       |   name1   |       id2       |  name2   
------------------+-----------+-----------------+----------
- 281474976710659 | "Bossman" | 281474976710661 | "George"
- 281474976710658 | "Caesar"  | 281474976710661 | "George"
+ id1 |   name1   | id2 |  name2   
+-----+-----------+-----+----------
+ 3   | "Bossman" | 5   | "George"
+ 2   | "Caesar"  | 5   | "George"
 (2 rows)
 
 -- Expression item must be aliased.
@@ -280,8 +280,10 @@ LINE 7:     RETURN id(start_node),end_node.name
                                   ^
 -- Clean up
 SELECT drop_graph('cypher_with', true);
-NOTICE:  drop cascades to 4 other objects
-DETAIL:  drop cascades to table cypher_with._ag_label_vertex
+NOTICE:  drop cascades to 6 other objects
+DETAIL:  drop cascades to sequence cypher_with.vertex_id_seq
+drop cascades to table cypher_with._ag_label_vertex
+drop cascades to sequence cypher_with.edge_id_seq
 drop cascades to table cypher_with._ag_label_edge
 drop cascades to table cypher_with."BLOCKS"
 drop cascades to table cypher_with."KNOWS"
@@ -303,9 +305,9 @@ SELECT * FROM cypher('graph', $$
     CREATE (a:A)-[:incs]->(:C), (a)-[:incs]->(:C)
     RETURN a
 $$) AS (n agtype);
-                                n                                
------------------------------------------------------------------
- {"id": 844424930131969, "label": "A", "properties": {}}::vertex
+                         n                         
+---------------------------------------------------
+ {"id": 1, "label": "A", "properties": {}}::vertex
 (1 row)
 
 SELECT * FROM cypher('graph', $$
@@ -340,8 +342,10 @@ LINE 4:     RETURN v,path_length
                    ^
 -- Clean up
 SELECT drop_graph('graph', true);
-NOTICE:  drop cascades to 6 other objects
-DETAIL:  drop cascades to table graph._ag_label_vertex
+NOTICE:  drop cascades to 8 other objects
+DETAIL:  drop cascades to sequence graph.vertex_id_seq
+drop cascades to table graph._ag_label_vertex
+drop cascades to sequence graph.edge_id_seq
 drop cascades to table graph._ag_label_edge
 drop cascades to table graph."A"
 drop cascades to table graph.incs

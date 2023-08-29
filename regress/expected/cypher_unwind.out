@@ -41,11 +41,11 @@ SELECT * FROM cypher('cypher_unwind', $$
     MATCH (n)
     RETURN n
 $$) as (i agtype);
-                                               i                                               
------------------------------------------------------------------------------------------------
- {"id": 281474976710657, "label": "", "properties": {"a": [1, 2, 3], "name": "node1"}}::vertex
- {"id": 281474976710658, "label": "", "properties": {"a": [4, 5, 6], "name": "node2"}}::vertex
- {"id": 281474976710659, "label": "", "properties": {"a": [7, 8, 9], "name": "node3"}}::vertex
+                                        i                                        
+---------------------------------------------------------------------------------
+ {"id": 1, "label": "", "properties": {"a": [1, 2, 3], "name": "node1"}}::vertex
+ {"id": 2, "label": "", "properties": {"a": [4, 5, 6], "name": "node2"}}::vertex
+ {"id": 3, "label": "", "properties": {"a": [7, 8, 9], "name": "node3"}}::vertex
 (3 rows)
 
 --
@@ -102,12 +102,12 @@ SELECT * FROM cypher('cypher_unwind', $$
     UNWIND nodes(p) as node
     RETURN node
 $$) as (i agtype);
-                                               i                                               
------------------------------------------------------------------------------------------------
- {"id": 281474976710657, "label": "", "properties": {"a": [1, 2, 3], "name": "node1"}}::vertex
- {"id": 281474976710658, "label": "", "properties": {"a": [4, 5, 6], "name": "node2"}}::vertex
- {"id": 281474976710658, "label": "", "properties": {"a": [4, 5, 6], "name": "node2"}}::vertex
- {"id": 281474976710659, "label": "", "properties": {"a": [7, 8, 9], "name": "node3"}}::vertex
+                                        i                                        
+---------------------------------------------------------------------------------
+ {"id": 1, "label": "", "properties": {"a": [1, 2, 3], "name": "node1"}}::vertex
+ {"id": 2, "label": "", "properties": {"a": [4, 5, 6], "name": "node2"}}::vertex
+ {"id": 2, "label": "", "properties": {"a": [4, 5, 6], "name": "node2"}}::vertex
+ {"id": 3, "label": "", "properties": {"a": [7, 8, 9], "name": "node3"}}::vertex
 (4 rows)
 
 SELECT * FROM cypher('cypher_unwind', $$
@@ -129,10 +129,10 @@ SELECT * FROM cypher('cypher_unwind', $$
     UNWIND relationships(p) as relation
     RETURN relation
 $$) as (i agtype);
-                                                             i                                                             
----------------------------------------------------------------------------------------------------------------------------
- {"id": 844424930131969, "label": "KNOWS", "end_id": 281474976710658, "start_id": 281474976710657, "properties": {}}::edge
- {"id": 844424930131970, "label": "KNOWS", "end_id": 281474976710659, "start_id": 281474976710658, "properties": {}}::edge
+                                        i                                        
+---------------------------------------------------------------------------------
+ {"id": 1, "label": "KNOWS", "end_id": 2, "start_id": 1, "properties": {}}::edge
+ {"id": 2, "label": "KNOWS", "end_id": 3, "start_id": 2, "properties": {}}::edge
 (2 rows)
 
 SELECT * FROM cypher('cypher_unwind', $$
@@ -152,9 +152,9 @@ SELECT * FROM cypher('cypher_unwind', $$
     UNWIND [p] as path
     RETURN path
 $$) as (i agtype);
-                                                                                                                                                                                                                                                                                                     i                                                                                                                                                                                                                                                                                                     
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 281474976710657, "label": "_ag_label_vertex", "properties": {"a": [1, 2, 3], "name": "node1"}}::vertex, {"id": 844424930131969, "label": "KNOWS", "end_id": 281474976710658, "start_id": 281474976710657, "properties": {}}::edge, {"id": 281474976710658, "label": "_ag_label_vertex", "properties": {"a": [4, 5, 6], "name": "node2"}}::vertex, {"id": 844424930131970, "label": "KNOWS", "end_id": 281474976710659, "start_id": 281474976710658, "properties": {}}::edge, {"id": 281474976710659, "label": "_ag_label_vertex", "properties": {"a": [7, 8, 9], "name": "node3"}}::vertex]::path
+                                                                                                                                                                                                                                      i                                                                                                                                                                                                                                      
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 1, "label": "_ag_label_vertex", "properties": {"a": [1, 2, 3], "name": "node1"}}::vertex, {"id": 1, "label": "KNOWS", "end_id": 2, "start_id": 1, "properties": {}}::edge, {"id": 2, "label": "_ag_label_vertex", "properties": {"a": [4, 5, 6], "name": "node2"}}::vertex, {"id": 2, "label": "KNOWS", "end_id": 3, "start_id": 2, "properties": {}}::edge, {"id": 3, "label": "_ag_label_vertex", "properties": {"a": [7, 8, 9], "name": "node3"}}::vertex]::path
 (1 row)
 
 SELECT * FROM cypher('cypher_unwind', $$
@@ -162,9 +162,9 @@ SELECT * FROM cypher('cypher_unwind', $$
     UNWIND [p] as path
     RETURN relationships(path)
 $$) as (i agtype);
-                                                                                                                           i                                                                                                                            
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 844424930131969, "label": "KNOWS", "end_id": 281474976710658, "start_id": 281474976710657, "properties": {}}::edge, {"id": 844424930131970, "label": "KNOWS", "end_id": 281474976710659, "start_id": 281474976710658, "properties": {}}::edge]
+                                                                                 i                                                                                  
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 1, "label": "KNOWS", "end_id": 2, "start_id": 1, "properties": {}}::edge, {"id": 2, "label": "KNOWS", "end_id": 3, "start_id": 2, "properties": {}}::edge]
 (1 row)
 
 SELECT * FROM cypher('cypher_unwind', $$
@@ -173,10 +173,10 @@ SELECT * FROM cypher('cypher_unwind', $$
     UNWIND relationships(path) as edge
     RETURN edge
 $$) as (i agtype);
-                                                             i                                                             
----------------------------------------------------------------------------------------------------------------------------
- {"id": 844424930131969, "label": "KNOWS", "end_id": 281474976710658, "start_id": 281474976710657, "properties": {}}::edge
- {"id": 844424930131970, "label": "KNOWS", "end_id": 281474976710659, "start_id": 281474976710658, "properties": {}}::edge
+                                        i                                        
+---------------------------------------------------------------------------------
+ {"id": 1, "label": "KNOWS", "end_id": 2, "start_id": 1, "properties": {}}::edge
+ {"id": 2, "label": "KNOWS", "end_id": 3, "start_id": 2, "properties": {}}::edge
 (2 rows)
 
 -- Unwind with SET clause
@@ -193,19 +193,21 @@ SELECT * FROM cypher('cypher_unwind', $$
     MATCH (n)
     RETURN n
 $$) as (i agtype);
-                                                        i                                                        
------------------------------------------------------------------------------------------------------------------
- {"id": 281474976710657, "label": "", "properties": {"a": [1, 2, 3], "name": "node1", "type": "vertex"}}::vertex
- {"id": 281474976710658, "label": "", "properties": {"a": [4, 5, 6], "name": "node2", "type": "vertex"}}::vertex
- {"id": 281474976710659, "label": "", "properties": {"a": [7, 8, 9], "name": "node3", "type": "vertex"}}::vertex
+                                                 i                                                 
+---------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "", "properties": {"a": [1, 2, 3], "name": "node1", "type": "vertex"}}::vertex
+ {"id": 2, "label": "", "properties": {"a": [4, 5, 6], "name": "node2", "type": "vertex"}}::vertex
+ {"id": 3, "label": "", "properties": {"a": [7, 8, 9], "name": "node3", "type": "vertex"}}::vertex
 (3 rows)
 
 --
 -- Clean up
 --
 SELECT drop_graph('cypher_unwind', true);
-NOTICE:  drop cascades to 3 other objects
-DETAIL:  drop cascades to table cypher_unwind._ag_label_vertex
+NOTICE:  drop cascades to 5 other objects
+DETAIL:  drop cascades to sequence cypher_unwind.vertex_id_seq
+drop cascades to table cypher_unwind._ag_label_vertex
+drop cascades to sequence cypher_unwind.edge_id_seq
 drop cascades to table cypher_unwind._ag_label_edge
 drop cascades to table cypher_unwind."KNOWS"
 NOTICE:  graph "cypher_unwind" has been dropped
