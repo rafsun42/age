@@ -45,11 +45,12 @@ static void rescan_cypher_create(CustomScanState *node);
 
 static void create_edge(cypher_create_custom_scan_state *css,
                         cypher_target_node *node, Datum prev_vertex_id,
+                        Datum prev_vertex_label_id,
                         ListCell *next, List *list);
 
 static Datum create_vertex(cypher_create_custom_scan_state *css,
                            cypher_target_node *node, ListCell *next,
-                           List *list);
+                           List *list, Datum *vertex_label_id);
 
 static void process_pattern(cypher_create_custom_scan_state *css);
 
@@ -170,12 +171,13 @@ static void process_pattern(cypher_create_custom_scan_state *css)
         cypher_create_path *path = lfirst(lc2);
         List *list = path->target_nodes;
         ListCell *lc = list_head(list);
+        Datum vertex_label_id;
 
         /*
          * Create the first vertex. The create_vertex function will
          * create the rest of the path, if necessary.
          */
-        create_vertex(css, lfirst(lc), lnext(list, lc), list);
+        create_vertex(css, lfirst(lc), lnext(list, lc), list, &vertex_label_id);
 
         /*
          * If this path is a variable, take the list that was accumulated
@@ -346,6 +348,7 @@ Node *create_cypher_create_plan_state(CustomScan *cscan)
  */
 static void create_edge(cypher_create_custom_scan_state *css,
                         cypher_target_node *node, Datum prev_vertex_id,
+                        Datum prev_vertex_label_id,
                         ListCell *next, List *list)
 {
     bool id_isnull;
@@ -358,7 +361,8 @@ static void create_edge(cypher_create_custom_scan_state *css,
     TupleTableSlot *scanTupleSlot = econtext->ecxt_scantuple;
     Datum id;
     Datum label_id;
-    Datum start_id, end_id, next_vertex_id;
+    Datum next_vertex_label_id;
+    Datum start_id, end_id, next_vertex_id, start_label_id, end_label_id;
     List *prev_path = css->path_values;
 
     Assert(node->type == LABEL_KIND_EDGE);
@@ -369,7 +373,8 @@ static void create_edge(cypher_create_custom_scan_state *css,
      * next vertex's id.
      */
     css->path_values = NIL;
-    next_vertex_id = create_vertex(css, lfirst(next), lnext(list, next), list);
+    next_vertex_id = create_vertex(css, lfirst(next), lnext(list, next),
+                                   list, &next_vertex_label_id);
 
     /*
      * Set the start and end vertex ids
@@ -379,12 +384,16 @@ static void create_edge(cypher_create_custom_scan_state *css,
         // create pattern (prev_vertex)-[edge]->(next_vertex)
         start_id = prev_vertex_id;
         end_id = next_vertex_id;
+        start_label_id = prev_vertex_label_id;
+        end_label_id = next_vertex_label_id;
     }
     else if (node->dir == CYPHER_REL_DIR_LEFT)
     {
         // create pattern (prev_vertex)<-[edge]-(next_vertex)
         start_id = next_vertex_id;
         end_id = prev_vertex_id;
+        start_label_id = next_vertex_label_id;
+        end_label_id = prev_vertex_label_id;
     }
     else
     {
@@ -432,6 +441,14 @@ static void create_edge(cypher_create_custom_scan_state *css,
     elemTupleSlot->tts_values[edge_tuple_label_id] = label_id;
     elemTupleSlot->tts_isnull[edge_tuple_label_id] = label_id_isnull;
 
+    // label id for the starting vertex
+    elemTupleSlot->tts_values[edge_tuple_start_label_id] = start_label_id;
+    elemTupleSlot->tts_isnull[edge_tuple_start_label_id] = false;
+
+    // label id for the ending vertex
+    elemTupleSlot->tts_values[edge_tuple_end_label_id] = end_label_id;
+    elemTupleSlot->tts_isnull[edge_tuple_end_label_id] = false;
+
     // Insert the new edge
     insert_entity_tuple(resultRelInfo, elemTupleSlot, estate);
 
@@ -473,7 +490,8 @@ static void create_edge(cypher_create_custom_scan_state *css,
  * the create_edge function.
  */
 static Datum create_vertex(cypher_create_custom_scan_state *css,
-                           cypher_target_node *node, ListCell *next, List *list)
+                           cypher_target_node *node, ListCell *next, List *list,
+                           Datum *vertex_label_id)
 {
     bool id_isnull;
     bool label_id_isnull;
@@ -633,10 +651,12 @@ static Datum create_vertex(cypher_create_custom_scan_state *css,
         }
     }
 
+    *vertex_label_id = label_id;
+
     // If the path continues, create the next edge, passing the vertex's id.
     if (next != NULL)
     {
-        create_edge(css, lfirst(next), id, lnext(list, next), list);
+        create_edge(css, lfirst(next), id, label_id, lnext(list, next), list);
     }
 
     return id;
