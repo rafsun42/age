@@ -331,12 +331,17 @@ void create_label(char *graph_name, char *label_name, char label_type,
     CommandCounterIncrement();
 }
 
-// CREATE TABLE `schema_name`.`rel_name` (
-//   "id" graphid PRIMARY KEY DEFAULT "ag_catalog"."_graphid"(...),
-//   "start_id" graphid NOT NULL note: only for edge labels
-//   "end_id" graphid NOT NULL  note: only for edge labels
-//   "properties" agtype NOT NULL DEFAULT "ag_catalog"."agtype_build_map"()
-// )
+/*
+   CREATE TABLE `schema_name`.`rel_name` (
+   "id" eid PRIMARY KEY DEFAULT nextval(...),
+   "start_id" eid NOT NULL note: only for edge labels
+   "end_id" eid NOT NULL note: only for edge labels
+   "properties" agtype NOT NULL DEFAULT "ag_catalog"."agtype_build_map"()
+   "label_id" integer NOT NULL DEFAULT "ag_catalog"."_label_id(...)"
+   "start_label_id" integer NOT NULL
+   "end_label_id" integer NOT NULL
+   note: "start_label_id" and "end_label_id" are only for edge labels
+ */
 static void create_table_for_label(char *graph_name, char *label_name,
                                    char *schema_name, char *rel_name,
                                    char *seq_name, char label_type,
@@ -389,13 +394,16 @@ static void create_table_for_label(char *graph_name, char *label_name,
     // CommandCounterIncrement() is called in ProcessUtility()
 }
 
-// CREATE TABLE `schema_name`.`rel_name` (
-//   "id" eid PRIMARY KEY DEFAULT nextval(...),
-//   "start_id" eid NOT NULL
-//   "end_id" eid NOT NULL
-//   "properties" agtype NOT NULL DEFAULT "ag_catalog"."agtype_build_map"()
-//   "label_id" integer NOT NULL DEFAULT "ag_catalog"."_label_id(...)"
-// )
+/*
+   CREATE TABLE `schema_name`.`rel_name` (
+   "id" eid PRIMARY KEY DEFAULT nextval(...),
+   "start_id" eid NOT NULL
+   "end_id" eid NOT NULL
+   "properties" agtype NOT NULL DEFAULT "ag_catalog"."agtype_build_map"()
+   "label_id" integer NOT NULL DEFAULT "ag_catalog"."_label_id(...)"
+   "start_label_id" integer NOT NULL
+   "end_label_id" integer NOT NULL
+ */
 static List *create_edge_table_elements(char *graph_name, char *label_name,
                                         char *schema_name, char *rel_name,
                                         char *seq_name)
@@ -406,6 +414,8 @@ static List *create_edge_table_elements(char *graph_name, char *label_name,
     ColumnDef *end_id;
     ColumnDef *props;
     ColumnDef *label_id;
+    ColumnDef *start_label_id;
+    ColumnDef *end_label_id;
 
     // "id" eid PRIMARY KEY DEFAULT "ag_catalog"."_graphid"(...)
     id = makeColumnDef(AG_EDGE_COLNAME_ID, EIDOID, -1, InvalidOid);
@@ -435,8 +445,20 @@ static List *create_edge_table_elements(char *graph_name, char *label_name,
         list_make2(build_not_null_constraint(),
                    build_label_id_default(graph_name, label_name));
 
+    // "start_label_id" integer NOT NULL
+    start_label_id = makeColumnDef(AG_EDGE_COLNAME_START_LABEL_ID, INT4OID, -1,
+                                   InvalidOid);
+    start_label_id->constraints = list_make1(build_not_null_constraint());
+
+    // "end_label_id" integer NOT NULL
+    end_label_id = makeColumnDef(AG_EDGE_COLNAME_END_LABEL_ID, INT4OID, -1,
+                                 InvalidOid);
+    end_label_id->constraints = list_make1(build_not_null_constraint());
+
     column_defs = list_make4(id, start_id, end_id, props);
     column_defs = lappend(column_defs, label_id);
+    column_defs = lappend(column_defs, start_label_id);
+    column_defs = lappend(column_defs, end_label_id);
 
     return column_defs;
 }

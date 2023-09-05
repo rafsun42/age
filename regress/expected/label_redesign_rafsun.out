@@ -57,12 +57,42 @@ SELECT * FROM graph1._ag_label_vertex ORDER BY id;
 
 -- edges
 SELECT * FROM graph1._ag_label_edge ORDER BY id;
- id | start_id | end_id |   properties   | label_id 
-----+----------+--------+----------------+----------
-  1 |        1 |      2 | {"from": 2011} |        4
-  2 |        3 |      4 | {"from": 2013} |        7
-  3 |        5 |      6 | {"from": 2022} |        7
+ id | start_id | end_id |   properties   | label_id | start_label_id | end_label_id 
+----+----------+--------+----------------+----------+----------------+--------------
+  1 |        1 |      2 | {"from": 2011} |        4 |              3 |            5
+  2 |        3 |      4 | {"from": 2013} |        7 |              6 |            5
+  3 |        5 |      6 | {"from": 2022} |        7 |              1 |            1
 (3 rows)
+
+-- show vertex and edge relation information
+\d+ graph1._ag_label_vertex;
+                                                      Table "graph1._ag_label_vertex"
+   Column   |  Type   | Collation | Nullable |                       Default                       | Storage  | Stats target | Description 
+------------+---------+-----------+----------+-----------------------------------------------------+----------+--------------+-------------
+ id         | bigint  |           | not null | nextval('graph1.vertex_id_seq'::regclass)           | plain    |              | 
+ properties | agtype  |           | not null | agtype_build_map()                                  | extended |              | 
+ label_id   | integer |           | not null | _label_id('graph1'::name, '_ag_label_vertex'::name) | plain    |              | 
+Indexes:
+    "_ag_label_vertex_pkey" PRIMARY KEY, btree (id)
+Child tables: graph1."Class",
+              graph1."Student",
+              graph1."Teacher"
+
+\d+ graph1._ag_label_edge;
+                                                        Table "graph1._ag_label_edge"
+     Column     |  Type   | Collation | Nullable |                      Default                      | Storage  | Stats target | Description 
+----------------+---------+-----------+----------+---------------------------------------------------+----------+--------------+-------------
+ id             | bigint  |           | not null | nextval('graph1.edge_id_seq'::regclass)           | plain    |              | 
+ start_id       | bigint  |           | not null |                                                   | plain    |              | 
+ end_id         | bigint  |           | not null |                                                   | plain    |              | 
+ properties     | agtype  |           | not null | agtype_build_map()                                | extended |              | 
+ label_id       | integer |           | not null | _label_id('graph1'::name, '_ag_label_edge'::name) | plain    |              | 
+ start_label_id | integer |           | not null |                                                   | plain    |              | 
+ end_label_id   | integer |           | not null |                                                   | plain    |              | 
+Indexes:
+    "_ag_label_edge_pkey" PRIMARY KEY, btree (id)
+Child tables: graph1."Learns",
+              graph1."Teaches"
 
 SELECT drop_graph('graph1', true);
 NOTICE:  drop cascades to 9 other objects

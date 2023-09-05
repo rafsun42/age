@@ -31,4 +31,8 @@ SELECT * FROM graph1._ag_label_vertex ORDER BY id;
 -- edges
 SELECT * FROM graph1._ag_label_edge ORDER BY id;
 
+-- show vertex and edge relation information
+\d+ graph1._ag_label_vertex;
+\d+ graph1._ag_label_edge;
+
 SELECT drop_graph('graph1', true);

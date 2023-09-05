@@ -35,6 +35,8 @@
 #define Anum_ag_label_edge_table_end_id 3
 #define Anum_ag_label_edge_table_properties 4
 #define Anum_ag_label_edge_table_label_id 5
+#define Anum_ag_label_edge_table_start_label_id 6
+#define Anum_ag_label_edge_table_end_label_id 7
 
 #define vertex_tuple_id Anum_ag_label_vertex_table_id - 1
 #define vertex_tuple_properties Anum_ag_label_vertex_table_properties - 1
@@ -45,7 +47,8 @@
 #define edge_tuple_end_id Anum_ag_label_edge_table_end_id - 1
 #define edge_tuple_properties Anum_ag_label_edge_table_properties - 1
 #define edge_tuple_label_id Anum_ag_label_edge_table_label_id - 1
-
+#define edge_tuple_start_label_id Anum_ag_label_edge_table_start_label_id - 1
+#define edge_tuple_end_label_id Anum_ag_label_edge_table_end_label_id - 1
 
 
 #define Anum_ag_label_name 1
@@ -58,7 +61,7 @@
 
 #define Natts_ag_label 6
 #define Natts_ag_label_vertex 3
-#define Natts_ag_label_edge 5
+#define Natts_ag_label_edge 7
 
 #define ag_label_relation_id() ag_relation_id("ag_label", "table")
 #define ag_label_name_graph_index_id() \
