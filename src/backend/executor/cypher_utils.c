@@ -235,6 +235,7 @@ HeapTuple insert_entity_tuple_cid(ResultRelInfo *resultRelInfo,
                                   TupleTableSlot *elemTupleSlot,
                                   EState *estate, CommandId cid)
 {
+    bool insert_indexes;
     HeapTuple tuple = NULL;
 
     ExecStoreVirtualTuple(elemTupleSlot);
@@ -249,7 +250,7 @@ HeapTuple insert_entity_tuple_cid(ResultRelInfo *resultRelInfo,
 
     // Insert the tuple normally
     table_tuple_insert(resultRelInfo->ri_RelationDesc, elemTupleSlot,
-                GetCurrentCommandId(true), 0, NULL);
+                       GetCurrentCommandId(true), 0, NULL, &insert_indexes);
 
     // Insert index entries for the tuple
     if (resultRelInfo->ri_NumIndices > 0)

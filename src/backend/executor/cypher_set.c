@@ -110,19 +110,21 @@ static HeapTuple update_entity_tuple(ResultRelInfo *resultRelInfo,
     LockTupleMode lockmode;
     TM_FailureData hufd;
     TM_Result lock_result;
-    Buffer buffer;
     bool update_indexes;
     TM_Result   result;
     CommandId cid = GetCurrentCommandId(true);
     ResultRelInfo **saved_resultRels = estate->es_result_relations;
+    TupleTableSlot *bslot = MakeSingleTupleTableSlot(
+        elemTupleSlot->tts_tupleDescriptor, &TTSOpsBufferHeapTuple);
 
     estate->es_result_relations = &resultRelInfo;
 
     lockmode = ExecUpdateLockMode(estate, resultRelInfo);
 
-    lock_result = heap_lock_tuple(resultRelInfo->ri_RelationDesc, old_tuple,
+    lock_result = heap_lock_tuple(resultRelInfo->ri_RelationDesc,
+                                  &old_tuple->t_self, bslot,
                                   GetCurrentCommandId(false), lockmode,
-                                  LockWaitBlock, false, &buffer, &hufd);
+                                  LockWaitBlock, false, &hufd);
 
     if (lock_result == TM_Ok)
     {
@@ -139,11 +141,11 @@ static HeapTuple update_entity_tuple(ResultRelInfo *resultRelInfo,
         }
 
         result = table_tuple_update(resultRelInfo->ri_RelationDesc,
-                                    &tuple->t_self, elemTupleSlot,
-                                    cid, estate->es_snapshot,
+                                    PointerGetDatum(&tuple->t_self),
+                                    elemTupleSlot, cid, estate->es_snapshot,
                                     estate->es_crosscheck_snapshot,
-                                    true /* wait for commit */ ,
-                                    &hufd, &lockmode, &update_indexes);
+                                    TABLE_MODIFY_WAIT /* wait for commit */,
+                                    &hufd, &lockmode, &update_indexes, NULL);
 
         if (result == TM_SelfModified)
         {
@@ -189,7 +191,7 @@ static HeapTuple update_entity_tuple(ResultRelInfo *resultRelInfo,
                 errmsg("Entity failed to be updated: %i", lock_result)));
     }
 
-    ReleaseBuffer(buffer);
+    ExecDropSingleTupleTableSlot(bslot);
 
     estate->es_result_relations = saved_resultRels;
 

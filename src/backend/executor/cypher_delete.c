@@ -284,7 +284,8 @@ static void delete_entity(EState *estate, ResultRelInfo *resultRelInfo,
     TM_FailureData hufd;
     TM_Result lock_result;
     TM_Result delete_result;
-    Buffer buffer;
+    TupleTableSlot *slot;
+    TupleTableSlot *bslot;
 
     // Find the physical tuple, this variable is coming from
     saved_resultRels = estate->es_result_relations;
@@ -292,9 +293,18 @@ static void delete_entity(EState *estate, ResultRelInfo *resultRelInfo,
 
     lockmode = ExecUpdateLockMode(estate, resultRelInfo);
 
-    lock_result = heap_lock_tuple(resultRelInfo->ri_RelationDesc, tuple,
+    // Copy `tuple` into a buffer heap tuple slot
+    slot = ExecInitExtraTupleSlot(
+        estate, RelationGetDescr(resultRelInfo->ri_RelationDesc),
+        &TTSOpsHeapTuple);
+    ExecStoreHeapTuple(tuple, slot, false);
+    bslot = MakeSingleTupleTableSlot(slot->tts_tupleDescriptor,
+                                                     &TTSOpsBufferHeapTuple);
+
+    lock_result = heap_lock_tuple(resultRelInfo->ri_RelationDesc,
+                                  &tuple->t_self, bslot,
                                   GetCurrentCommandId(false), lockmode,
-                                  LockWaitBlock, false, &buffer, &hufd);
+                                  LockWaitBlock, false, &hufd);
 
     /*
      * It is possible the entity may have already been deleted. If the tuple
@@ -307,9 +317,10 @@ static void delete_entity(EState *estate, ResultRelInfo *resultRelInfo,
     if (lock_result == TM_Ok)
     {
         delete_result = heap_delete(resultRelInfo->ri_RelationDesc,
-                                    &tuple->t_self, GetCurrentCommandId(true),
-                                    estate->es_crosscheck_snapshot, true, &hufd,
-                                    false);
+                                    (&tuple->t_self),
+                                    GetCurrentCommandId(true),
+                                    estate->es_crosscheck_snapshot,
+                                    TABLE_MODIFY_WAIT, &hufd, false, bslot);
 
         /*
          * Unlike locking, the heap_delete either succeeded
@@ -350,7 +361,7 @@ static void delete_entity(EState *estate, ResultRelInfo *resultRelInfo,
 
     }
 
-    ReleaseBuffer(buffer);
+    ExecDropSingleTupleTableSlot(bslot);
 
     estate->es_result_relations = saved_resultRels;
 }
