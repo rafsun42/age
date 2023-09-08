@@ -373,13 +373,6 @@ STABLE
 PARALLEL SAFE
 AS 'MODULE_PATHNAME', '_label_name_from_label_id';
 
-CREATE FUNCTION ag_catalog._extract_label_id(graphid)
-RETURNS label_id
-LANGUAGE c
-STABLE
-PARALLEL SAFE
-AS 'MODULE_PATHNAME';
-
 --
 -- agtype type and its support functions
 --
@@ -3116,8 +3109,9 @@ AS 'MODULE_PATHNAME';
 --
 -- agtype - edge
 --
-CREATE FUNCTION ag_catalog._agtype_build_edge(graphid, graphid, graphid,
-                                              cstring, agtype)
+CREATE FUNCTION ag_catalog._agtype_build_edge(int8, int8, int8,
+                                              cstring, cstring, cstring,
+                                              int4, int4, agtype)
 RETURNS agtype
 LANGUAGE c
 IMMUTABLE
@@ -3472,6 +3466,22 @@ PARALLEL SAFE
 AS 'MODULE_PATHNAME';
 
 CREATE FUNCTION ag_catalog.age_properties(agtype)
+RETURNS agtype
+LANGUAGE c
+IMMUTABLE
+RETURNS NULL ON NULL INPUT
+PARALLEL SAFE
+AS 'MODULE_PATHNAME';
+
+CREATE FUNCTION ag_catalog.age_start_label_id(agtype)
+RETURNS agtype
+LANGUAGE c
+IMMUTABLE
+RETURNS NULL ON NULL INPUT
+PARALLEL SAFE
+AS 'MODULE_PATHNAME';
+
+CREATE FUNCTION ag_catalog.age_end_label_id(agtype)
 RETURNS agtype
 LANGUAGE c
 IMMUTABLE

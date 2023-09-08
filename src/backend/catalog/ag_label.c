@@ -290,6 +290,12 @@ Datum _label_name_from_label_id(PG_FUNCTION_ARGS)
     PG_RETURN_CSTRING(label_name);
 }
 
+Datum get_label_name_from_label_id(Oid graph_oid, int32 label_id)
+{
+    return DirectFunctionCall2(_label_name_from_label_id,
+                                           graph_oid, label_id);
+}
+
 PG_FUNCTION_INFO_V1(_label_id);
 
 Datum _label_id(PG_FUNCTION_ARGS)

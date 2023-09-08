@@ -36,6 +36,7 @@
 #include "nodes/cypher_nodes.h"
 #include "utils/agtype.h"
 #include "utils/graphid.h"
+#include "catalog/ag_label.h"
 
 static void begin_cypher_create(CustomScanState *node, EState *estate,
                                 int eflags);
@@ -469,6 +470,9 @@ static void create_edge(cypher_create_custom_scan_state *css,
 
         result = make_edge(
             id, start_id, end_id, CStringGetDatum(node->label_name),
+            get_label_name_from_label_id(css->graph_oid, start_label_id),
+            get_label_name_from_label_id(css->graph_oid, end_label_id),
+            start_label_id, end_label_id,
             PointerGetDatum(scanTupleSlot->tts_values[node->prop_attr_num]));
 
         if (CYPHER_TARGET_NODE_IN_PATH(node->flags))

@@ -128,7 +128,8 @@ TupleTableSlot *populate_vertex_tts(TupleTableSlot *elemTupleSlot,
 TupleTableSlot *populate_edge_tts(TupleTableSlot *elemTupleSlot,
                                   agtype_value *id, agtype_value *startid,
                                   agtype_value *endid,
-                                  agtype_value *properties, int32 label_id)
+                                  agtype_value *properties, int32 label_id,
+                                  int32 start_label_id, int32 end_label_id)
 {
     bool properties_isnull;
 
@@ -168,6 +169,14 @@ TupleTableSlot *populate_edge_tts(TupleTableSlot *elemTupleSlot,
     elemTupleSlot->tts_isnull[edge_tuple_properties] = properties_isnull;
 
     elemTupleSlot->tts_values[edge_tuple_label_id] = Int32GetDatum(label_id);
+    elemTupleSlot->tts_isnull[edge_tuple_label_id] = false;
+
+    elemTupleSlot->tts_values[edge_tuple_start_label_id] =
+        Int32GetDatum(start_label_id);
+    elemTupleSlot->tts_isnull[edge_tuple_label_id] = false;
+
+    elemTupleSlot->tts_values[edge_tuple_end_label_id] =
+        Int32GetDatum(end_label_id);
     elemTupleSlot->tts_isnull[edge_tuple_label_id] = false;
 
     return elemTupleSlot;

@@ -129,10 +129,10 @@ SELECT * FROM cypher('cypher_unwind', $$
     UNWIND relationships(p) as relation
     RETURN relation
 $$) as (i agtype);
-                                        i                                        
----------------------------------------------------------------------------------
- {"id": 1, "label": "KNOWS", "end_id": 2, "start_id": 1, "properties": {}}::edge
- {"id": 2, "label": "KNOWS", "end_id": 3, "start_id": 2, "properties": {}}::edge
+                                                                                   i                                                                                   
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "KNOWS", "end_id": 2, "start_id": 1, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
+ {"id": 2, "label": "KNOWS", "end_id": 3, "start_id": 2, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
 (2 rows)
 
 SELECT * FROM cypher('cypher_unwind', $$
@@ -152,9 +152,9 @@ SELECT * FROM cypher('cypher_unwind', $$
     UNWIND [p] as path
     RETURN path
 $$) as (i agtype);
-                                                                                                                                                                                                                                      i                                                                                                                                                                                                                                      
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 1, "label": "_ag_label_vertex", "properties": {"a": [1, 2, 3], "name": "node1"}}::vertex, {"id": 1, "label": "KNOWS", "end_id": 2, "start_id": 1, "properties": {}}::edge, {"id": 2, "label": "_ag_label_vertex", "properties": {"a": [4, 5, 6], "name": "node2"}}::vertex, {"id": 2, "label": "KNOWS", "end_id": 3, "start_id": 2, "properties": {}}::edge, {"id": 3, "label": "_ag_label_vertex", "properties": {"a": [7, 8, 9], "name": "node3"}}::vertex]::path
+                                                                                                                                                                                                                                                                                                                            i                                                                                                                                                                                                                                                                                                                            
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 1, "label": "_ag_label_vertex", "properties": {"a": [1, 2, 3], "name": "node1"}}::vertex, {"id": 1, "label": "KNOWS", "end_id": 2, "start_id": 1, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 2, "label": "_ag_label_vertex", "properties": {"a": [4, 5, 6], "name": "node2"}}::vertex, {"id": 2, "label": "KNOWS", "end_id": 3, "start_id": 2, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 3, "label": "_ag_label_vertex", "properties": {"a": [7, 8, 9], "name": "node3"}}::vertex]::path
 (1 row)
 
 SELECT * FROM cypher('cypher_unwind', $$
@@ -162,9 +162,9 @@ SELECT * FROM cypher('cypher_unwind', $$
     UNWIND [p] as path
     RETURN relationships(path)
 $$) as (i agtype);
-                                                                                 i                                                                                  
---------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 1, "label": "KNOWS", "end_id": 2, "start_id": 1, "properties": {}}::edge, {"id": 2, "label": "KNOWS", "end_id": 3, "start_id": 2, "properties": {}}::edge]
+                                                                                                                                                                       i                                                                                                                                                                        
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 1, "label": "KNOWS", "end_id": 2, "start_id": 1, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 2, "label": "KNOWS", "end_id": 3, "start_id": 2, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge]
 (1 row)
 
 SELECT * FROM cypher('cypher_unwind', $$
@@ -173,10 +173,10 @@ SELECT * FROM cypher('cypher_unwind', $$
     UNWIND relationships(path) as edge
     RETURN edge
 $$) as (i agtype);
-                                        i                                        
----------------------------------------------------------------------------------
- {"id": 1, "label": "KNOWS", "end_id": 2, "start_id": 1, "properties": {}}::edge
- {"id": 2, "label": "KNOWS", "end_id": 3, "start_id": 2, "properties": {}}::edge
+                                                                                   i                                                                                   
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "KNOWS", "end_id": 2, "start_id": 1, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
+ {"id": 2, "label": "KNOWS", "end_id": 3, "start_id": 2, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
 (2 rows)
 
 -- Unwind with SET clause

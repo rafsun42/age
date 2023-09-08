@@ -157,6 +157,7 @@ static List *make_path_join_quals(cypher_parsestate *cpstate, List *entities);
 static List *make_directed_edge_join_conditions(
     cypher_parsestate *cpstate, transform_entity *prev_entity,
     transform_entity *next_entity, Node *prev_qual, Node *next_qual,
+    Node *prev_label_qual, Node *next_label_qual,
     char *prev_node_label, char *next_node_label);
 static List *join_to_entity(cypher_parsestate *cpstate,
                             transform_entity *entity, Node *qual,
@@ -3087,6 +3088,7 @@ static FuncCall *prevent_duplicate_edges(cypher_parsestate *cpstate,
 static List *make_directed_edge_join_conditions(
     cypher_parsestate *cpstate, transform_entity *prev_entity,
     transform_entity *next_entity, Node *prev_qual, Node *next_qual,
+    Node *prev_label_qual, Node *next_label_qual,
     char *prev_node_filter, char *next_node_filter)
 {
     List *quals = NIL;
@@ -3106,7 +3108,7 @@ static List *make_directed_edge_join_conditions(
     if (prev_node_filter != NULL && !IS_DEFAULT_LABEL_VERTEX(prev_node_filter))
     {
         A_Expr *qual;
-        qual = filter_vertices_on_label_id(cpstate, prev_qual,
+        qual = filter_vertices_on_label_id(cpstate, prev_label_qual,
                                            prev_node_filter);
 
         quals = lappend(quals, qual);
@@ -3115,7 +3117,7 @@ static List *make_directed_edge_join_conditions(
     if (next_node_filter != NULL && !IS_DEFAULT_LABEL_VERTEX(next_node_filter))
     {
         A_Expr *qual;
-        qual = filter_vertices_on_label_id(cpstate, next_qual,
+        qual = filter_vertices_on_label_id(cpstate, next_label_qual,
                                            next_node_filter);
 
         quals = lappend(quals, qual);
@@ -3282,10 +3284,16 @@ static List *make_join_condition_for_edge(cypher_parsestate *cpstate,
                                         AG_EDGE_COLNAME_START_ID);
             Node *next_qual = make_qual(cpstate, entity,
                                         AG_EDGE_COLNAME_END_ID);
+            Node *prev_label_qual = make_qual(cpstate, entity,
+                                              AG_EDGE_COLNAME_START_LABEL_ID);
+            Node *next_label_qual = make_qual(cpstate, entity,
+                                              AG_EDGE_COLNAME_END_LABEL_ID);
 
             return make_directed_edge_join_conditions(cpstate, prev_entity,
                                                       next_node, prev_qual,
                                                       next_qual,
+                                                      prev_label_qual,
+                                                      next_label_qual,
                                                       prev_label_name_to_filter,
                                                       next_label_name_to_filter);
         }
@@ -3295,10 +3303,16 @@ static List *make_join_condition_for_edge(cypher_parsestate *cpstate,
                                         AG_EDGE_COLNAME_END_ID);
             Node *next_qual = make_qual(cpstate, entity,
                                         AG_EDGE_COLNAME_START_ID);
+            Node *prev_label_qual = make_qual(cpstate, entity,
+                                              AG_EDGE_COLNAME_END_LABEL_ID);
+            Node *next_label_qual = make_qual(cpstate, entity,
+                                              AG_EDGE_COLNAME_START_LABEL_ID);
 
             return make_directed_edge_join_conditions(cpstate, prev_entity,
                                                       next_node, prev_qual,
                                                       next_qual,
+                                                      prev_label_qual,
+                                                      next_label_qual,
                                                       prev_label_name_to_filter,
                                                       next_label_name_to_filter);
         }
@@ -3312,6 +3326,10 @@ static List *make_join_condition_for_edge(cypher_parsestate *cpstate,
                                             AG_EDGE_COLNAME_START_ID);
             Node *end_id_expr = make_qual(cpstate, entity,
                                           AG_EDGE_COLNAME_END_ID);
+            Node *start_label_id_expr = make_qual(cpstate, entity,
+                                                  AG_EDGE_COLNAME_START_LABEL_ID);
+            Node *end_label_id_expr = make_qual(cpstate, entity,
+                                                AG_EDGE_COLNAME_END_LABEL_ID);
             List *first_join_quals = NIL, *second_join_quals = NIL;
             Expr *first_qual, *second_qual;
             Expr *or_qual;
@@ -3321,6 +3339,8 @@ static List *make_join_condition_for_edge(cypher_parsestate *cpstate,
                                                                   next_entity,
                                                                   start_id_expr,
                                                                   end_id_expr,
+                                                                  start_label_id_expr,
+                                                                  end_label_id_expr,
                                                                   prev_label_name_to_filter,
                                                                   next_label_name_to_filter);
 
@@ -3329,6 +3349,8 @@ static List *make_join_condition_for_edge(cypher_parsestate *cpstate,
                                                                    next_entity,
                                                                    end_id_expr,
                                                                    start_id_expr,
+                                                                   end_label_id_expr,
+                                                                   start_label_id_expr,
                                                                    prev_label_name_to_filter,
                                                                    next_label_name_to_filter);
 
@@ -3539,8 +3561,6 @@ static A_Expr *filter_vertices_on_label_id(cypher_parsestate *cpstate,
     label_cache_data *lcd = search_label_name_graph_cache(label,
                                                           cpstate->graph_oid);
     A_Const *n;
-    FuncCall *fc;
-    String *ag_catalog, *extract_label_id;
     int32 label_id = lcd->id;
 
     n = makeNode(A_Const);
@@ -3548,13 +3568,7 @@ static A_Expr *filter_vertices_on_label_id(cypher_parsestate *cpstate,
     n->val.ival.ival = label_id;
     n->location = -1;
 
-    ag_catalog = makeString("ag_catalog");
-    extract_label_id = makeString("_extract_label_id");
-
-    fc = makeFuncCall(list_make2(ag_catalog, extract_label_id),
-                      list_make1(id_field), COERCE_EXPLICIT_CALL, -1);
-
-    return makeSimpleA_Expr(AEXPR_OP, "=", (Node *)fc, (Node *)n, -1);
+    return makeSimpleA_Expr(AEXPR_OP, "=", id_field, (Node *)n, -1);
 }
 
 /*
@@ -4346,9 +4360,19 @@ static char *get_accessor_function_name(enum transform_entity_type type,
             return AG_EDGE_ACCESS_FUNCTION_END_ID;
         }
         // props
-        else if (!strcmp(AG_VERTEX_COLNAME_PROPERTIES, name))
+        else if (!strcmp(AG_EDGE_COLNAME_PROPERTIES, name))
         {
-            return AG_VERTEX_ACCESS_FUNCTION_PROPERTIES;
+            return AG_EDGE_ACCESS_FUNCTION_PROPERTIES;
+        }
+        // start vertex label id
+        else if (!strcmp(AG_EDGE_COLNAME_START_LABEL_ID, name))
+        {
+            return AG_EDGE_ACCESS_FUNCTION_START_LABEL_ID;
+        }
+        // end vertex label id
+        else if (!strcmp(AG_EDGE_COLNAME_END_LABEL_ID, name))
+        {
+            return AG_EDGE_ACCESS_FUNCTION_END_LABEL_ID;
         }
     }
 
@@ -4900,24 +4924,33 @@ static Node *make_edge_expr(cypher_parsestate *cpstate,
     ParseState *pstate = (ParseState *)cpstate;
     Oid label_name_func_oid;
     Oid func_oid;
-    Node *id, *start_id, *end_id, *label_id;
+    Node *id, *start_id, *end_id, *label_id, *start_label_id, *end_label_id;
     Const *graph_oid_const;
     Node *props;
-    List *args, *label_name_args;
+    List *args, *label_name_args, *start_label_name_args, *end_label_name_args;
     FuncExpr *func_expr;
     FuncExpr *label_name_func_expr;
+    FuncExpr *start_label_name_func_expr, *end_label_name_func_expr;
 
-    func_oid = get_ag_func_oid("_agtype_build_edge", 5, GRAPHIDOID, GRAPHIDOID,
-                               GRAPHIDOID, CSTRINGOID, AGTYPEOID);
+    func_oid = get_ag_func_oid("_agtype_build_edge", 9, INT8OID, INT8OID,
+                               INT8OID, CSTRINGOID, CSTRINGOID, CSTRINGOID,
+                               INT4OID, INT4OID, AGTYPEOID);
 
     id = scanNSItemForColumn(pstate, pnsi, 0, AG_EDGE_COLNAME_ID, -1);
 
-    start_id = scanNSItemForColumn(pstate, pnsi, 0, AG_EDGE_COLNAME_START_ID, -1);
+    start_id = scanNSItemForColumn(pstate, pnsi, 0, AG_EDGE_COLNAME_START_ID,
+                                   -1);
 
     end_id = scanNSItemForColumn(pstate, pnsi, 0, AG_EDGE_COLNAME_END_ID, -1);
 
     label_id = scanNSItemForColumn(pstate, pnsi, 0, AG_EDGE_COLNAME_LABEL_ID,
                                    -1);
+
+    start_label_id = scanNSItemForColumn(pstate, pnsi, 0,
+                                         AG_EDGE_COLNAME_START_LABEL_ID, -1);
+
+    end_label_id = scanNSItemForColumn(pstate, pnsi, 0,
+                                       AG_EDGE_COLNAME_END_LABEL_ID, -1);
 
     label_name_func_oid = get_ag_func_oid("_label_name", 2, OIDOID, INT4OID);
 
@@ -4932,9 +4965,29 @@ static Node *make_edge_expr(cypher_parsestate *cpstate,
                                         InvalidOid, COERCE_EXPLICIT_CALL);
     label_name_func_expr->location = -1;
 
-    props = scanNSItemForColumn(pstate, pnsi, 0, AG_EDGE_COLNAME_PROPERTIES, -1);
+    start_label_name_args = list_make2(graph_oid_const, start_label_id);
 
-    args = list_make4(id, start_id, end_id, label_name_func_expr);
+    start_label_name_func_expr = makeFuncExpr(label_name_func_oid, CSTRINGOID,
+                                              start_label_name_args,
+                                              InvalidOid, InvalidOid,
+                                              COERCE_EXPLICIT_CALL);
+    start_label_name_func_expr->location = -1;
+
+    end_label_name_args = list_make2(graph_oid_const, end_label_id);
+
+    end_label_name_func_expr = makeFuncExpr(label_name_func_oid, CSTRINGOID,
+                                            end_label_name_args, InvalidOid,
+                                            InvalidOid, COERCE_EXPLICIT_CALL);
+    end_label_name_func_expr->location = -1;
+
+    props = scanNSItemForColumn(pstate, pnsi, 0, AG_EDGE_COLNAME_PROPERTIES,
+                                -1);
+
+    args = list_make5(id, start_id, end_id, label_name_func_expr,
+                      start_label_name_func_expr);
+    args = lappend(args, end_label_name_func_expr);
+    args = lappend(args, start_label_id);
+    args = lappend(args, end_label_id);
     args = lappend(args, props);
 
     func_expr = makeFuncExpr(func_oid, AGTYPEOID, args, InvalidOid, InvalidOid,

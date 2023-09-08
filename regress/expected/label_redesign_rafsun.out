@@ -64,6 +64,34 @@ SELECT * FROM graph1._ag_label_edge ORDER BY id;
   3 |        5 |      6 | {"from": 2022} |        7 |              1 |            1
 (3 rows)
 
+-- test vertex, edge and path object
+SELECT * FROM cypher('graph1', $$ MATCH (x) RETURN x $$) AS (result agtype);
+                                 result                                 
+------------------------------------------------------------------------
+ {"id": 5, "label": "", "properties": {"name": "Bob"}}::vertex
+ {"id": 6, "label": "", "properties": {"title": "Swimming"}}::vertex
+ {"id": 1, "label": "Teacher", "properties": {"name": "John"}}::vertex
+ {"id": 2, "label": "Class", "properties": {"title": "DS"}}::vertex
+ {"id": 4, "label": "Class", "properties": {"title": "AI"}}::vertex
+ {"id": 3, "label": "Student", "properties": {"name": "Smith"}}::vertex
+(6 rows)
+
+SELECT * FROM cypher('graph1', $$ MATCH ()-[e]->() RETURN e $$) AS (result agtype);
+                                                                                             result                                                                                              
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "Teaches", "end_id": 2, "start_id": 1, "properties": {"from": 2011}, "end_label_id": 5, "end_label_name": "Class", "start_label_id": 3, "start_label_name": "Teacher"}::edge
+ {"id": 2, "label": "Learns", "end_id": 4, "start_id": 3, "properties": {"from": 2013}, "end_label_id": 5, "end_label_name": "Class", "start_label_id": 6, "start_label_name": "Student"}::edge
+ {"id": 3, "label": "Learns", "end_id": 6, "start_id": 5, "properties": {"from": 2022}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
+(3 rows)
+
+SELECT * FROM cypher('graph1', $$ MATCH p = ()-[]->() RETURN p $$) AS (result agtype);
+                                                                                                                                                                       result                                                                                                                                                                       
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 1, "label": "Teacher", "properties": {"name": "John"}}::vertex, {"id": 1, "label": "Teaches", "end_id": 2, "start_id": 1, "properties": {"from": 2011}, "end_label_id": 5, "end_label_name": "Class", "start_label_id": 3, "start_label_name": "Teacher"}::edge, {"id": 2, "label": "Class", "properties": {"title": "DS"}}::vertex]::path
+ [{"id": 3, "label": "Student", "properties": {"name": "Smith"}}::vertex, {"id": 2, "label": "Learns", "end_id": 4, "start_id": 3, "properties": {"from": 2013}, "end_label_id": 5, "end_label_name": "Class", "start_label_id": 6, "start_label_name": "Student"}::edge, {"id": 4, "label": "Class", "properties": {"title": "AI"}}::vertex]::path
+ [{"id": 5, "label": "", "properties": {"name": "Bob"}}::vertex, {"id": 3, "label": "Learns", "end_id": 6, "start_id": 5, "properties": {"from": 2022}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 6, "label": "", "properties": {"title": "Swimming"}}::vertex]::path
+(3 rows)
+
 -- show vertex and edge relation information
 \d+ graph1._ag_label_vertex;
                                                       Table "graph1._ag_label_vertex"
