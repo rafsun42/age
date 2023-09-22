@@ -2232,7 +2232,7 @@ Datum _agtype_build_vertex(PG_FUNCTION_ARGS)
                      errmsg("_agtype_build_vertex() properties argument must be an object")));
         }
 
-        add_agtype((Datum)properties, false, &result, AGTYPEOID, false);
+        push_agtype_value_binary(&result.parse_state, properties);
     }
 
     result.res = push_agtype_value(&result.parse_state, WAGT_END_OBJECT, NULL);

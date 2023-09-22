@@ -685,6 +685,18 @@ agtype_value *push_agtype_value(agtype_parse_state **pstate,
     return res;
 }
 
+agtype_value *push_agtype_value_binary(agtype_parse_state **pstate,
+                                agtype *agtype)
+{
+    agtype_value *res = NULL;
+    agtype_value *input = palloc(sizeof(agtype_value));
+    input->type = AGTV_BINARY;
+    input->val.binary.data = &agtype->root;
+    input->val.binary.len = VARSIZE(agtype);
+    append_value(*pstate, input);
+    return res;
+}
+
 /*
  * Do the actual pushing, with only scalar or pseudo-scalar-array values
  * accepted.
@@ -1851,6 +1863,18 @@ static agtype *convert_to_agtype(agtype_value *val)
     return res;
 }
 
+// assuming that the binary is container
+static void convert_agtype_binary(StringInfo buffer, agtentry *pheader,
+                                  agtype_value *val)
+{
+    char *data = val->val.binary.data;
+    int len = val->val.binary.len;
+
+    pad_buffer_to_int(buffer);
+    append_to_buffer(buffer, data, len);
+    *pheader = AGTENTRY_IS_CONTAINER | len;
+}
+
 /*
  * Subroutine of convert_agtype: serialize a single agtype_value into buffer.
  *
@@ -1883,6 +1907,8 @@ static void convert_agtype_value(StringInfo buffer, agtentry *header,
         convert_agtype_array(buffer, header, val, level);
     else if (val->type == AGTV_OBJECT)
         convert_agtype_object(buffer, header, val, level);
+    else if (val->type == AGTV_BINARY)
+        convert_agtype_binary(buffer, header, val);
     else
         ereport(ERROR,
                 (errmsg("unknown agtype type %d to convert", val->type)));

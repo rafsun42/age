@@ -473,6 +473,8 @@ agtype_value *get_ith_agtype_value_from_container(agtype_container *container,
 agtype_value *push_agtype_value(agtype_parse_state **pstate,
                                 agtype_iterator_token seq,
                                 agtype_value *agtval);
+agtype_value *push_agtype_value_binary(agtype_parse_state **pstate,
+                                agtype *agtype);
 agtype_iterator *agtype_iterator_init(agtype_container *container);
 agtype_iterator_token agtype_iterator_next(agtype_iterator **it,
                                            agtype_value *val,
