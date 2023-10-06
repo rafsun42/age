@@ -38,40 +38,40 @@ INSERT INTO start_and_end_points (SELECT * FROM cypher('cypher_vle', $$MATCH (b:
 SELECT * FROM start_and_end_points;
 
 -- Count the total paths from left (start) to right (end) -[]-> should be 400
-SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id": 1111111111111111, "label": "", "end_id": 2222222222222222, "start_id": 333333333333333, "properties": {}}::edge'::agtype, '1'::agtype, 'null'::agtype, '1'::agtype) group by ctid;
+SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id":3, "label":"", "properties":{}, "start_id":0, "end_id":1, "end_label_id": 3, "end_label_name": "vertex 0", "start_label_id": 4, "start_label_name": "vertex 1"}::edge'::agtype, '1'::agtype, 'null'::agtype, '1'::agtype) group by ctid;
 
 -- Count the total paths from right (end) to left (start) <-[]- should be 2
-SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id": 1111111111111111, "label": "", "end_id": 2222222222222222, "start_id": 333333333333333, "properties": {}}::edge'::agtype, '1'::agtype, 'null'::agtype, '-1'::agtype) group by ctid;
+SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id":3, "label":"", "properties":{}, "start_id":0, "end_id":1, "end_label_id": 3, "end_label_name": "vertex 0", "start_label_id": 4, "start_label_name": "vertex 1"}::edge'::agtype, '1'::agtype, 'null'::agtype, '-1'::agtype) group by ctid;
 
 -- Count the total paths undirectional -[]- should be 7092
-SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id": 1111111111111111, "label": "", "end_id": 2222222222222222, "start_id": 333333333333333, "properties": {}}::edge'::agtype, '1'::agtype, 'null'::agtype, '0'::agtype) group by ctid;
+SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id":3, "label":"", "properties":{}, "start_id":0, "end_id":1, "end_label_id": 3, "end_label_name": "vertex 0", "start_label_id": 4, "start_label_name": "vertex 1"}::edge'::agtype, '1'::agtype, 'null'::agtype, '0'::agtype) group by ctid;
 
 -- All paths of length 3 -[]-> should be 2
-SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id": 1111111111111111, "label": "", "end_id": 2222222222222222, "start_id": 333333333333333, "properties": {}}::edge'::agtype, '3'::agtype, '3'::agtype, '1'::agtype);
+SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id":3, "label":"", "properties":{}, "start_id":0, "end_id":1, "end_label_id": 3, "end_label_name": "vertex 0", "start_label_id": 4, "start_label_name": "vertex 1"}::edge'::agtype, '3'::agtype, '3'::agtype, '1'::agtype);
 
 -- All paths of length 3 <-[]- should be 1
-SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id": 1111111111111111, "label": "", "end_id": 2222222222222222, "start_id": 333333333333333, "properties": {}}::edge'::agtype, '3'::agtype, '3'::agtype, '-1'::agtype);
+SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id":3, "label":"", "properties":{}, "start_id":0, "end_id":1, "end_label_id": 3, "end_label_name": "vertex 0", "start_label_id": 4, "start_label_name": "vertex 1"}::edge'::agtype, '3'::agtype, '3'::agtype, '-1'::agtype);
 
 -- All paths of length 3 -[]- should be 12
-SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id": 1111111111111111, "label": "", "end_id": 2222222222222222, "start_id": 333333333333333, "properties": {}}::edge'::agtype, '3'::agtype, '3'::agtype, '0'::agtype);
+SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id":3, "label":"", "properties":{}, "start_id":0, "end_id":1, "end_label_id": 3, "end_label_name": "vertex 0", "start_label_id": 4, "start_label_name": "vertex 1"}::edge'::agtype, '3'::agtype, '3'::agtype, '0'::agtype);
 
 -- Test edge label matching - should match 1
-SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id": 1111111111111111, "label": "edge", "end_id": 2222222222222222, "start_id": 333333333333333, "properties": {}}::edge'::agtype, '1'::agtype, 'null'::agtype, '1'::agtype);
+SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id":3, "label":"edge", "properties":{}, "start_id":0, "end_id":1, "end_label_id": 3, "end_label_name": "vertex 0", "start_label_id": 4, "start_label_name": "vertex 1"}::edge'::agtype, '1'::agtype, 'null'::agtype, '1'::agtype);
 
 -- Test scalar property matching - should match 1
-SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id": 1111111111111111, "label": "", "end_id": 2222222222222222, "start_id": 333333333333333, "properties": {"name": "main edge"}}::edge'::agtype, '1'::agtype, 'null'::agtype, '1'::agtype);
+SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id":3, "label":"edge", "properties":{"name": "main edge"}, "start_id":0, "end_id":1, "end_label_id": 3, "end_label_name": "vertex 0", "start_label_id": 4, "start_label_name": "vertex 1"}::edge'::agtype, '1'::agtype, 'null'::agtype, '1'::agtype);
 
 -- Test object property matching - should match 4
-SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id": 1111111111111111, "label": "", "end_id": 2222222222222222, "start_id": 333333333333333, "properties": {"dangerous": {"type": "all", "level": "all"}}}::edge'::agtype, '1'::agtype, 'null'::agtype, '1'::agtype);
+SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id":3, "label":"edge", "properties":{"dangerous": {"type": "all", "level": "all"}}, "start_id":0, "end_id":1, "end_label_id": 3, "end_label_name": "vertex 0", "start_label_id": 4, "start_label_name": "vertex 1"}::edge'::agtype, '1'::agtype, 'null'::agtype, '1'::agtype);
 
 -- Test array property matching - should match 2
-SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id": 1111111111111111, "label": "", "end_id": 2222222222222222, "start_id": 333333333333333, "properties": {"packages": [1,3,5,7]}}::edge'::agtype, '1'::agtype, 'null'::agtype, '0'::agtype);
+SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id":3, "label":"edge", "properties":{"packages": [1,3,5,7]}, "start_id":0, "end_id":1, "end_label_id": 3, "end_label_name": "vertex 0", "start_label_id": 4, "start_label_name": "vertex 1"}::edge'::agtype, '1'::agtype, 'null'::agtype, '0'::agtype);
 
 -- Test array property matching - should match 1
-SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id": 1111111111111111, "label": "", "end_id": 2222222222222222, "start_id": 333333333333333, "properties": {"packages": [2,4,6]}}::edge'::agtype, '1'::agtype, 'null'::agtype, '0'::agtype);
+SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id":3, "label":"edge", "properties":{"packages": [2,4,6]}, "start_id":0, "end_id":1, "end_label_id": 3, "end_label_name": "vertex 0", "start_label_id": 4, "start_label_name": "vertex 1"}::edge'::agtype, '1'::agtype, 'null'::agtype, '0'::agtype);
 
 -- Test object property matching - should match 1
-SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id": 1111111111111111, "label": "", "end_id": 2222222222222222, "start_id": 333333333333333, "properties": {"dangerous": {"type": "poisons", "level": "all"}}}::edge'::agtype, '1'::agtype, 'null'::agtype, '0'::agtype);
+SELECT count(edges) FROM start_and_end_points, age_vle( '"cypher_vle"'::agtype, start_vertex, end_vertex, '{"id":3, "label":"edge", "properties":{"dangerous": {"type": "poisons", "level": "all"}}, "start_id":0, "end_id":1, "end_label_id": 3, "end_label_name": "vertex 0", "start_label_id": 4, "start_label_name": "vertex 1"}::edge'::agtype, '1'::agtype, 'null'::agtype, '0'::agtype);
 
 -- Test the VLE match integration
 -- Each should find 400

@@ -51,7 +51,7 @@
 #define AG_EDGE_ACCESS_FUNCTION_END_ID "age_end_id"
 #define AG_EDGE_ACCESS_FUNCTION_PROPERTIES "age_properties"
 #define AG_EDGE_ACCESS_FUNCTION_LABEL_ID "age_label_id"
-#define AG_EDGE_ACESS_FUNCTION_START_LABEL_ID "age_start_label_id"
+#define AG_EDGE_ACCESS_FUNCTION_START_LABEL_ID "age_start_label_id"
 #define AG_EDGE_ACCESS_FUNCTION_END_LABEL_ID "age_end_label_id"
 
 #define IS_DEFAULT_LABEL_EDGE(str) \

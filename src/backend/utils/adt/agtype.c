@@ -680,14 +680,18 @@ static bool is_object_edge(agtype_value *agtv)
     bool has_properties = false;
     bool has_start_id = false;
     bool has_end_id = false;
+    bool has_start_label_id = false;
+    bool has_start_label_name = false;
+    bool has_end_label_id = false;
+    bool has_end_label_name = false;
     int i;
 
     /* we require a valid object */
     Assert(agtv != NULL);
     Assert(agtv->type == AGTV_OBJECT);
 
-    /* we need 5 pairs for an edge */
-    if (agtv->val.object.num_pairs != 5)
+    /* we need 9 pairs for an edge */
+    if (agtv->val.object.num_pairs != count_edge_object_keys)
     {
         return false;
     }
@@ -738,6 +742,34 @@ static bool is_object_edge(agtype_value *agtv)
         {
             has_end_id = true;
         }
+        /* check for an end_label_id of type integer */
+        else if (key_len == strlen(edge_obj_end_label_id) &&
+                 pg_strncasecmp(key_val, edge_obj_end_label_id, key_len) == 0 &&
+                 value->type == AGTV_INTEGER)
+        {
+            has_end_label_id = true;
+        }
+        /* check for an end_label_name of type string */
+        else if (key_len == strlen(edge_obj_end_label_name) &&
+                 pg_strncasecmp(key_val, edge_obj_end_label_name, key_len) == 0 &&
+                 value->type == AGTV_STRING)
+        {
+            has_end_label_name = true;
+        }
+        /* check for a start_label_id of type integer */
+        else if (key_len == strlen(edge_obj_start_label_id) &&
+                 pg_strncasecmp(key_val, edge_obj_start_label_id, key_len) == 0 &&
+                 value->type == AGTV_INTEGER)
+        {
+            has_start_label_id = true;
+        }
+        /* check for a start_label_name of type string */
+        else if (key_len == strlen(edge_obj_start_label_name) &&
+                 pg_strncasecmp(key_val, edge_obj_start_label_name, key_len) == 0 &&
+                 value->type == AGTV_STRING)
+        {
+            has_start_label_name = true;
+        }
         /* if it gets to this point, it can't be an edge */
         else
         {
@@ -745,7 +777,9 @@ static bool is_object_edge(agtype_value *agtv)
         }
     }
     return (has_id && has_label && has_properties &&
-            has_start_id && has_end_id);
+            has_start_id && has_end_id && has_end_label_id &&
+            has_end_label_name && has_start_label_id &&
+            has_start_label_name);
 }
 
 /* helper function to check if an array fits a path */
@@ -2253,41 +2287,42 @@ Datum make_vertex(Datum id, Datum label, Datum properties)
 PG_FUNCTION_INFO_V1(_agtype_build_edge);
 
 /*
- * SQL function agtype_build_edge(graphid, graphid, graphid, cstring, agtype)
+ * SQL function agtype_build_edge
+ * (int64, int64, int64, cstring, cstring, cstring, int32, int32, agtype)
  */
 Datum _agtype_build_edge(PG_FUNCTION_ARGS)
 {
     agtype_in_state result;
-    graphid id, start_id, end_id;
+    int64 id, start_id, end_id;
 
     memset(&result, 0, sizeof(agtype_in_state));
 
     result.res = push_agtype_value(&result.parse_state, WAGT_BEGIN_OBJECT,
                                    NULL);
 
-    /* process graph id */
+    /* process id */
     result.res = push_agtype_value(&result.parse_state, WAGT_KEY,
-                                   string_to_agtype_value("id"));
+                                   string_to_agtype_value(edge_obj_id));
 
     if (fcinfo->args[0].isnull)
     {
         ereport(ERROR,
                 (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
-                 errmsg("_agtype_build_edge() graphid cannot be NULL")));
+                 errmsg("_agtype_build_edge() id cannot be NULL")));
     }
 
-    id = AG_GETARG_GRAPHID(0);
+    id = PG_GETARG_INT64(0);
     result.res = push_agtype_value(&result.parse_state, WAGT_VALUE,
                                    integer_to_agtype_value(id));
 
     /* process label */
     result.res = push_agtype_value(&result.parse_state, WAGT_KEY,
-                                   string_to_agtype_value("label"));
+                                   string_to_agtype_value(edge_obj_label));
 
     if (fcinfo->args[3].isnull)
     {
         ereport(ERROR, (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
-                        errmsg("_agtype_build_vertex() label cannot be NULL")));
+                        errmsg("_agtype_build_edge() label cannot be NULL")));
     }
 
     result.res =
@@ -2296,40 +2331,100 @@ Datum _agtype_build_edge(PG_FUNCTION_ARGS)
 
     /* process end_id */
     result.res = push_agtype_value(&result.parse_state, WAGT_KEY,
-                                   string_to_agtype_value("end_id"));
+                                   string_to_agtype_value(edge_obj_end_id));
 
     if (fcinfo->args[2].isnull)
     {
         ereport(ERROR,
                 (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
-                 errmsg("_agtype_build_edge() endid cannot be NULL")));
+                 errmsg("_agtype_build_edge() end_id cannot be NULL")));
     }
 
-    end_id = AG_GETARG_GRAPHID(2);
+    end_id = PG_GETARG_INT64(2);
     result.res = push_agtype_value(&result.parse_state, WAGT_VALUE,
                                    integer_to_agtype_value(end_id));
 
+    /* process end_label */
+    result.res = push_agtype_value(&result.parse_state, WAGT_KEY,
+                                   string_to_agtype_value(edge_obj_end_label_name));
+
+    if (fcinfo->args[5].isnull)
+    {
+        ereport(ERROR,
+                (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+                 errmsg("_agtype_build_edge() end_label_name cannot be NULL")));
+    }
+
+    result.res =
+        push_agtype_value(&result.parse_state, WAGT_VALUE,
+                          string_to_agtype_value(PG_GETARG_CSTRING(5)));
+
+    /* process end_label_id */
+    result.res = push_agtype_value(&result.parse_state, WAGT_KEY,
+                                   string_to_agtype_value(edge_obj_end_label_id));
+
+    if (fcinfo->args[7].isnull)
+    {
+        ereport(ERROR,
+                (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+                 errmsg("_agtype_build_edge() end_label_id cannot be NULL")));
+    }
+
+    result.res =
+        push_agtype_value(&result.parse_state, WAGT_VALUE,
+                          integer_to_agtype_value(PG_GETARG_INT32(7)));
+
     /* process start_id */
     result.res = push_agtype_value(&result.parse_state, WAGT_KEY,
-                                   string_to_agtype_value("start_id"));
+                                   string_to_agtype_value(edge_obj_start_id));
 
     if (fcinfo->args[1].isnull)
     {
         ereport(ERROR,
                 (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
-                 errmsg("_agtype_build_edge() startid cannot be NULL")));
+                 errmsg("_agtype_build_edge() start_id cannot be NULL")));
     }
 
-    start_id = AG_GETARG_GRAPHID(1);
+    start_id = PG_GETARG_INT64(1);
     result.res = push_agtype_value(&result.parse_state, WAGT_VALUE,
                                    integer_to_agtype_value(start_id));
 
+    /* process start_label */
+    result.res = push_agtype_value(&result.parse_state, WAGT_KEY,
+                                   string_to_agtype_value(edge_obj_start_label_name));
+
+    if (fcinfo->args[4].isnull)
+    {
+        ereport(ERROR,
+                (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+                 errmsg("_agtype_build_edge() start_label_name cannot be NULL")));
+    }
+
+    result.res =
+        push_agtype_value(&result.parse_state, WAGT_VALUE,
+                          string_to_agtype_value(PG_GETARG_CSTRING(4)));
+
+    /* process start_label_id */
+    result.res = push_agtype_value(&result.parse_state, WAGT_KEY,
+                                   string_to_agtype_value(edge_obj_start_label_id));
+
+    if (fcinfo->args[6].isnull)
+    {
+        ereport(ERROR,
+                (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+                 errmsg("_agtype_build_edge() start_label_id cannot be NULL")));
+    }
+
+    result.res =
+        push_agtype_value(&result.parse_state, WAGT_VALUE,
+                          integer_to_agtype_value(PG_GETARG_INT32(6)));
+
     /* process properties */
     result.res = push_agtype_value(&result.parse_state, WAGT_KEY,
-                                   string_to_agtype_value("properties"));
+                                   string_to_agtype_value(edge_obj_properties));
 
     /* if the properties object is null, push an empty object */
-    if (fcinfo->args[4].isnull)
+    if (fcinfo->args[8].isnull)
     {
         result.res = push_agtype_value(&result.parse_state, WAGT_BEGIN_OBJECT,
                                        NULL);
@@ -2338,7 +2433,7 @@ Datum _agtype_build_edge(PG_FUNCTION_ARGS)
     }
     else
     {
-        agtype *properties = AG_GET_ARG_AGTYPE_P(4);
+        agtype *properties = AG_GET_ARG_AGTYPE_P(8);
 
         if (!AGT_ROOT_IS_OBJECT(properties))
         {
@@ -2358,10 +2453,13 @@ Datum _agtype_build_edge(PG_FUNCTION_ARGS)
 }
 
 Datum make_edge(Datum id, Datum startid, Datum endid, Datum label,
+                Datum start_label_name, Datum end_label_name,
+                Datum start_label_id, Datum end_label_id,
                 Datum properties)
 {
-    return DirectFunctionCall5(_agtype_build_edge, id, startid, endid, label,
-                               properties);
+    return DirectFunctionCall9(_agtype_build_edge, id, startid, endid, label,
+                               start_label_name, end_label_name,
+                               start_label_id, end_label_id, properties);
 }
 
 static agtype_value *agtype_build_map_as_agtype_value(FunctionCallInfo fcinfo)
@@ -4386,8 +4484,9 @@ Datum agtype_typecast_edge(PG_FUNCTION_ARGS)
 {
     agtype *arg_agt;
     agtype_value agtv_key;
-    agtype_value *agtv_graphid, *agtv_label, *agtv_properties,
-                 *agtv_startid, *agtv_endid;
+    agtype_value *agtv_id, *agtv_label, *agtv_properties,
+                 *agtv_startid, *agtv_endid, *agtv_startlabel, *agtv_endlabel,
+                 *agtv_startlabelid, *agtv_endlabelid;
     Datum result;
     int count;
 
@@ -4404,29 +4503,29 @@ Datum agtype_typecast_edge(PG_FUNCTION_ARGS)
                 (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
                  errmsg("edge typecast argument must resolve to an object")));
 
-    /* An edge has 5 key/value pairs */
+    /* An edge has 9 key/value pairs */
     count = AGTYPE_CONTAINER_SIZE(&arg_agt->root);
-    if (count != 5)
+    if (count != count_edge_object_keys)
         ereport(ERROR,
                 (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
                  errmsg("typecast object is not an edge")));
 
     /*
-     * The 5 key/value pairs need to each exist and their names need to match
+     * The 9 key/value pairs need to each exist and their names need to match
      * the names used for an edge.
      */
     agtv_key.type = AGTV_STRING;
-    agtv_key.val.string.val = "id";
-    agtv_key.val.string.len = 2;
-    agtv_graphid = find_agtype_value_from_container(&arg_agt->root,
+    agtv_key.val.string.val = edge_obj_id;
+    agtv_key.val.string.len = strlen(edge_obj_id);
+    agtv_id = find_agtype_value_from_container(&arg_agt->root,
                                                     AGT_FOBJECT, &agtv_key);
-    if (agtv_graphid == NULL || agtv_graphid->type != AGTV_INTEGER)
+    if (agtv_id == NULL || agtv_id->type != AGTV_INTEGER)
         ereport(ERROR,
                 (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
                  errmsg("edge typecast object has an invalid or missing id")));
 
-    agtv_key.val.string.val = "label";
-    agtv_key.val.string.len = 5;
+    agtv_key.val.string.val = edge_obj_label;
+    agtv_key.val.string.len = strlen(edge_obj_label);
     agtv_label = find_agtype_value_from_container(&arg_agt->root,
                                                   AGT_FOBJECT, &agtv_key);
     if (agtv_label == NULL || agtv_label->type != AGTV_STRING)
@@ -4434,8 +4533,8 @@ Datum agtype_typecast_edge(PG_FUNCTION_ARGS)
                 (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
                  errmsg("edge typecast object has an invalid or missing label")));
 
-    agtv_key.val.string.val = "properties";
-    agtv_key.val.string.len = 10;
+    agtv_key.val.string.val = edge_obj_properties;
+    agtv_key.val.string.len = strlen(edge_obj_properties);
     agtv_properties = find_agtype_value_from_container(&arg_agt->root,
                                                  AGT_FOBJECT, &agtv_key);
     if (agtv_properties == NULL ||
@@ -4445,8 +4544,8 @@ Datum agtype_typecast_edge(PG_FUNCTION_ARGS)
                 (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
                  errmsg("edge typecast object has invalid or missing properties")));
 
-    agtv_key.val.string.val = "start_id";
-    agtv_key.val.string.len = 8;
+    agtv_key.val.string.val = edge_obj_start_id;
+    agtv_key.val.string.len = strlen(edge_obj_start_id);
     agtv_startid = find_agtype_value_from_container(&arg_agt->root,
                                                     AGT_FOBJECT, &agtv_key);
     if (agtv_startid == NULL || agtv_startid->type != AGTV_INTEGER)
@@ -4454,8 +4553,8 @@ Datum agtype_typecast_edge(PG_FUNCTION_ARGS)
                 (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
                  errmsg("edge typecast object has an invalid or missing start_id")));
 
-    agtv_key.val.string.val = "end_id";
-    agtv_key.val.string.len = 6;
+    agtv_key.val.string.val = edge_obj_end_id;
+    agtv_key.val.string.len = strlen(edge_obj_end_id);
     agtv_endid = find_agtype_value_from_container(&arg_agt->root,
                                                     AGT_FOBJECT, &agtv_key);
     if (agtv_endid == NULL || agtv_endid->type != AGTV_INTEGER)
@@ -4463,13 +4562,54 @@ Datum agtype_typecast_edge(PG_FUNCTION_ARGS)
                 (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
                  errmsg("edge typecast object has an invalid or missing end_id")));
 
+    agtv_key.val.string.val = edge_obj_start_label_name;
+    agtv_key.val.string.len = strlen(edge_obj_start_label_name);
+    agtv_startlabel = find_agtype_value_from_container(&arg_agt->root,
+                                                       AGT_FOBJECT, &agtv_key);
+    if (agtv_startlabel == NULL || agtv_startlabel->type != AGTV_STRING)
+        ereport(ERROR,
+                (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+                 errmsg("edge typecast object has an invalid or missing start_label_name")));
+
+    agtv_key.val.string.val = edge_obj_end_label_name;
+    agtv_key.val.string.len = strlen(edge_obj_end_label_name);
+    agtv_endlabel = find_agtype_value_from_container(&arg_agt->root,
+                                                     AGT_FOBJECT, &agtv_key);
+    if (agtv_endlabel == NULL || agtv_endlabel->type != AGTV_STRING)
+        ereport(ERROR,
+                (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+                 errmsg("edge typecast object has an invalid or missing end_label_name")));
+
+    agtv_key.val.string.val = edge_obj_start_label_id;
+    agtv_key.val.string.len = strlen(edge_obj_start_label_id);
+    agtv_startlabelid = find_agtype_value_from_container(&arg_agt->root,
+                                                         AGT_FOBJECT, &agtv_key);
+    if (agtv_startlabelid == NULL || agtv_startlabelid->type != AGTV_INTEGER)
+        ereport(ERROR,
+                (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+                 errmsg("edge typecast object has an invalid or missing start_label_id")));
+
+    agtv_key.val.string.val = edge_obj_end_label_id;
+    agtv_key.val.string.len = strlen(edge_obj_end_label_id);
+    agtv_endlabelid = find_agtype_value_from_container(&arg_agt->root,
+                                                       AGT_FOBJECT, &agtv_key);
+    if (agtv_endlabelid == NULL || agtv_endlabelid->type != AGTV_INTEGER)
+        ereport(ERROR,
+                (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+                 errmsg("edge typecast object has an invalid or missing end_label_id")));
+
     /* Hand it off to the build edge routine */
-    result = DirectFunctionCall5(_agtype_build_edge,
-                 Int64GetDatum(agtv_graphid->val.int_value),
+    result = DirectFunctionCall9(_agtype_build_edge,
+                 Int64GetDatum(agtv_id->val.int_value),
                  Int64GetDatum(agtv_startid->val.int_value),
                  Int64GetDatum(agtv_endid->val.int_value),
                  CStringGetDatum(agtv_label->val.string.val),
+                 CStringGetDatum(agtv_startlabel->val.string.val),
+                 CStringGetDatum(agtv_endlabel->val.string.val),
+                 Int32GetDatum(agtv_startlabelid->val.int_value),
+                 Int32GetDatum(agtv_endlabelid->val.int_value),
                  PointerGetDatum(agtype_value_to_agtype(agtv_properties)));
+
     return result;
 }
 
@@ -5061,6 +5201,84 @@ Datum age_properties(PG_FUNCTION_ARGS)
 
     Assert(agtv_result != NULL);
     Assert(agtv_result->type = AGTV_OBJECT);
+
+    PG_RETURN_POINTER(agtype_value_to_agtype(agtv_result));
+}
+
+PG_FUNCTION_INFO_V1(age_start_label_id);
+
+Datum age_start_label_id(PG_FUNCTION_ARGS)
+{
+    agtype *agt_arg = NULL;
+    agtype_value *agtv_object = NULL;
+    agtype_value *agtv_result = NULL;
+
+    /* check for null */
+    if (PG_ARGISNULL(0))
+        PG_RETURN_NULL();
+
+    agt_arg = AG_GET_ARG_AGTYPE_P(0);
+    /* check for a scalar object */
+    if (!AGT_ROOT_IS_SCALAR(agt_arg))
+        ereport(ERROR, (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+                        errmsg("start_label_id() argument must resolve to a scalar value")));
+
+    /* get the object out of the array */
+    agtv_object = get_ith_agtype_value_from_container(&agt_arg->root, 0);
+
+    /* is it an agtype null? */
+    if (agtv_object->type == AGTV_NULL)
+            PG_RETURN_NULL();
+
+    /* check for proper agtype */
+    if (agtv_object->type != AGTV_VERTEX && agtv_object->type != AGTV_EDGE)
+        ereport(ERROR, (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+                        errmsg("start_label_id() argument must be a vertex, an edge or null")));
+
+    agtv_result = GET_AGTYPE_VALUE_OBJECT_VALUE(agtv_object,
+                                                edge_obj_start_label_id);
+
+    Assert(agtv_result != NULL);
+    Assert(agtv_result->type = AGTV_INTEGER);
+
+    PG_RETURN_POINTER(agtype_value_to_agtype(agtv_result));
+}
+
+PG_FUNCTION_INFO_V1(age_end_label_id);
+
+Datum age_end_label_id(PG_FUNCTION_ARGS)
+{
+    agtype *agt_arg = NULL;
+    agtype_value *agtv_object = NULL;
+    agtype_value *agtv_result = NULL;
+
+    /* check for null */
+    if (PG_ARGISNULL(0))
+        PG_RETURN_NULL();
+
+    agt_arg = AG_GET_ARG_AGTYPE_P(0);
+    /* check for a scalar object */
+    if (!AGT_ROOT_IS_SCALAR(agt_arg))
+        ereport(ERROR, (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+                        errmsg("end_label_id() argument must resolve to a scalar value")));
+
+    /* get the object out of the array */
+    agtv_object = get_ith_agtype_value_from_container(&agt_arg->root, 0);
+
+    /* is it an agtype null? */
+    if (agtv_object->type == AGTV_NULL)
+            PG_RETURN_NULL();
+
+    /* check for proper agtype */
+    if (agtv_object->type != AGTV_VERTEX && agtv_object->type != AGTV_EDGE)
+        ereport(ERROR, (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
+                        errmsg("end_label_id() argument must be a vertex, an edge or null")));
+
+    agtv_result = GET_AGTYPE_VALUE_OBJECT_VALUE(agtv_object,
+                                                edge_obj_end_label_id);
+
+    Assert(agtv_result != NULL);
+    Assert(agtv_result->type = AGTV_INTEGER);
 
     PG_RETURN_POINTER(agtype_value_to_agtype(agtv_result));
 }
@@ -9974,9 +10192,14 @@ agtype_value *agtype_value_build_vertex(graphid id, char *label,
     return result.res;
 }
 
-/* helper function to quickly build an agtype_value edge */
-agtype_value *agtype_value_build_edge(graphid id, char *label, graphid end_id,
-                                      graphid start_id, Datum properties)
+/* helper function to quickly build an agtype_value edge
+ * (int64, int64, int64, char, char, char, int32, int32, agtype)
+ */
+agtype_value *agtype_value_build_edge(int64 id, int64 end_id, int64 start_id,
+                                      char* label, char* start_label_name,
+                                      char* end_label_name,
+                                      int32 start_label_id,
+                                      int32 end_label_id, Datum properties)
 {
     agtype_in_state result;
 
@@ -9988,33 +10211,58 @@ agtype_value *agtype_value_build_edge(graphid id, char *label, graphid end_id,
     /* push in the object beginning */
     result.res = push_agtype_value(&result.parse_state, WAGT_BEGIN_OBJECT,
                                    NULL);
-    /* push the graph id key/value pair */
+    /* push the edge id key/value pair */
     result.res = push_agtype_value(&result.parse_state, WAGT_KEY,
-                                   string_to_agtype_value("id"));
+                                   string_to_agtype_value(edge_obj_id));
     result.res = push_agtype_value(&result.parse_state, WAGT_VALUE,
                                    integer_to_agtype_value(id));
 
     /* push the label key/value pair */
     result.res = push_agtype_value(&result.parse_state, WAGT_KEY,
-                                   string_to_agtype_value("label"));
+                                   string_to_agtype_value(edge_obj_label));
     result.res = push_agtype_value(&result.parse_state, WAGT_VALUE,
                                    string_to_agtype_value(label));
 
     /* push the end_id key/value pair */
     result.res = push_agtype_value(&result.parse_state, WAGT_KEY,
-                                   string_to_agtype_value("end_id"));
+                                   string_to_agtype_value(edge_obj_end_id));
     result.res = push_agtype_value(&result.parse_state, WAGT_VALUE,
                                    integer_to_agtype_value(end_id));
 
     /* push the start_id key/value pair */
     result.res = push_agtype_value(&result.parse_state, WAGT_KEY,
-                                   string_to_agtype_value("start_id"));
+                                   string_to_agtype_value(edge_obj_start_id));
     result.res = push_agtype_value(&result.parse_state, WAGT_VALUE,
                                    integer_to_agtype_value(start_id));
 
+    /* push the end vertex label id key/value pair */
+    result.res = push_agtype_value(&result.parse_state, WAGT_KEY,
+                                   string_to_agtype_value(edge_obj_end_label_id));
+    result.res = push_agtype_value(&result.parse_state, WAGT_VALUE,
+                                   integer_to_agtype_value(end_label_id));
+
+    /* push the end vertex label name key/value pair */
+    result.res = push_agtype_value(&result.parse_state, WAGT_KEY,
+                                   string_to_agtype_value(edge_obj_end_label_name));
+    result.res = push_agtype_value(&result.parse_state, WAGT_VALUE,
+                                   string_to_agtype_value(end_label_name));
+
+    /* push the start vertex label id key/value pair */
+    result.res = push_agtype_value(&result.parse_state, WAGT_KEY,
+                                   string_to_agtype_value(edge_obj_start_label_id));
+    result.res = push_agtype_value(&result.parse_state, WAGT_VALUE,
+                                   integer_to_agtype_value(start_label_id));
+
+    /* push the start vertex label name key/value pair */
+    result.res = push_agtype_value(&result.parse_state, WAGT_KEY,
+                                   string_to_agtype_value(edge_obj_start_label_name));
+    result.res = push_agtype_value(&result.parse_state, WAGT_VALUE,
+                                   string_to_agtype_value(start_label_name));
+
     /* push the properties key/value pair */
     result.res = push_agtype_value(&result.parse_state, WAGT_KEY,
-                                   string_to_agtype_value("properties"));
+                                   string_to_agtype_value(edge_obj_properties));
+
     add_agtype((Datum)properties, false, &result, AGTYPEOID, false);
 
     /* push in the object end */

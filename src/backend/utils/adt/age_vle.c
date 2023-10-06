@@ -28,6 +28,7 @@
 
 #include "utils/age_vle.h"
 #include "catalog/ag_graph.h"
+#include "catalog/ag_label.h"
 #include "utils/graphid.h"
 #include "utils/age_graphid_ds.h"
 #include "nodes/cypher_nodes.h"
@@ -1509,7 +1510,8 @@ static agtype_value *build_edge_list(VLE_path_container *vpc)
 
     for (index = 1; index < graphid_array_size - 1; index += 2)
     {
-        char *label_name = NULL;
+        int32 start_label_id, end_label_id;
+        char *label_name = NULL, *start_label_name, *end_label_name;
         edge_entry *ee = NULL;
         agtype_value *agtv_edge = NULL;
 
@@ -1517,10 +1519,19 @@ static agtype_value *build_edge_list(VLE_path_container *vpc)
         ee = get_edge_entry(ggctx, graphid_array[index]);
         /* get the label name from the oid */
         label_name = get_rel_name(get_edge_entry_label_table_oid(ee));
+        /* get the start and end label ids */
+        start_label_id = get_edge_entry_start_label_id(ee);
+        end_label_id = get_edge_entry_end_label_id(ee);
+        /* get the label names for start and end vertices */
+        start_label_name = DatumGetCString(get_label_name_from_label_id(graph_oid, start_label_id));
+        end_label_name = DatumGetCString(get_label_name_from_label_id(graph_oid, end_label_id));
         /* reconstruct the edge */
-        agtv_edge = agtype_value_build_edge(get_edge_entry_id(ee), label_name,
+        agtv_edge = agtype_value_build_edge(get_edge_entry_id(ee),
                                             get_edge_entry_end_vertex_id(ee),
                                             get_edge_entry_start_vertex_id(ee),
+                                            label_name, start_label_name,
+                                            end_label_name, start_label_id,
+                                            end_label_id,
                                             get_edge_entry_properties(ee));
         /* push the edge*/
         edges_result.res = push_agtype_value(&edges_result.parse_state,
@@ -1573,7 +1584,8 @@ static agtype_value *build_path(VLE_path_container *vpc)
 
     for (index = 0; index < graphid_array_size; index += 2)
     {
-        char *label_name = NULL;
+        int32 start_label_id, end_label_id;
+        char *label_name = NULL, *start_label_name, *end_label_name;
         vertex_entry *ve = NULL;
         edge_entry *ee = NULL;
         agtype_value *agtv_vertex = NULL;
@@ -1604,10 +1616,19 @@ static agtype_value *build_path(VLE_path_container *vpc)
         ee = get_edge_entry(ggctx, graphid_array[index+1]);
         /* get the label name from the oid */
         label_name = get_rel_name(get_edge_entry_label_table_oid(ee));
+        /* get the start and end label ids */
+        start_label_id = get_edge_entry_start_label_id(ee);
+        end_label_id = get_edge_entry_end_label_id(ee);
+        /* get the label names for start and end vertices */
+        start_label_name = DatumGetCString(get_label_name_from_label_id(graph_oid, start_label_id));
+        end_label_name = DatumGetCString(get_label_name_from_label_id(graph_oid, end_label_id));
         /* reconstruct the edge */
-        agtv_edge = agtype_value_build_edge(get_edge_entry_id(ee), label_name,
+        agtv_edge = agtype_value_build_edge(get_edge_entry_id(ee),
                                             get_edge_entry_end_vertex_id(ee),
                                             get_edge_entry_start_vertex_id(ee),
+                                            label_name, start_label_name,
+                                            end_label_name, start_label_id,
+                                            end_label_id,
                                             get_edge_entry_properties(ee));
         /* push the edge*/
         path_result.res = push_agtype_value(&path_result.parse_state, WAGT_ELEM,

@@ -449,15 +449,15 @@ static void process_update_list(CustomScanState *node)
         }
 
         /* get the id and label for later */
-        id = GET_AGTYPE_VALUE_OBJECT_VALUE(original_entity_value, "id");
-        label = GET_AGTYPE_VALUE_OBJECT_VALUE(original_entity_value, "label");
+        id = GET_AGTYPE_VALUE_OBJECT_VALUE(original_entity_value, edge_obj_id);
+        label = GET_AGTYPE_VALUE_OBJECT_VALUE(original_entity_value, edge_obj_label);
 
         label_name = pnstrdup(label->val.string.val, label->val.string.len);
         label_id = get_label_id_from_entity(original_entity_value,
                                             css->set_list->graph_name);
         /* get the properties we need to update */
         original_properties = GET_AGTYPE_VALUE_OBJECT_VALUE(original_entity_value,
-                                                            "properties");
+                                                            edge_obj_properties);
 
         /*
          * Determine if the property should be removed. This will be because
@@ -535,17 +535,29 @@ static void process_update_list(CustomScanState *node)
         }
         else if (original_entity_value->type == AGTV_EDGE)
         {
-            agtype_value *startid = GET_AGTYPE_VALUE_OBJECT_VALUE(original_entity_value, "start_id");
-            agtype_value *endid = GET_AGTYPE_VALUE_OBJECT_VALUE(original_entity_value, "end_id");
+            agtype_value *start_id = GET_AGTYPE_VALUE_OBJECT_VALUE(original_entity_value, edge_obj_start_id);
+            agtype_value *end_id = GET_AGTYPE_VALUE_OBJECT_VALUE(original_entity_value, edge_obj_end_id);
+            agtype_value *start_label = GET_AGTYPE_VALUE_OBJECT_VALUE(original_entity_value, edge_obj_start_label_name);
+            agtype_value *end_label = GET_AGTYPE_VALUE_OBJECT_VALUE(original_entity_value, edge_obj_end_label_name);
+            agtype_value *start_label_id = GET_AGTYPE_VALUE_OBJECT_VALUE(original_entity_value, edge_obj_start_label_id);
+            agtype_value *end_label_id = GET_AGTYPE_VALUE_OBJECT_VALUE(original_entity_value, edge_obj_end_label_id);
 
-            new_entity = make_edge(GRAPHID_GET_DATUM(id->val.int_value),
-                                   GRAPHID_GET_DATUM(startid->val.int_value),
-                                   GRAPHID_GET_DATUM(endid->val.int_value),
+            char *start_label_name = pnstrdup(start_label->val.string.val, start_label->val.string.len);
+            char *end_label_name = pnstrdup(end_label->val.string.val, end_label->val.string.len);
+
+            new_entity = make_edge(Int64GetDatum(id->val.int_value),
+                                   Int64GetDatum(start_id->val.int_value),
+                                   Int64GetDatum(end_id->val.int_value),
                                    CStringGetDatum(label_name),
+                                   CStringGetDatum(start_label_name),
+                                   CStringGetDatum(end_label_name),
+                                   Int32GetDatum(start_label_id->val.int_value),
+                                   Int32GetDatum(end_label_id->val.int_value),
                                    AGTYPE_P_GET_DATUM(agtype_value_to_agtype(altered_properties)));
 
-            slot = populate_edge_tts(slot, id, startid, endid,
-                                     altered_properties, label_id);
+            slot = populate_edge_tts(slot, id, start_id, end_id,
+                                     altered_properties, label_id,
+                                     start_label_id->val.int_value, end_label_id->val.int_value);
         }
         else
         {

@@ -302,6 +302,19 @@ typedef struct
 #define AGT_HEADER_EDGE 0x00000003
 #define AGT_HEADER_PATH 0x00000004
 
+/* keys in any edge object */
+#define edge_obj_id "id"
+#define edge_obj_label "label"
+#define edge_obj_end_id "end_id"
+#define edge_obj_start_id "start_id"
+#define edge_obj_properties "properties"
+#define edge_obj_end_label_id "end_label_id"
+#define edge_obj_end_label_name "end_label_name"
+#define edge_obj_start_label_id "start_label_id"
+#define edge_obj_start_label_name "start_label_name"
+
+#define count_edge_object_keys 9
+
 /*
  * IMPORTANT NOTE: For agtype_value_type, IS_A_AGTYPE_SCALAR() checks that the
  * type is between AGTV_NULL and AGTV_ARRAY, excluding AGTV_ARRAY. So, new scalars need to
@@ -532,14 +545,19 @@ agtype *get_one_agtype_from_variadic_args(FunctionCallInfo fcinfo,
                                           int expected_nargs);
 Datum make_vertex(Datum id, Datum label, Datum properties);
 Datum make_edge(Datum id, Datum startid, Datum endid, Datum label,
-                   Datum properties);
+                Datum start_label_name, Datum end_label_name,
+                Datum start_label_id, Datum end_label_id,
+                Datum properties);
 Datum make_path(List *path);
 Datum column_get_datum(TupleDesc tupdesc, HeapTuple tuple, int column,
                        const char *attname, Oid typid, bool isnull);
 agtype_value *agtype_value_build_vertex(graphid id, char *label,
                                         Datum properties);
-agtype_value *agtype_value_build_edge(graphid id, char *label, graphid end_id,
-                                      graphid start_id, Datum properties);
+agtype_value *agtype_value_build_edge(int64 id, int64 end_id, int64 start_id,
+                                      char* label, char* start_label_name,
+                                      char* end_label_name,
+                                      int32 start_label_id,
+                                      int32 end_label_id, Datum properties);
 agtype_value *get_agtype_value(char *funcname, agtype *agt_arg,
                                enum agtype_value_type type, bool error);
 bool is_agtype_null(agtype *agt_arg);

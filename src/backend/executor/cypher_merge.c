@@ -35,6 +35,7 @@
 #include "nodes/cypher_nodes.h"
 #include "utils/agtype.h"
 #include "utils/graphid.h"
+#include "catalog/ag_label.h"
 
 static void begin_cypher_merge(CustomScanState *node, EState *estate,
                                int eflags);
@@ -42,9 +43,11 @@ static TupleTableSlot *exec_cypher_merge(CustomScanState *node);
 static void end_cypher_merge(CustomScanState *node);
 static void rescan_cypher_merge(CustomScanState *node);
 static Datum merge_vertex(cypher_merge_custom_scan_state *css,
-                          cypher_target_node *node, ListCell *next, List* list);
+                          cypher_target_node *node, ListCell *next,
+                          List* list, Datum *vertex_label_id);
 static void merge_edge(cypher_merge_custom_scan_state *css,
                        cypher_target_node *node, Datum prev_vertex_id,
+                       Datum prev_vertex_label_id,
                        ListCell *next, List *list);
 static void process_simple_merge(CustomScanState *node);
 static bool check_path(cypher_merge_custom_scan_state *css,
@@ -216,12 +219,13 @@ static void process_path(cypher_merge_custom_scan_state *css)
     cypher_create_path *path = css->path;
     List *list = path->target_nodes;
     ListCell *lc = list_head(list);
+    Datum vertex_label_id;
 
     /*
      * Create the first vertex. The create_vertex function will
      * create the rest of the path, if necessary.
      */
-    merge_vertex(css, lfirst(lc), lnext(list, lc), list);
+    merge_vertex(css, lfirst(lc), lnext(list, lc), list, &vertex_label_id);
 
     /*
      * If this path is a variable, take the list that was accumulated
@@ -635,7 +639,8 @@ Node *create_cypher_merge_plan_state(CustomScan *cscan)
  * the create_edge function.
  */
 static Datum merge_vertex(cypher_merge_custom_scan_state *css,
-                          cypher_target_node *node, ListCell *next, List *list)
+                          cypher_target_node *node, ListCell *next,
+                          List *list, Datum *vertex_label_id)
 {
     bool isNull;
     Datum id;
@@ -852,10 +857,12 @@ static Datum merge_vertex(cypher_merge_custom_scan_state *css,
         }
     }
 
+    *vertex_label_id = label_id;
+
     /* If the path continues, create the next edge, passing the vertex's id. */
     if (next != NULL)
     {
-        merge_edge(css, lfirst(next), id, lnext(list, next), list);
+        merge_edge(css, lfirst(next), id, label_id, lnext(list, next), list);
     }
 
     return id;
@@ -866,6 +873,7 @@ static Datum merge_vertex(cypher_merge_custom_scan_state *css,
  */
 static void merge_edge(cypher_merge_custom_scan_state *css,
                        cypher_target_node *node, Datum prev_vertex_id,
+                       Datum prev_vertex_label_id,
                        ListCell *next, List *list)
 {
     bool isNull;
@@ -876,7 +884,8 @@ static void merge_edge(cypher_merge_custom_scan_state *css,
     TupleTableSlot *elemTupleSlot = node->elemTupleSlot;
     Datum id;
     Datum label_id;
-    Datum start_id, end_id, next_vertex_id;
+    Datum next_vertex_label_id;
+    Datum start_id, end_id, next_vertex_id, start_label_id, end_label_id;
     List *prev_path = css->path_values;
     Datum prop;
 
@@ -888,7 +897,8 @@ static void merge_edge(cypher_merge_custom_scan_state *css,
      * next vertex's id.
      */
     css->path_values = NIL;
-    next_vertex_id = merge_vertex(css, lfirst(next), lnext(list, next), list);
+    next_vertex_id = merge_vertex(css, lfirst(next), lnext(list, next),
+                                  list, &next_vertex_label_id);
 
     /*
      * Set the start and end vertex ids
@@ -898,12 +908,16 @@ static void merge_edge(cypher_merge_custom_scan_state *css,
         // create pattern (prev_vertex)-[edge]->(next_vertex)
         start_id = prev_vertex_id;
         end_id = next_vertex_id;
+        start_label_id = prev_vertex_label_id;
+        end_label_id = next_vertex_label_id;
     }
     else if (node->dir == CYPHER_REL_DIR_LEFT)
     {
         // create pattern (prev_vertex)<-[edge]-(next_vertex)
         start_id = next_vertex_id;
         end_id = prev_vertex_id;
+        start_label_id = next_vertex_label_id;
+        end_label_id = prev_vertex_label_id;
     }
     else
     {
@@ -949,6 +963,14 @@ static void merge_edge(cypher_merge_custom_scan_state *css,
     elemTupleSlot->tts_values[edge_tuple_label_id] = label_id;
     elemTupleSlot->tts_isnull[edge_tuple_label_id] = isNull;
 
+    // label id for the starting vertex
+    elemTupleSlot->tts_values[edge_tuple_start_label_id] = start_label_id;
+    elemTupleSlot->tts_isnull[edge_tuple_start_label_id] = false;
+
+    // label id for the ending vertex
+    elemTupleSlot->tts_values[edge_tuple_end_label_id] = end_label_id;
+    elemTupleSlot->tts_isnull[edge_tuple_end_label_id] = false;
+
     // Insert the new edge
     insert_entity_tuple(resultRelInfo, elemTupleSlot, estate);
 
@@ -966,7 +988,12 @@ static void merge_edge(cypher_merge_custom_scan_state *css,
         Datum result;
 
         result = make_edge(id, start_id, end_id,
-                           CStringGetDatum(node->label_name), prop);
+                           CStringGetDatum(node->label_name),
+                           get_label_name_from_label_id(css->graph_oid,
+                                                        start_label_id),
+                           get_label_name_from_label_id(css->graph_oid,
+                                                        end_label_id),
+                           start_label_id, end_label_id, prop);
 
         // add the Datum to the list of entities for creating the path variable
         if (CYPHER_TARGET_NODE_IN_PATH(node->flags))

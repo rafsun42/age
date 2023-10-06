@@ -31,6 +31,11 @@ SELECT * FROM graph1._ag_label_vertex ORDER BY id;
 -- edges
 SELECT * FROM graph1._ag_label_edge ORDER BY id;
 
+-- test vertex, edge and path object
+SELECT * FROM cypher('graph1', $$ MATCH (x) RETURN x $$) AS (result agtype);
+SELECT * FROM cypher('graph1', $$ MATCH ()-[e]->() RETURN e $$) AS (result agtype);
+SELECT * FROM cypher('graph1', $$ MATCH p = ()-[]->() RETURN p $$) AS (result agtype);
+
 -- show vertex and edge relation information
 \d+ graph1._ag_label_vertex;
 \d+ graph1._ag_label_edge;

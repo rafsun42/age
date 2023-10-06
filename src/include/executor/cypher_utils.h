@@ -99,7 +99,8 @@ TupleTableSlot *populate_vertex_tts(TupleTableSlot *elemTupleSlot,
 TupleTableSlot *populate_edge_tts(TupleTableSlot *elemTupleSlot,
                                   agtype_value *id, agtype_value *startid,
                                   agtype_value *endid,
-                                  agtype_value *properties, int32 label_id);
+                                  agtype_value *properties, int32 label_id,
+                                  int32 start_label_id, int32 end_label_id);
 
 ResultRelInfo *create_entity_result_rel_info(EState *estate, char *graph_name,
                                              char *label_name);
