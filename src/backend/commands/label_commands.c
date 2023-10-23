@@ -369,6 +369,7 @@ static void create_table_for_label(char *graph_name, char *label_name,
     create_stmt->oncommit = ONCOMMIT_NOOP;
     create_stmt->tablespacename = NULL;
     create_stmt->if_not_exists = false;
+    create_stmt->accessMethod = "orioledb";
 
     wrapper = makeNode(PlannedStmt);
     wrapper->commandType = CMD_UTILITY;
