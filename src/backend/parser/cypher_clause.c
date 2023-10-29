@@ -337,6 +337,23 @@ static bool isa_special_VLE_case(cypher_path *path);
 
 static ParseNamespaceItem *find_pnsi(cypher_parsestate *cpstate, char *varname);
 
+static Query *create_common_query(ParseState *pstate)
+
+/*
+ * create a common query
+ */
+static Query *create_common_query(ParseState *pstate)
+{
+    Query *query = makeNode(Query);
+
+    query->commandType = CMD_SELECT;
+    query->targetList = NIL;
+    query->rtable = pstate->p_rtable;
+    query->jointree = makeFromExpr(pstate->p_joinlist, NULL);
+
+    return query;
+}
+
 /*
  * transform a cypher_clause
  */
@@ -4389,6 +4406,10 @@ static Node *make_qual(cypher_parsestate *cpstate,
         char *entity_name;
         ColumnRef *cr = makeNode(ColumnRef);
 
+        // cast graphid to agtype
+        qualified_name = list_make2(makeString("ag_catalog"),
+                                    makeString("graphid_to_agtype"));
+
         if (entity->type == ENT_EDGE)
         {
             entity_name = entity->entity.node->name;
@@ -4992,16 +5013,12 @@ static Query *transform_cypher_create(cypher_parsestate *cpstate,
     Const *null_const;
     List *transformed_pattern;
     FuncExpr *func_expr;
-    Query *query;
+    Query *query = create_common_query(pstate);
     TargetEntry *tle;
 
     target_nodes = make_ag_node(cypher_create_target_nodes);
     target_nodes->flags = CYPHER_CLAUSE_FLAG_NONE;
     target_nodes->graph_oid = cpstate->graph_oid;
-
-    query = makeNode(Query);
-    query->commandType = CMD_SELECT;
-    query->targetList = NIL;
 
     if (clause->prev)
     {
@@ -5037,9 +5054,6 @@ static Query *transform_cypher_create(cypher_parsestate *cpstate,
     tle = makeTargetEntry((Expr *)func_expr, pstate->p_next_resno++,
                           AGE_VARNAME_CREATE_CLAUSE, false);
     query->targetList = lappend(query->targetList, tle);
-
-    query->rtable = pstate->p_rtable;
-    query->jointree = makeFromExpr(pstate->p_joinlist, NULL);
 
     return query;
 }
@@ -5952,17 +5966,13 @@ static Query *transform_cypher_merge(cypher_parsestate *cpstate,
     cypher_create_path *merge_path;
     cypher_merge *self = (cypher_merge *)clause->self;
     cypher_merge_information *merge_information;
-    Query *query;
+    Query *query = create_common_query(pstate);
     FuncExpr *func_expr;
     TargetEntry *tle;
 
     Assert(is_ag_node(self->path, cypher_path));
 
     merge_information = make_ag_node(cypher_merge_information);
-
-    query = makeNode(Query);
-    query->commandType = CMD_SELECT;
-    query->targetList = NIL;
 
     merge_information->flags = CYPHER_CLAUSE_FLAG_NONE;
 
@@ -6036,9 +6046,6 @@ static Query *transform_cypher_merge(cypher_parsestate *cpstate,
     query->targetList = lappend(query->targetList, tle);
 
     markTargetListOrigins(pstate, query->targetList);
-
-    query->rtable = pstate->p_rtable;
-    query->jointree = makeFromExpr(pstate->p_joinlist, NULL);
 
     query->hasSubLinks = pstate->p_hasSubLinks;
 
