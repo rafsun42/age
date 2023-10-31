@@ -159,7 +159,7 @@ static bool is_array_path(agtype_value *agtv);
 /* graph entity retrieval */
 static Datum get_vertex(const char *graph, const char *vertex_label,
                         int64 graphid);
-static char *get_label_name(const char *graph_name, graphid element_graphid);
+static char *get_label_name(const char *graph_name, int32 element_label_id);
 static float8 get_float_compatible_arg(Datum arg, Oid type, char *funcname,
                                        bool *is_null);
 static Numeric get_numeric_compatible_arg(Datum arg, Oid type, char *funcname,
@@ -4855,7 +4855,7 @@ Datum column_get_datum(TupleDesc tupdesc, HeapTuple tuple, int column,
  * node or edge. The function returns a pointer to a duplicated string that
  * needs to be freed when you are finished using it.
  */
-static char *get_label_name(const char *graph_name, graphid element_graphid)
+static char *get_label_name(const char *graph_name, int32 element_label_id)
 {
     ScanKeyData scan_keys[2];
     Relation ag_label;
@@ -4865,7 +4865,7 @@ static char *get_label_name(const char *graph_name, graphid element_graphid)
     char *result = NULL;
     bool column_is_null = false;
     Oid graph_oid = get_graph_oid(graph_name);
-    int32 label_id = get_graphid_label_id(element_graphid);
+    int32 label_id = element_label_id;
 
     /* scankey for first match in ag_label, column 2, graphoid, BTEQ, OidEQ */
     ScanKeyInit(&scan_keys[0], Anum_ag_label_graph, BTEqualStrategyNumber,
@@ -4883,7 +4883,7 @@ static char *get_label_name(const char *graph_name, graphid element_graphid)
     {
         ereport(ERROR,
                 (errcode(ERRCODE_UNDEFINED_SCHEMA),
-                 errmsg("graphid %lu does not exist", element_graphid)));
+                 errmsg("label id does not exist")));
     }
 
     /* get the tupdesc - we don't need to release this one */
@@ -4979,6 +4979,7 @@ Datum age_startnode(PG_FUNCTION_ARGS)
     char *graph_name = NULL;
     char *label_name = NULL;
     graphid start_id;
+    graphid start_label_id;
     Datum result;
 
     /* we need the graph name */
@@ -5021,9 +5022,16 @@ Datum age_startnode(PG_FUNCTION_ARGS)
     Assert(agtv_value != NULL);
     Assert(agtv_value->type = AGTV_INTEGER);
     start_id = agtv_value->val.int_value;
+    
+    /* get the start label_id*/
+    agtv_value = GET_AGTYPE_VALUE_OBJECT_VALUE(agtv_object, "start_label_id");
+    /* it must not be null and must be an integer */
+    Assert(agtv_value != NULL);
+    Assert(agtv_value->type = AGTV_INTEGER);
+    start_label_id = agtv_value->val.int_value;
 
     /* get the label */
-    label_name = get_label_name(graph_name, start_id);
+    label_name = get_label_name(graph_name, start_label_id);
     /* it must not be null and must be a string */
     Assert(label_name != NULL);
 
@@ -5044,6 +5052,7 @@ Datum age_endnode(PG_FUNCTION_ARGS)
     char *graph_name = NULL;
     char *label_name = NULL;
     graphid end_id;
+    graphid end_label_id;
     Datum result;
 
     /* we need the graph name */
@@ -5086,9 +5095,16 @@ Datum age_endnode(PG_FUNCTION_ARGS)
     Assert(agtv_value != NULL);
     Assert(agtv_value->type = AGTV_INTEGER);
     end_id = agtv_value->val.int_value;
+    
+    /* get the end label_id*/
+    agtv_value = GET_AGTYPE_VALUE_OBJECT_VALUE(agtv_object, "end_label_id");
+    /* it must not be null and must be an integer */
+    Assert(agtv_value != NULL);
+    Assert(agtv_value->type = AGTV_INTEGER);
+    end_label_id = agtv_value->val.int_value;
 
     /* get the label */
-    label_name = get_label_name(graph_name, end_id);
+    label_name = get_label_name(graph_name, end_label_id);
     /* it must not be null and must be a string */
     Assert(label_name != NULL);
 

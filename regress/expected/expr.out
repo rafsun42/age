@@ -2348,12 +2348,12 @@ HINT:  No function matches the given name and argument types. You might need to 
 SELECT * FROM cypher('expr', $$
     MATCH ()-[e]-() RETURN id(e), start_id(e), startNode(e)
 $$) AS (id agtype, start_id agtype, startNode agtype);
-        id        |     start_id     |                                    startnode                                     
-------------------+------------------+----------------------------------------------------------------------------------
- 1407374883553281 | 1125899906842626 | {"id": 1125899906842626, "label": "v1", "properties": {"id": "middle"}}::vertex
- 1407374883553281 | 1125899906842626 | {"id": 1125899906842626, "label": "v1", "properties": {"id": "middle"}}::vertex
- 1407374883553282 | 1125899906842625 | {"id": 1125899906842625, "label": "v1", "properties": {"id": "initial"}}::vertex
- 1407374883553282 | 1125899906842625 | {"id": 1125899906842625, "label": "v1", "properties": {"id": "initial"}}::vertex
+ id | start_id |                             startnode                             
+----+----------+-------------------------------------------------------------------
+ 2  | 4        | {"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex
+ 1  | 5        | {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex
+ 2  | 4        | {"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex
+ 1  | 5        | {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex
 (4 rows)
 
 -- should return null
@@ -2381,12 +2381,12 @@ HINT:  No function matches the given name and argument types. You might need to 
 SELECT * FROM cypher('expr', $$
     MATCH ()-[e]-() RETURN id(e), end_id(e), endNode(e)
 $$) AS (id agtype, end_id agtype, endNode agtype);
-        id        |      end_id      |                                     endnode                                     
-------------------+------------------+---------------------------------------------------------------------------------
- 1407374883553281 | 1125899906842627 | {"id": 1125899906842627, "label": "v1", "properties": {"id": "end"}}::vertex
- 1407374883553281 | 1125899906842627 | {"id": 1125899906842627, "label": "v1", "properties": {"id": "end"}}::vertex
- 1407374883553282 | 1125899906842626 | {"id": 1125899906842626, "label": "v1", "properties": {"id": "middle"}}::vertex
- 1407374883553282 | 1125899906842626 | {"id": 1125899906842626, "label": "v1", "properties": {"id": "middle"}}::vertex
+ id | end_id |                             endnode                              
+----+--------+------------------------------------------------------------------
+ 2  | 5      | {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex
+ 1  | 6      | {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex
+ 2  | 5      | {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex
+ 1  | 6      | {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex
 (4 rows)
 
 -- should return null
