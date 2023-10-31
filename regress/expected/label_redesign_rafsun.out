@@ -12,6 +12,31 @@ NOTICE:  graph "graph1" has been created
  
 (1 row)
 
+-- show vertex and edge relation information
+\d+ graph1._ag_label_vertex;
+                                                                           Table "graph1._ag_label_vertex"
+   Column   |   Type    | Collation | Nullable |                                           Default                                            | Storage  | Stats target | Description 
+------------+-----------+-----------+----------+----------------------------------------------------------------------------------------------+----------+--------------+-------------
+ id         | bigint    |           | not null | nextval('graph1.vertex_id_seq'::regclass)                                                    | plain    |              | 
+ properties | agtype    |           | not null | agtype_build_map()                                                                           | extended |              | 
+ label_id   | integer[] |           | not null | agtype_to_int4_array(agtype_build_list(_label_id('graph1'::name, '_ag_label_vertex'::name))) | extended |              | 
+Indexes:
+    "_ag_label_vertex_pkey" PRIMARY KEY, btree (id)
+
+\d+ graph1._ag_label_edge;
+                                                                             Table "graph1._ag_label_edge"
+     Column     |   Type    | Collation | Nullable |                                          Default                                           | Storage  | Stats target | Description 
+----------------+-----------+-----------+----------+--------------------------------------------------------------------------------------------+----------+--------------+-------------
+ id             | bigint    |           | not null | nextval('graph1.edge_id_seq'::regclass)                                                    | plain    |              | 
+ start_id       | bigint    |           | not null |                                                                                            | plain    |              | 
+ end_id         | bigint    |           | not null |                                                                                            | plain    |              | 
+ properties     | agtype    |           | not null | agtype_build_map()                                                                         | extended |              | 
+ label_id       | integer[] |           | not null | agtype_to_int4_array(agtype_build_list(_label_id('graph1'::name, '_ag_label_edge'::name))) | extended |              | 
+ start_label_id | integer[] |           | not null |                                                                                            | extended |              | 
+ end_label_id   | integer[] |           | not null |                                                                                            | extended |              | 
+Indexes:
+    "_ag_label_edge_pkey" PRIMARY KEY, btree (id)
+
 SELECT * FROM cypher('graph1',
 $$
 		CREATE (:Teacher{name:'John'})-[:Teaches{from:2011}]->(:Class{title:'DS'}),
@@ -91,36 +116,6 @@ SELECT * FROM cypher('graph1', $$ MATCH p = ()-[]->() RETURN p $$) AS (result ag
  [{"id": 3, "label": "Student", "properties": {"name": "Smith"}}::vertex, {"id": 2, "label": "Learns", "end_id": 4, "start_id": 3, "properties": {"from": 2013}, "end_label_id": 5, "end_label_name": "Class", "start_label_id": 6, "start_label_name": "Student"}::edge, {"id": 4, "label": "Class", "properties": {"title": "AI"}}::vertex]::path
  [{"id": 5, "label": "", "properties": {"name": "Bob"}}::vertex, {"id": 3, "label": "Learns", "end_id": 6, "start_id": 5, "properties": {"from": 2022}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 6, "label": "", "properties": {"title": "Swimming"}}::vertex]::path
 (3 rows)
-
--- show vertex and edge relation information
-\d+ graph1._ag_label_vertex;
-                                                      Table "graph1._ag_label_vertex"
-   Column   |  Type   | Collation | Nullable |                       Default                       | Storage  | Stats target | Description 
-------------+---------+-----------+----------+-----------------------------------------------------+----------+--------------+-------------
- id         | bigint  |           | not null | nextval('graph1.vertex_id_seq'::regclass)           | plain    |              | 
- properties | agtype  |           | not null | agtype_build_map()                                  | extended |              | 
- label_id   | integer |           | not null | _label_id('graph1'::name, '_ag_label_vertex'::name) | plain    |              | 
-Indexes:
-    "_ag_label_vertex_pkey" PRIMARY KEY, btree (id)
-Child tables: graph1."Class",
-              graph1."Student",
-              graph1."Teacher"
-
-\d+ graph1._ag_label_edge;
-                                                        Table "graph1._ag_label_edge"
-     Column     |  Type   | Collation | Nullable |                      Default                      | Storage  | Stats target | Description 
-----------------+---------+-----------+----------+---------------------------------------------------+----------+--------------+-------------
- id             | bigint  |           | not null | nextval('graph1.edge_id_seq'::regclass)           | plain    |              | 
- start_id       | bigint  |           | not null |                                                   | plain    |              | 
- end_id         | bigint  |           | not null |                                                   | plain    |              | 
- properties     | agtype  |           | not null | agtype_build_map()                                | extended |              | 
- label_id       | integer |           | not null | _label_id('graph1'::name, '_ag_label_edge'::name) | plain    |              | 
- start_label_id | integer |           | not null |                                                   | plain    |              | 
- end_label_id   | integer |           | not null |                                                   | plain    |              | 
-Indexes:
-    "_ag_label_edge_pkey" PRIMARY KEY, btree (id)
-Child tables: graph1."Learns",
-              graph1."Teaches"
 
 SELECT drop_graph('graph1', true);
 NOTICE:  drop cascades to 9 other objects

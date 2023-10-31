@@ -9,6 +9,10 @@ LOAD 'age'; SET search_path TO ag_catalog;
 --
 SELECT create_graph('graph1');
 
+-- show vertex and edge relation information
+\d+ graph1._ag_label_vertex;
+\d+ graph1._ag_label_edge;
+
 SELECT * FROM cypher('graph1',
 $$
 		CREATE (:Teacher{name:'John'})-[:Teaches{from:2011}]->(:Class{title:'DS'}),
@@ -35,9 +39,5 @@ SELECT * FROM graph1._ag_label_edge ORDER BY id;
 SELECT * FROM cypher('graph1', $$ MATCH (x) RETURN x $$) AS (result agtype);
 SELECT * FROM cypher('graph1', $$ MATCH ()-[e]->() RETURN e $$) AS (result agtype);
 SELECT * FROM cypher('graph1', $$ MATCH p = ()-[]->() RETURN p $$) AS (result agtype);
-
--- show vertex and edge relation information
-\d+ graph1._ag_label_vertex;
-\d+ graph1._ag_label_edge;
 
 SELECT drop_graph('graph1', true);
