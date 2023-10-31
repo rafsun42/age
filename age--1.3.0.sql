@@ -366,7 +366,7 @@ IMMUTABLE
 PARALLEL SAFE
 AS 'MODULE_PATHNAME';
 
-CREATE FUNCTION ag_catalog._label_name(graph_oid oid, integer)
+CREATE FUNCTION ag_catalog._label_name(graph_oid oid, int[])
 RETURNS cstring
 LANGUAGE c
 STABLE
@@ -3111,7 +3111,7 @@ AS 'MODULE_PATHNAME';
 --
 CREATE FUNCTION ag_catalog._agtype_build_edge(int8, int8, int8,
                                               cstring, cstring, cstring,
-                                              int4, int4, agtype)
+                                              int[], int[], agtype)
 RETURNS agtype
 LANGUAGE c
 IMMUTABLE

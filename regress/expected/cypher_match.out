@@ -77,10 +77,10 @@ $$) AS (a agtype);
 SELECT * FROM cypher('cypher_match', $$
 	MATCH p=(:v1)-[:e1]-(:v1)-[:e1]-(:v1) RETURN p
 $$) AS (a agtype);
-                                                                                                                                                                                                                                                                             a                                                                                                                                                                                                                                                                              
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
- [{"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex]::path
+                                                                                                                                                                                                                                                                                 a                                                                                                                                                                                                                                                                                  
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
+ [{"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex]::path
 (2 rows)
 
 SELECT * FROM cypher('cypher_match', $$
@@ -88,8 +88,8 @@ SELECT * FROM cypher('cypher_match', $$
 $$) AS (a agtype);
                                  a                                 
 -------------------------------------------------------------------
- {"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex
  {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex
+ {"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex
 (2 rows)
 
 SELECT * FROM cypher('cypher_match', $$
@@ -113,10 +113,10 @@ $$) AS (a agtype);
 SELECT * FROM cypher('cypher_match', $$
 	MATCH ()-[b:e1]-()-[]-() RETURN b
 $$) AS (a agtype);
-                                                                                   a                                                                                    
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
- {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
+                                                                                     a                                                                                      
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
+ {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
 (2 rows)
 
 SELECT * FROM cypher('cypher_match', $$
@@ -130,43 +130,43 @@ $$) AS (a agtype);
 SELECT * FROM cypher('cypher_match', $$
     MATCH p=()-[e]-() RETURN e
 $$) AS (a agtype);
-                                                                                   a                                                                                    
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
- {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
- {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
- {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
+                                                                                     a                                                                                      
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
+ {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
+ {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
+ {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
 (4 rows)
 
 SELECT * FROM cypher('cypher_match', $$
     MATCH (:v1)-[e]-() RETURN e
 $$) AS (a agtype);
-                                                                                   a                                                                                    
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
- {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
- {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
- {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
+                                                                                     a                                                                                      
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
+ {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
+ {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
+ {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
 (4 rows)
 
 SELECT * FROM cypher('cypher_match', $$
     MATCH (:v1)-[e]-(:v1) RETURN e
 $$) AS (a agtype);
-                                                                                   a                                                                                    
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
- {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
- {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
- {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
+                                                                                     a                                                                                      
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
+ {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
+ {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
+ {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
 (4 rows)
 
 SELECT * FROM cypher('cypher_match', $$
     MATCH ()-[]-()-[e]-(:v1) RETURN e
 $$) AS (a agtype);
-                                                                                   a                                                                                    
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
- {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
+                                                                                     a                                                                                      
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
+ {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
 (2 rows)
 
 SELECT * FROM cypher('cypher_match', $$
@@ -222,36 +222,36 @@ $$) AS (a agtype);
 SELECT * FROM cypher('cypher_match', $$
 	MATCH ()-[b:e1]-()-[]->() RETURN b
 $$) AS (a agtype);
-                                                                                   a                                                                                    
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
+                                                                                     a                                                                                      
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
 (1 row)
 
 SELECT * FROM cypher('cypher_match', $$
     MATCH (:v1)-[e]->() RETURN e
 $$) AS (a agtype);
-                                                                                   a                                                                                    
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
- {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
+                                                                                     a                                                                                      
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
+ {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
 (2 rows)
 
 SELECT * FROM cypher('cypher_match', $$
     MATCH ()-[e]->(:v1) RETURN e
 $$) AS (a agtype);
-                                                                                   a                                                                                    
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
- {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
+                                                                                     a                                                                                      
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
+ {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
 (2 rows)
 
 SELECT * FROM cypher('cypher_match', $$
     MATCH (:v1)-[e]->(:v1) RETURN e
 $$) AS (a agtype);
-                                                                                   a                                                                                    
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
- {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
+                                                                                     a                                                                                      
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
+ {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
 (2 rows)
 
 --Left Path Test
@@ -298,18 +298,18 @@ $$) AS (a agtype);
 SELECT * FROM cypher('cypher_match', $$
 	MATCH ()<-[b:e1]-()-[]-() RETURN b
 $$) AS (a agtype);
-                                                                                   a                                                                                    
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
+                                                                                     a                                                                                      
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
 (1 row)
 
 SELECT * FROM cypher('cypher_match', $$
     MATCH (:v1)<-[e]-(:v1) RETURN e
 $$) AS (a agtype);
-                                                                                   a                                                                                    
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
- {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
+                                                                                     a                                                                                      
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
+ {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
 (2 rows)
 
 --Divergent Path Tests
@@ -334,12 +334,12 @@ SELECT * FROM cypher('cypher_match', $$
 	MATCH p=(n)-[]->()
 	RETURN p
 $$) AS (i agtype);
-                                                                                                                                                          i                                                                                                                                                          
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge, {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex]::path
- [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge, {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex]::path
- [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge, {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex]::path
- [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge, {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex]::path
+                                                                                                                                                            i                                                                                                                                                            
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge, {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex]::path
+ [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge, {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex]::path
+ [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge, {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex]::path
+ [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge, {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex]::path
 (4 rows)
 
 SELECT * FROM cypher('cypher_match', $$
@@ -359,16 +359,16 @@ SELECT * FROM cypher('cypher_match', $$
     MATCH p=()-[]->()
     RETURN p
 $$) AS (i agtype);
-                                                                                                                                                          i                                                                                                                                                          
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex]::path
- [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex]::path
- [{"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
- [{"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
- [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge, {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex]::path
- [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge, {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex]::path
- [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge, {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex]::path
- [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge, {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex]::path
+                                                                                                                                                            i                                                                                                                                                            
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex]::path
+ [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex]::path
+ [{"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
+ [{"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
+ [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge, {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex]::path
+ [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge, {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex]::path
+ [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge, {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex]::path
+ [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge, {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex]::path
 (8 rows)
 
 SELECT * FROM cypher('cypher_match', $$
@@ -376,16 +376,16 @@ SELECT * FROM cypher('cypher_match', $$
 	MATCH p=()-[]->()
     RETURN p
 $$) AS (i agtype);
-                                                                                                                                                          i                                                                                                                                                          
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex]::path
- [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex]::path
- [{"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
- [{"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
- [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge, {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex]::path
- [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge, {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex]::path
- [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge, {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex]::path
- [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge, {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex]::path
+                                                                                                                                                            i                                                                                                                                                            
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex]::path
+ [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex]::path
+ [{"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
+ [{"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
+ [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge, {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex]::path
+ [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge, {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex]::path
+ [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge, {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex]::path
+ [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge, {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex]::path
 (8 rows)
 
 --Convergent Path Tests
@@ -400,20 +400,20 @@ SELECT * FROM cypher('cypher_match', $$
 	MATCH ()-[b:e1]->()
 	RETURN b
 $$) AS (i agtype);
-                                                                                   i                                                                                    
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
- {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
+                                                                                     i                                                                                      
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
+ {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
 (2 rows)
 
 SELECT * FROM cypher('cypher_match', $$
     MATCH (:v3)-[b:e3]->()
     RETURN b
 $$) AS (i agtype);
-                                                                                    i                                                                                     
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 5, "label": "e3", "end_id": 11, "start_id": 12, "properties": {}, "end_label_id": 8, "end_label_name": "v3", "start_label_id": 8, "start_label_name": "v3"}::edge
- {"id": 6, "label": "e3", "end_id": 11, "start_id": 10, "properties": {}, "end_label_id": 8, "end_label_name": "v3", "start_label_id": 8, "start_label_name": "v3"}::edge
+                                                                                      i                                                                                       
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 5, "label": "e3", "end_id": 11, "start_id": 12, "properties": {}, "end_label_id": [8], "end_label_name": "v3", "start_label_id": [8], "start_label_name": "v3"}::edge
+ {"id": 6, "label": "e3", "end_id": 11, "start_id": 10, "properties": {}, "end_label_id": [8], "end_label_name": "v3", "start_label_id": [8], "start_label_name": "v3"}::edge
 (2 rows)
 
 SELECT * FROM cypher('cypher_match', $$
@@ -448,9 +448,9 @@ SELECT * FROM cypher('cypher_match', $$
 	where a.id = 'initial'
 	RETURN con_path
 $$) AS (con_path agtype);
-                                                                                                                                                                                                                                                                             con_path                                                                                                                                                                                                                                                                              
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 10, "label": "v3", "properties": {"id": "initial"}}::vertex, {"id": 6, "label": "e3", "end_id": 11, "start_id": 10, "properties": {}, "end_label_id": 8, "end_label_name": "v3", "start_label_id": 8, "start_label_name": "v3"}::edge, {"id": 11, "label": "v3", "properties": {"id": "middle"}}::vertex, {"id": 5, "label": "e3", "end_id": 11, "start_id": 12, "properties": {}, "end_label_id": 8, "end_label_name": "v3", "start_label_id": 8, "start_label_name": "v3"}::edge, {"id": 12, "label": "v3", "properties": {"id": "end"}}::vertex]::path
+                                                                                                                                                                                                                                                                                 con_path                                                                                                                                                                                                                                                                                  
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 10, "label": "v3", "properties": {"id": "initial"}}::vertex, {"id": 6, "label": "e3", "end_id": 11, "start_id": 10, "properties": {}, "end_label_id": [8], "end_label_name": "v3", "start_label_id": [8], "start_label_name": "v3"}::edge, {"id": 11, "label": "v3", "properties": {"id": "middle"}}::vertex, {"id": 5, "label": "e3", "end_id": 11, "start_id": 12, "properties": {}, "end_label_id": [8], "end_label_name": "v3", "start_label_id": [8], "start_label_name": "v3"}::edge, {"id": 12, "label": "v3", "properties": {"id": "end"}}::vertex]::path
 (1 row)
 
 SELECT * FROM cypher('cypher_match', $$
@@ -458,9 +458,9 @@ SELECT * FROM cypher('cypher_match', $$
 	where b.id = 'initial'
 	RETURN div_path
 $$) AS (div_path agtype);
-                                                                                                                                                                                                                                                                          div_path                                                                                                                                                                                                                                                                          
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex, {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge, {"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge, {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex]::path
+                                                                                                                                                                                                                                                                              div_path                                                                                                                                                                                                                                                                              
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex, {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge, {"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge, {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex]::path
 (1 row)
 
 SELECT * FROM cypher('cypher_match', $$
@@ -479,9 +479,9 @@ SELECT * FROM cypher('cypher_match', $$
 	where a.id = 'initial'
 	RETURN p
 $$) AS (p agtype);
-                                                                                                                                                                                                                                                                             p                                                                                                                                                                                                                                                                              
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
+                                                                                                                                                                                                                                                                                 p                                                                                                                                                                                                                                                                                  
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
 (1 row)
 
 SELECT * FROM cypher('cypher_match', $$
@@ -490,20 +490,20 @@ SELECT * FROM cypher('cypher_match', $$
 	and b.id = 'initial'
 	RETURN con_path, div_path
 $$) AS (con_path agtype, div_path agtype);
-                                                                                                                                                                                                                                                                             con_path                                                                                                                                                                                                                                                                              |                                                                                                                                                                                                                                                                          div_path                                                                                                                                                                                                                                                                          
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 10, "label": "v3", "properties": {"id": "initial"}}::vertex, {"id": 6, "label": "e3", "end_id": 11, "start_id": 10, "properties": {}, "end_label_id": 8, "end_label_name": "v3", "start_label_id": 8, "start_label_name": "v3"}::edge, {"id": 11, "label": "v3", "properties": {"id": "middle"}}::vertex, {"id": 5, "label": "e3", "end_id": 11, "start_id": 12, "properties": {}, "end_label_id": 8, "end_label_name": "v3", "start_label_id": 8, "start_label_name": "v3"}::edge, {"id": 12, "label": "v3", "properties": {"id": "end"}}::vertex]::path | [{"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex, {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge, {"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge, {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex]::path
+                                                                                                                                                                                                                                                                                 con_path                                                                                                                                                                                                                                                                                  |                                                                                                                                                                                                                                                                              div_path                                                                                                                                                                                                                                                                              
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 10, "label": "v3", "properties": {"id": "initial"}}::vertex, {"id": 6, "label": "e3", "end_id": 11, "start_id": 10, "properties": {}, "end_label_id": [8], "end_label_name": "v3", "start_label_id": [8], "start_label_name": "v3"}::edge, {"id": 11, "label": "v3", "properties": {"id": "middle"}}::vertex, {"id": 5, "label": "e3", "end_id": 11, "start_id": 12, "properties": {}, "end_label_id": [8], "end_label_name": "v3", "start_label_id": [8], "start_label_name": "v3"}::edge, {"id": 12, "label": "v3", "properties": {"id": "end"}}::vertex]::path | [{"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex, {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge, {"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge, {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex]::path
 (1 row)
 
 SELECT * FROM cypher('cypher_match', $$
 	MATCH (a:v), p=()-[]->()-[]->()
 	RETURN a.i, p
 $$) AS (i agtype, p agtype);
- i |                                                                                                                                                                                                                                                                             p                                                                                                                                                                                                                                                                              
----+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-   | [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
- 0 | [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
- 1 | [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
+ i |                                                                                                                                                                                                                                                                                 p                                                                                                                                                                                                                                                                                  
+---+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   | [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
+ 0 | [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
+ 1 | [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
 (3 rows)
 
 --Multiple Match Clauses
@@ -513,9 +513,9 @@ SELECT * FROM cypher('cypher_match', $$
 	MATCH p=(a)-[]-()-[]-()
 	RETURN p
 $$) AS (p agtype);
-                                                                                                                                                                                                                                                                             p                                                                                                                                                                                                                                                                              
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
+                                                                                                                                                                                                                                                                                 p                                                                                                                                                                                                                                                                                  
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
 (1 row)
 
 SELECT * FROM cypher('cypher_match', $$
@@ -523,11 +523,11 @@ SELECT * FROM cypher('cypher_match', $$
 	MATCH p=()-[]->()-[]->()
 	RETURN a.i, p
 $$) AS (i agtype, p agtype);
- i |                                                                                                                                                                                                                                                                             p                                                                                                                                                                                                                                                                              
----+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-   | [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
- 0 | [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
- 1 | [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
+ i |                                                                                                                                                                                                                                                                                 p                                                                                                                                                                                                                                                                                  
+---+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   | [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
+ 0 | [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
+ 1 | [{"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex, {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex, {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge, {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex]::path
 (3 rows)
 
 SELECT * FROM cypher('cypher_match', $$
@@ -537,18 +537,18 @@ SELECT * FROM cypher('cypher_match', $$
 $$) AS (i agtype, b agtype, c agtype);
  i |     b     |     c     
 ---+-----------+-----------
-   | "end"     | "middle"
- 0 | "end"     | "middle"
- 1 | "end"     | "middle"
-   | "middle"  | "end"
- 0 | "middle"  | "end"
- 1 | "middle"  | "end"
    | "middle"  | "initial"
  0 | "middle"  | "initial"
  1 | "middle"  | "initial"
+   | "end"     | "middle"
+ 0 | "end"     | "middle"
+ 1 | "end"     | "middle"
    | "initial" | "middle"
  0 | "initial" | "middle"
  1 | "initial" | "middle"
+   | "middle"  | "end"
+ 0 | "middle"  | "end"
+ 1 | "middle"  | "end"
 (12 rows)
 
 SELECT * FROM cypher('cypher_match', $$
@@ -706,89 +706,89 @@ LINE 2:  MATCH (a:v1)-[]-()-[a]-() RETURN a
 SELECT * FROM cypher('cypher_match', $$
         MATCH ()-[r0]->() MATCH ()-[r0]->() RETURN r0
 $$) AS (r0 agtype);
-                                                                                    r0                                                                                    
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
- {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
- {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge
- {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge
- {"id": 5, "label": "e3", "end_id": 11, "start_id": 12, "properties": {}, "end_label_id": 8, "end_label_name": "v3", "start_label_id": 8, "start_label_name": "v3"}::edge
- {"id": 6, "label": "e3", "end_id": 11, "start_id": 10, "properties": {}, "end_label_id": 8, "end_label_name": "v3", "start_label_id": 8, "start_label_name": "v3"}::edge
+                                                                                      r0                                                                                      
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
+ {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
+ {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge
+ {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge
+ {"id": 5, "label": "e3", "end_id": 11, "start_id": 12, "properties": {}, "end_label_id": [8], "end_label_name": "v3", "start_label_id": [8], "start_label_name": "v3"}::edge
+ {"id": 6, "label": "e3", "end_id": 11, "start_id": 10, "properties": {}, "end_label_id": [8], "end_label_name": "v3", "start_label_id": [8], "start_label_name": "v3"}::edge
 (6 rows)
 
 SELECT * FROM cypher('cypher_match', $$
         MATCH ()-[r0:e1]->() MATCH ()-[r0:e1]->() RETURN r0
 $$) AS (r0 agtype);
-                                                                                   r0                                                                                   
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
- {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
+                                                                                     r0                                                                                     
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
+ {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
 (2 rows)
 
 SELECT * FROM cypher('cypher_match', $$
         MATCH ()-[r0:e2]->() MATCH ()-[r0:e2]->() RETURN r0
 $$) AS (r0 agtype);
-                                                                                   r0                                                                                   
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge
- {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge
+                                                                                     r0                                                                                     
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge
+ {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge
 (2 rows)
 
 SELECT * FROM cypher('cypher_match', $$
         MATCH ()-[r0:e1]->()-[r1]->() RETURN r0,r1
 $$) AS (r0 agtype, r1 agtype);
-                                                                                   r0                                                                                   |                                                                                   r1                                                                                   
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge | {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
+                                                                                     r0                                                                                     |                                                                                     r1                                                                                     
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge | {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
 (1 row)
 
 SELECT * FROM cypher('cypher_match', $$
         MATCH p0=()-[:e1]->() MATCH p1=()-[:e2]->() RETURN p1
 $$) AS (p1 agtype);
-                                                                                                                                                         p1                                                                                                                                                          
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge, {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex]::path
- [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge, {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex]::path
- [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge, {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex]::path
- [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge, {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex]::path
+                                                                                                                                                           p1                                                                                                                                                            
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge, {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex]::path
+ [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge, {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex]::path
+ [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge, {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex]::path
+ [{"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex, {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge, {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex]::path
 (4 rows)
 
 SELECT * FROM cypher('cypher_match', $$
         MATCH ()-[r0:e1]->()-[r1]->() MATCH ()-[r0:e1]->()-[r1]->() RETURN r0,r1
 $$) AS (r0 agtype, r1 agtype);
-                                                                                   r0                                                                                   |                                                                                   r1                                                                                   
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge | {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
+                                                                                     r0                                                                                     |                                                                                     r1                                                                                     
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge | {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
 (1 row)
 
 SELECT * FROM cypher('cypher_match', $$
         MATCH ()-[]->() MATCH ()-[r1:e2]->() RETURN r1
 $$) AS (r1 agtype);
-                                                                                   r1                                                                                   
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge
- {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge
- {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge
- {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge
- {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge
- {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge
- {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge
- {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge
- {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge
- {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge
- {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge
- {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge
+                                                                                     r1                                                                                     
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge
+ {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge
+ {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge
+ {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge
+ {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge
+ {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge
+ {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge
+ {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge
+ {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge
+ {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge
+ {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge
+ {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge
 (12 rows)
 
 SELECT * FROM cypher('cypher_match', $$
         MATCH ()-[r0:e1]->() MATCH ()-[r1:e2]->() RETURN r0,r1
 $$) AS (r0 agtype, r1 agtype);
-                                                                                   r0                                                                                   |                                                                                   r1                                                                                   
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge | {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge
- {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge | {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge
- {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge | {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge
- {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge | {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge
+                                                                                     r0                                                                                     |                                                                                     r1                                                                                     
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge | {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge
+ {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge | {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge
+ {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge | {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge
+ {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge | {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge
 (4 rows)
 
 -- valid variable reuse for vertex labels across clauses
@@ -858,10 +858,10 @@ $$) AS (r0 agtype);
 SELECT * FROM cypher('cypher_match', $$
         MATCH ()-[r0:e1]->() MATCH ()-[r0]->() RETURN r0
 $$) AS (r0 agtype);
-                                                                                   r0                                                                                   
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
- {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge
+                                                                                     r0                                                                                     
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
+ {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge
 (2 rows)
 
 -- invalid variable reuse for vertex
@@ -1049,27 +1049,27 @@ $$) AS (p agtype);
 --
 SELECT * FROM cypher('cypher_match',
  $$MATCH (u)-[e]->(v) RETURN u, e, v $$) AS (u agtype, e agtype, v agtype);
-                                 u                                  |                                                                                    e                                                                                     |                                 v                                 
---------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------
- {"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex  | {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge   | {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex
- {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex   | {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge   | {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex
- {"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex   | {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge   | {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex
- {"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex   | {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge   | {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex
- {"id": 10, "label": "v3", "properties": {"id": "initial"}}::vertex | {"id": 6, "label": "e3", "end_id": 11, "start_id": 10, "properties": {}, "end_label_id": 8, "end_label_name": "v3", "start_label_id": 8, "start_label_name": "v3"}::edge | {"id": 11, "label": "v3", "properties": {"id": "middle"}}::vertex
- {"id": 12, "label": "v3", "properties": {"id": "end"}}::vertex     | {"id": 5, "label": "e3", "end_id": 11, "start_id": 12, "properties": {}, "end_label_id": 8, "end_label_name": "v3", "start_label_id": 8, "start_label_name": "v3"}::edge | {"id": 11, "label": "v3", "properties": {"id": "middle"}}::vertex
+                                 u                                  |                                                                                      e                                                                                       |                                 v                                 
+--------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------
+ {"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex  | {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge   | {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex
+ {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex   | {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge   | {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex
+ {"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex   | {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge   | {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex
+ {"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex   | {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge   | {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex
+ {"id": 10, "label": "v3", "properties": {"id": "initial"}}::vertex | {"id": 6, "label": "e3", "end_id": 11, "start_id": 10, "properties": {}, "end_label_id": [8], "end_label_name": "v3", "start_label_id": [8], "start_label_name": "v3"}::edge | {"id": 11, "label": "v3", "properties": {"id": "middle"}}::vertex
+ {"id": 12, "label": "v3", "properties": {"id": "end"}}::vertex     | {"id": 5, "label": "e3", "end_id": 11, "start_id": 12, "properties": {}, "end_label_id": [8], "end_label_name": "v3", "start_label_id": [8], "start_label_name": "v3"}::edge | {"id": 11, "label": "v3", "properties": {"id": "middle"}}::vertex
 (6 rows)
 
 SELECT * FROM cypher('cypher_match',
  $$MATCH (u)-[e]->(v) WHERE EXISTS((u)-[e]->(v)) RETURN u, e, v $$)
 AS (u agtype, e agtype, v agtype);
-                                 u                                  |                                                                                    e                                                                                     |                                 v                                 
---------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------
- {"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex  | {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge   | {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex
- {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex   | {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge   | {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex
- {"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex   | {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge   | {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex
- {"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex   | {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge   | {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex
- {"id": 10, "label": "v3", "properties": {"id": "initial"}}::vertex | {"id": 6, "label": "e3", "end_id": 11, "start_id": 10, "properties": {}, "end_label_id": 8, "end_label_name": "v3", "start_label_id": 8, "start_label_name": "v3"}::edge | {"id": 11, "label": "v3", "properties": {"id": "middle"}}::vertex
- {"id": 12, "label": "v3", "properties": {"id": "end"}}::vertex     | {"id": 5, "label": "e3", "end_id": 11, "start_id": 12, "properties": {}, "end_label_id": 8, "end_label_name": "v3", "start_label_id": 8, "start_label_name": "v3"}::edge | {"id": 11, "label": "v3", "properties": {"id": "middle"}}::vertex
+                                 u                                  |                                                                                      e                                                                                       |                                 v                                 
+--------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------------------------------------
+ {"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex  | {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge   | {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex
+ {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex   | {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge   | {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex
+ {"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex   | {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge   | {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex
+ {"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex   | {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge   | {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex
+ {"id": 10, "label": "v3", "properties": {"id": "initial"}}::vertex | {"id": 6, "label": "e3", "end_id": 11, "start_id": 10, "properties": {}, "end_label_id": [8], "end_label_name": "v3", "start_label_id": [8], "start_label_name": "v3"}::edge | {"id": 11, "label": "v3", "properties": {"id": "middle"}}::vertex
+ {"id": 12, "label": "v3", "properties": {"id": "end"}}::vertex     | {"id": 5, "label": "e3", "end_id": 11, "start_id": 12, "properties": {}, "end_label_id": [8], "end_label_name": "v3", "start_label_id": [8], "start_label_name": "v3"}::edge | {"id": 11, "label": "v3", "properties": {"id": "middle"}}::vertex
 (6 rows)
 
 -- Property Constraint in EXISTS
@@ -1117,56 +1117,56 @@ $$) AS (a agtype);
 SELECT * FROM cypher('cypher_match',
  $$MATCH (u)-[e]->(v) WHERE EXISTS((u)-[e]->(v)) RETURN u, e, v $$)
 AS (u agtype, e agtype, v agtype);
-                                  u                                   |                                                                                        e                                                                                         |                                  v                                   
-----------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------
- {"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex    | {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge           | {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex
- {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex     | {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge           | {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex
- {"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex     | {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge           | {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex
- {"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex     | {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge           | {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex
- {"id": 10, "label": "v3", "properties": {"id": "initial"}}::vertex   | {"id": 6, "label": "e3", "end_id": 11, "start_id": 10, "properties": {}, "end_label_id": 8, "end_label_name": "v3", "start_label_id": 8, "start_label_name": "v3"}::edge         | {"id": 11, "label": "v3", "properties": {"id": "middle"}}::vertex
- {"id": 12, "label": "v3", "properties": {"id": "end"}}::vertex       | {"id": 5, "label": "e3", "end_id": 11, "start_id": 12, "properties": {}, "end_label_id": 8, "end_label_name": "v3", "start_label_id": 8, "start_label_name": "v3"}::edge         | {"id": 11, "label": "v3", "properties": {"id": "middle"}}::vertex
- {"id": 15, "label": "loop", "properties": {"id": "initial"}}::vertex | {"id": 7, "label": "self", "end_id": 15, "start_id": 15, "properties": {}, "end_label_id": 10, "end_label_name": "loop", "start_label_id": 10, "start_label_name": "loop"}::edge | {"id": 15, "label": "loop", "properties": {"id": "initial"}}::vertex
+                                  u                                   |                                                                                          e                                                                                           |                                  v                                   
+----------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------
+ {"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex    | {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge           | {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex
+ {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex     | {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge           | {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex
+ {"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex     | {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge           | {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex
+ {"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex     | {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge           | {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex
+ {"id": 10, "label": "v3", "properties": {"id": "initial"}}::vertex   | {"id": 6, "label": "e3", "end_id": 11, "start_id": 10, "properties": {}, "end_label_id": [8], "end_label_name": "v3", "start_label_id": [8], "start_label_name": "v3"}::edge         | {"id": 11, "label": "v3", "properties": {"id": "middle"}}::vertex
+ {"id": 12, "label": "v3", "properties": {"id": "end"}}::vertex       | {"id": 5, "label": "e3", "end_id": 11, "start_id": 12, "properties": {}, "end_label_id": [8], "end_label_name": "v3", "start_label_id": [8], "start_label_name": "v3"}::edge         | {"id": 11, "label": "v3", "properties": {"id": "middle"}}::vertex
+ {"id": 15, "label": "loop", "properties": {"id": "initial"}}::vertex | {"id": 7, "label": "self", "end_id": 15, "start_id": 15, "properties": {}, "end_label_id": [10], "end_label_name": "loop", "start_label_id": [10], "start_label_name": "loop"}::edge | {"id": 15, "label": "loop", "properties": {"id": "initial"}}::vertex
 (7 rows)
 
 -- Exists checks for a loop. There should be one.
 SELECT * FROM cypher('cypher_match',
  $$MATCH (u)-[e]->(v) WHERE EXISTS((u)-[e]->(u)) RETURN u, e, v $$)
 AS (u agtype, e agtype, v agtype);
-                                  u                                   |                                                                                        e                                                                                         |                                  v                                   
-----------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------
- {"id": 15, "label": "loop", "properties": {"id": "initial"}}::vertex | {"id": 7, "label": "self", "end_id": 15, "start_id": 15, "properties": {}, "end_label_id": 10, "end_label_name": "loop", "start_label_id": 10, "start_label_name": "loop"}::edge | {"id": 15, "label": "loop", "properties": {"id": "initial"}}::vertex
+                                  u                                   |                                                                                          e                                                                                           |                                  v                                   
+----------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------
+ {"id": 15, "label": "loop", "properties": {"id": "initial"}}::vertex | {"id": 7, "label": "self", "end_id": 15, "start_id": 15, "properties": {}, "end_label_id": [10], "end_label_name": "loop", "start_label_id": [10], "start_label_name": "loop"}::edge | {"id": 15, "label": "loop", "properties": {"id": "initial"}}::vertex
 (1 row)
 
 -- Exists checks for a loop. There should be one.
 SELECT * FROM cypher('cypher_match',
  $$MATCH (u)-[e]->(v) WHERE EXISTS((v)-[e]->(v)) RETURN u, e, v $$)
 AS (u agtype, e agtype, v agtype);
-                                  u                                   |                                                                                        e                                                                                         |                                  v                                   
-----------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------
- {"id": 15, "label": "loop", "properties": {"id": "initial"}}::vertex | {"id": 7, "label": "self", "end_id": 15, "start_id": 15, "properties": {}, "end_label_id": 10, "end_label_name": "loop", "start_label_id": 10, "start_label_name": "loop"}::edge | {"id": 15, "label": "loop", "properties": {"id": "initial"}}::vertex
+                                  u                                   |                                                                                          e                                                                                           |                                  v                                   
+----------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------
+ {"id": 15, "label": "loop", "properties": {"id": "initial"}}::vertex | {"id": 7, "label": "self", "end_id": 15, "start_id": 15, "properties": {}, "end_label_id": [10], "end_label_name": "loop", "start_label_id": [10], "start_label_name": "loop"}::edge | {"id": 15, "label": "loop", "properties": {"id": "initial"}}::vertex
 (1 row)
 
 -- Multiple exists
 SELECT * FROM cypher('cypher_match',
  $$MATCH (u)-[e]->(v) WHERE EXISTS((u)) AND EXISTS((v)) RETURN u, e, v $$)
 AS (u agtype, e agtype, v agtype);
-                                  u                                   |                                                                                        e                                                                                         |                                  v                                   
-----------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------
- {"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex    | {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge           | {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex
- {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex     | {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": 4, "end_label_name": "v1", "start_label_id": 4, "start_label_name": "v1"}::edge           | {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex
- {"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex     | {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge           | {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex
- {"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex     | {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": 6, "end_label_name": "v2", "start_label_id": 6, "start_label_name": "v2"}::edge           | {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex
- {"id": 10, "label": "v3", "properties": {"id": "initial"}}::vertex   | {"id": 6, "label": "e3", "end_id": 11, "start_id": 10, "properties": {}, "end_label_id": 8, "end_label_name": "v3", "start_label_id": 8, "start_label_name": "v3"}::edge         | {"id": 11, "label": "v3", "properties": {"id": "middle"}}::vertex
- {"id": 12, "label": "v3", "properties": {"id": "end"}}::vertex       | {"id": 5, "label": "e3", "end_id": 11, "start_id": 12, "properties": {}, "end_label_id": 8, "end_label_name": "v3", "start_label_id": 8, "start_label_name": "v3"}::edge         | {"id": 11, "label": "v3", "properties": {"id": "middle"}}::vertex
- {"id": 15, "label": "loop", "properties": {"id": "initial"}}::vertex | {"id": 7, "label": "self", "end_id": 15, "start_id": 15, "properties": {}, "end_label_id": 10, "end_label_name": "loop", "start_label_id": 10, "start_label_name": "loop"}::edge | {"id": 15, "label": "loop", "properties": {"id": "initial"}}::vertex
+                                  u                                   |                                                                                          e                                                                                           |                                  v                                   
+----------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------
+ {"id": 4, "label": "v1", "properties": {"id": "initial"}}::vertex    | {"id": 2, "label": "e1", "end_id": 5, "start_id": 4, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge           | {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex
+ {"id": 5, "label": "v1", "properties": {"id": "middle"}}::vertex     | {"id": 1, "label": "e1", "end_id": 6, "start_id": 5, "properties": {}, "end_label_id": [4], "end_label_name": "v1", "start_label_id": [4], "start_label_name": "v1"}::edge           | {"id": 6, "label": "v1", "properties": {"id": "end"}}::vertex
+ {"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex     | {"id": 4, "label": "e2", "end_id": 7, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge           | {"id": 7, "label": "v2", "properties": {"id": "initial"}}::vertex
+ {"id": 8, "label": "v2", "properties": {"id": "middle"}}::vertex     | {"id": 3, "label": "e2", "end_id": 9, "start_id": 8, "properties": {}, "end_label_id": [6], "end_label_name": "v2", "start_label_id": [6], "start_label_name": "v2"}::edge           | {"id": 9, "label": "v2", "properties": {"id": "end"}}::vertex
+ {"id": 10, "label": "v3", "properties": {"id": "initial"}}::vertex   | {"id": 6, "label": "e3", "end_id": 11, "start_id": 10, "properties": {}, "end_label_id": [8], "end_label_name": "v3", "start_label_id": [8], "start_label_name": "v3"}::edge         | {"id": 11, "label": "v3", "properties": {"id": "middle"}}::vertex
+ {"id": 12, "label": "v3", "properties": {"id": "end"}}::vertex       | {"id": 5, "label": "e3", "end_id": 11, "start_id": 12, "properties": {}, "end_label_id": [8], "end_label_name": "v3", "start_label_id": [8], "start_label_name": "v3"}::edge         | {"id": 11, "label": "v3", "properties": {"id": "middle"}}::vertex
+ {"id": 15, "label": "loop", "properties": {"id": "initial"}}::vertex | {"id": 7, "label": "self", "end_id": 15, "start_id": 15, "properties": {}, "end_label_id": [10], "end_label_name": "loop", "start_label_id": [10], "start_label_name": "loop"}::edge | {"id": 15, "label": "loop", "properties": {"id": "initial"}}::vertex
 (7 rows)
 
 SELECT * FROM cypher('cypher_match',
  $$MATCH (u)-[e]->(v) WHERE EXISTS((u)-[e]->(u)) AND EXISTS((v)-[e]->(v)) RETURN u, e, v $$)
 AS (u agtype, e agtype, v agtype);
-                                  u                                   |                                                                                        e                                                                                         |                                  v                                   
-----------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------
- {"id": 15, "label": "loop", "properties": {"id": "initial"}}::vertex | {"id": 7, "label": "self", "end_id": 15, "start_id": 15, "properties": {}, "end_label_id": 10, "end_label_name": "loop", "start_label_id": 10, "start_label_name": "loop"}::edge | {"id": 15, "label": "loop", "properties": {"id": "initial"}}::vertex
+                                  u                                   |                                                                                          e                                                                                           |                                  v                                   
+----------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------------------------------------------------------------------
+ {"id": 15, "label": "loop", "properties": {"id": "initial"}}::vertex | {"id": 7, "label": "self", "end_id": 15, "start_id": 15, "properties": {}, "end_label_id": [10], "end_label_name": "loop", "start_label_id": [10], "start_label_name": "loop"}::edge | {"id": 15, "label": "loop", "properties": {"id": "initial"}}::vertex
 (1 row)
 
 -- Return exists(pattern)
@@ -1533,8 +1533,8 @@ $$) AS (i agtype);
      i     
 -----------
  
- "end"
  "initial"
+ "end"
  "middle"
 (4 rows)
 
@@ -1566,10 +1566,10 @@ SELECT * FROM cypher('cypher_match', $$
 	MATCH p=(:duplicate)-[]-(:other_v)
 	RETURN DISTINCT p
 $$) AS (i agtype);
-                                                                                                                                                                 i                                                                                                                                                                 
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 16, "label": "duplicate", "properties": {}}::vertex, {"id": 8, "label": "dup_edge", "end_id": 17, "start_id": 16, "properties": {"id": 1}, "end_label_id": 14, "end_label_name": "other_v", "start_label_id": 12, "start_label_name": "duplicate"}::edge, {"id": 17, "label": "other_v", "properties": {}}::vertex]::path
- [{"id": 16, "label": "duplicate", "properties": {}}::vertex, {"id": 9, "label": "dup_edge", "end_id": 18, "start_id": 16, "properties": {"id": 2}, "end_label_id": 14, "end_label_name": "other_v", "start_label_id": 12, "start_label_name": "duplicate"}::edge, {"id": 18, "label": "other_v", "properties": {}}::vertex]::path
+                                                                                                                                                                   i                                                                                                                                                                   
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 16, "label": "duplicate", "properties": {}}::vertex, {"id": 8, "label": "dup_edge", "end_id": 17, "start_id": 16, "properties": {"id": 1}, "end_label_id": [14], "end_label_name": "other_v", "start_label_id": [12], "start_label_name": "duplicate"}::edge, {"id": 17, "label": "other_v", "properties": {}}::vertex]::path
+ [{"id": 16, "label": "duplicate", "properties": {}}::vertex, {"id": 9, "label": "dup_edge", "end_id": 18, "start_id": 16, "properties": {"id": 2}, "end_label_id": [14], "end_label_name": "other_v", "start_label_id": [12], "start_label_name": "duplicate"}::edge, {"id": 18, "label": "other_v", "properties": {}}::vertex]::path
 (2 rows)
 
 --
@@ -1777,9 +1777,9 @@ SELECT * FROM cypher('test_retrieve_var', $$
     WHERE EXISTS(()<-[]-(c))
     RETURN a, r
 $$) AS (a agtype, r agtype);
-                         a                         |                                                                                   r                                                                                    
----------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 1, "label": "A", "properties": {}}::vertex | {"id": 1, "label": "incs", "end_id": 2, "start_id": 1, "properties": {}, "end_label_id": 5, "end_label_name": "C", "start_label_id": 3, "start_label_name": "A"}::edge
+                         a                         |                                                                                     r                                                                                      
+---------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "A", "properties": {}}::vertex | {"id": 1, "label": "incs", "end_id": 2, "start_id": 1, "properties": {}, "end_label_id": [5], "end_label_name": "C", "start_label_id": [3], "start_label_name": "A"}::edge
 (1 row)
 
 SELECT * FROM cypher('test_retrieve_var', $$
@@ -1788,9 +1788,9 @@ SELECT * FROM cypher('test_retrieve_var', $$
     WHERE EXISTS((:A)<-[]-(c))
     RETURN a, r
 $$) AS (a agtype, r agtype);
-                         a                         |                                                                                   r                                                                                    
----------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 1, "label": "A", "properties": {}}::vertex | {"id": 1, "label": "incs", "end_id": 2, "start_id": 1, "properties": {}, "end_label_id": 5, "end_label_name": "C", "start_label_id": 3, "start_label_name": "A"}::edge
+                         a                         |                                                                                     r                                                                                      
+---------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "A", "properties": {}}::vertex | {"id": 1, "label": "incs", "end_id": 2, "start_id": 1, "properties": {}, "end_label_id": [5], "end_label_name": "C", "start_label_id": [3], "start_label_name": "A"}::edge
 (1 row)
 
 SELECT * FROM cypher('test_retrieve_var', $$
@@ -1799,9 +1799,9 @@ SELECT * FROM cypher('test_retrieve_var', $$
     WHERE EXISTS((c)<-[]-(:A))
     RETURN a, r
 $$) AS (a agtype, r agtype);
-                         a                         |                                                                                   r                                                                                    
----------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 1, "label": "A", "properties": {}}::vertex | {"id": 1, "label": "incs", "end_id": 2, "start_id": 1, "properties": {}, "end_label_id": 5, "end_label_name": "C", "start_label_id": 3, "start_label_name": "A"}::edge
+                         a                         |                                                                                     r                                                                                      
+---------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "A", "properties": {}}::vertex | {"id": 1, "label": "incs", "end_id": 2, "start_id": 1, "properties": {}, "end_label_id": [5], "end_label_name": "C", "start_label_id": [3], "start_label_name": "A"}::edge
 (1 row)
 
 SELECT * FROM cypher('test_retrieve_var', $$
@@ -1810,9 +1810,9 @@ SELECT * FROM cypher('test_retrieve_var', $$
     WHERE EXISTS((:C)<-[]-(:A))
     RETURN a, r
 $$) AS (a agtype, r agtype);
-                         a                         |                                                                                   r                                                                                    
----------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 1, "label": "A", "properties": {}}::vertex | {"id": 1, "label": "incs", "end_id": 2, "start_id": 1, "properties": {}, "end_label_id": 5, "end_label_name": "C", "start_label_id": 3, "start_label_name": "A"}::edge
+                         a                         |                                                                                     r                                                                                      
+---------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "A", "properties": {}}::vertex | {"id": 1, "label": "incs", "end_id": 2, "start_id": 1, "properties": {}, "end_label_id": [5], "end_label_name": "C", "start_label_id": [3], "start_label_name": "A"}::edge
 (1 row)
 
 SELECT * FROM cypher('test_retrieve_var', $$
@@ -1821,9 +1821,9 @@ SELECT * FROM cypher('test_retrieve_var', $$
     WHERE EXISTS(()<-[r]-(c))
     RETURN a, r
 $$) AS (a agtype, r agtype);
-                         a                         |                                                                                   r                                                                                    
----------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 1, "label": "A", "properties": {}}::vertex | {"id": 1, "label": "incs", "end_id": 2, "start_id": 1, "properties": {}, "end_label_id": 5, "end_label_name": "C", "start_label_id": 3, "start_label_name": "A"}::edge
+                         a                         |                                                                                     r                                                                                      
+---------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "A", "properties": {}}::vertex | {"id": 1, "label": "incs", "end_id": 2, "start_id": 1, "properties": {}, "end_label_id": [5], "end_label_name": "C", "start_label_id": [3], "start_label_name": "A"}::edge
 (1 row)
 
 --
@@ -1843,9 +1843,9 @@ SELECT * FROM cypher('cypher_match', $$
     CREATE (u1 {name: "F"})-[u2:e1]->(u3 {name: "T"})
     RETURN u1, u2, u3
 $$) as (u1 agtype, u2 agtype, u3 agtype);
-                              u1                              |                                                                                  u2                                                                                   |                              u3                              
---------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------
- {"id": 24, "label": "", "properties": {"name": "F"}}::vertex | {"id": 12, "label": "e1", "end_id": 25, "start_id": 24, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge | {"id": 25, "label": "", "properties": {"name": "T"}}::vertex
+                              u1                              |                                                                                    u2                                                                                     |                              u3                              
+--------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------
+ {"id": 24, "label": "", "properties": {"name": "F"}}::vertex | {"id": 12, "label": "e1", "end_id": 25, "start_id": 24, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge | {"id": 25, "label": "", "properties": {"name": "T"}}::vertex
 (1 row)
 
 -- Querying NOT EXISTS syntax
@@ -2008,14 +2008,14 @@ SELECT * FROM cypher('cypher_match', $$
 
 SELECT * FROM cypher('cypher_match', $$
 	MATCH (a)-[r]-(b) RETURN r $$) as (r agtype);
-                                                                                                       r                                                                                                       
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
- {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
- {"id": 14, "label": "knows", "end_id": 30, "start_id": 23, "properties": {"years": 4, "relationship": "enemies"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
- {"id": 14, "label": "knows", "end_id": 30, "start_id": 23, "properties": {"years": 4, "relationship": "enemies"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
- {"id": 12, "label": "e1", "end_id": 25, "start_id": 24, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
- {"id": 12, "label": "e1", "end_id": 25, "start_id": 24, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
+                                                                                                         r                                                                                                         
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 14, "label": "knows", "end_id": 30, "start_id": 23, "properties": {"years": 4, "relationship": "enemies"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
+ {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
+ {"id": 14, "label": "knows", "end_id": 30, "start_id": 23, "properties": {"years": 4, "relationship": "enemies"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
+ {"id": 12, "label": "e1", "end_id": 25, "start_id": 24, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
+ {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
+ {"id": 12, "label": "e1", "end_id": 25, "start_id": 24, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
 (6 rows)
 
 -- check reuse of 'a' clause-to-clause - vertices
@@ -2101,42 +2101,42 @@ SELECT * FROM cypher('cypher_match', $$
 -- check reuse of 'r' clause-to-clause - edges
 SELECT * FROM cypher('cypher_match', $$
 	MATCH ()-[r]-() RETURN r $$) as (r agtype);
-                                                                                                       r                                                                                                       
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
- {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
- {"id": 14, "label": "knows", "end_id": 30, "start_id": 23, "properties": {"years": 4, "relationship": "enemies"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
- {"id": 14, "label": "knows", "end_id": 30, "start_id": 23, "properties": {"years": 4, "relationship": "enemies"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
- {"id": 12, "label": "e1", "end_id": 25, "start_id": 24, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
- {"id": 12, "label": "e1", "end_id": 25, "start_id": 24, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
+                                                                                                         r                                                                                                         
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
+ {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
+ {"id": 14, "label": "knows", "end_id": 30, "start_id": 23, "properties": {"years": 4, "relationship": "enemies"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
+ {"id": 14, "label": "knows", "end_id": 30, "start_id": 23, "properties": {"years": 4, "relationship": "enemies"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
+ {"id": 12, "label": "e1", "end_id": 25, "start_id": 24, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
+ {"id": 12, "label": "e1", "end_id": 25, "start_id": 24, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
 (6 rows)
 
 SELECT * FROM cypher('cypher_match', $$
 	MATCH ()-[r]-() MATCH ()-[r {relationship: "friends"}]-() RETURN r $$) as (r agtype);
-                                                                                                       r                                                                                                       
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
- {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
- {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
- {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
+                                                                                                         r                                                                                                         
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
+ {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
+ {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
+ {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
 (4 rows)
 
 SELECT * FROM cypher('cypher_match', $$
 	MATCH ()-[r {years:3, relationship: "friends"}]-() RETURN r $$) as (r agtype);
-                                                                                                       r                                                                                                       
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
- {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
+                                                                                                         r                                                                                                         
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
+ {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
 (2 rows)
 
 SELECT * FROM cypher('cypher_match', $$
 	MATCH ()-[r {years:3}]-() MATCH ()-[r {relationship: "friends"}]-() RETURN r $$) as (r agtype);
-                                                                                                       r                                                                                                       
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
- {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
- {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
- {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
+                                                                                                         r                                                                                                         
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
+ {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
+ {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
+ {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
 (4 rows)
 
 --mismatch year #, should return nothing
@@ -2148,12 +2148,12 @@ SELECT * FROM cypher('cypher_match', $$
 
 SELECT * FROM cypher('cypher_match', $$
 	MATCH ()-[r {relationship:"enemies"}]-() MATCH ()-[r {years:4}]-() RETURN r $$) as (r agtype);
-                                                                                                       r                                                                                                       
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 14, "label": "knows", "end_id": 30, "start_id": 23, "properties": {"years": 4, "relationship": "enemies"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
- {"id": 14, "label": "knows", "end_id": 30, "start_id": 23, "properties": {"years": 4, "relationship": "enemies"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
- {"id": 14, "label": "knows", "end_id": 30, "start_id": 23, "properties": {"years": 4, "relationship": "enemies"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
- {"id": 14, "label": "knows", "end_id": 30, "start_id": 23, "properties": {"years": 4, "relationship": "enemies"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
+                                                                                                         r                                                                                                         
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 14, "label": "knows", "end_id": 30, "start_id": 23, "properties": {"years": 4, "relationship": "enemies"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
+ {"id": 14, "label": "knows", "end_id": 30, "start_id": 23, "properties": {"years": 4, "relationship": "enemies"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
+ {"id": 14, "label": "knows", "end_id": 30, "start_id": 23, "properties": {"years": 4, "relationship": "enemies"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
+ {"id": 14, "label": "knows", "end_id": 30, "start_id": 23, "properties": {"years": 4, "relationship": "enemies"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
 (4 rows)
 
 SELECT * FROM cypher('cypher_match', $$
@@ -2170,55 +2170,55 @@ SELECT * FROM cypher('cypher_match', $$ CREATE (u {name: "Dave"})-[:knows]->({na
 (1 row)
 
 SELECT * FROM cypher('cypher_match', $$ MATCH p=(u)-[]-()-[]-(u) RETURN p $$)as (p agtype);
-                                                                                                                                                                                                                                                                               p                                                                                                                                                                                                                                                                               
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex]::path
- [{"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex]::path
- [{"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex]::path
- [{"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex]::path
+                                                                                                                                                                                                                                                                                   p                                                                                                                                                                                                                                                                                   
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex]::path
+ [{"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex]::path
+ [{"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex]::path
+ [{"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex]::path
 (4 rows)
 
 SELECT * FROM cypher('cypher_match', $$ MATCH p=(u)-[]->()-[]->(u) RETURN p $$)as (p agtype);
-                                                                                                                                                                                                                                                                               p                                                                                                                                                                                                                                                                               
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex]::path
- [{"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex]::path
+                                                                                                                                                                                                                                                                                   p                                                                                                                                                                                                                                                                                   
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex]::path
+ [{"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex]::path
 (2 rows)
 
 SELECT * FROM cypher('cypher_match', $$ MATCH p=(a)-[]->()-[]->(a {name: "Dave"}) RETURN p $$)as (p agtype);
-                                                                                                                                                                                                                                                                               p                                                                                                                                                                                                                                                                               
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex]::path
+                                                                                                                                                                                                                                                                                   p                                                                                                                                                                                                                                                                                   
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex]::path
 (1 row)
 
 SELECT * FROM cypher('cypher_match', $$ MATCH p=(a)-[]->()-[]->(a {name: "John"}) RETURN p $$)as (p agtype);
-                                                                                                                                                                                                                                                                               p                                                                                                                                                                                                                                                                               
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex]::path
+                                                                                                                                                                                                                                                                                   p                                                                                                                                                                                                                                                                                   
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex]::path
 (1 row)
 
 SELECT * FROM cypher('cypher_match', $$ MATCH p=(a {name: "Dave"})-[]->()-[]->(a {name: "Dave"}) RETURN p $$)as (p agtype);
-                                                                                                                                                                                                                                                                               p                                                                                                                                                                                                                                                                               
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex]::path
+                                                                                                                                                                                                                                                                                   p                                                                                                                                                                                                                                                                                   
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex]::path
 (1 row)
 
 SELECT * FROM cypher('cypher_match', $$ MATCH p=(a {name: "John"})-[]->()-[]->(a {name: "John"}) RETURN p $$)as (p agtype);
-                                                                                                                                                                                                                                                                               p                                                                                                                                                                                                                                                                               
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex]::path
+                                                                                                                                                                                                                                                                                   p                                                                                                                                                                                                                                                                                   
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex]::path
 (1 row)
 
 SELECT * FROM cypher('cypher_match', $$ MATCH p=(a {name: "Dave"})-[]->()-[]->(a) RETURN p $$)as (p agtype);
-                                                                                                                                                                                                                                                                               p                                                                                                                                                                                                                                                                               
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex]::path
+                                                                                                                                                                                                                                                                                   p                                                                                                                                                                                                                                                                                   
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex]::path
 (1 row)
 
 SELECT * FROM cypher('cypher_match', $$ MATCH p=(a {name: "John"})-[]->()-[]->(a) RETURN p $$)as (p agtype);
-                                                                                                                                                                                                                                                                               p                                                                                                                                                                                                                                                                               
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex]::path
+                                                                                                                                                                                                                                                                                   p                                                                                                                                                                                                                                                                                   
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 32, "label": "", "properties": {"name": "John"}}::vertex, {"id": 15, "label": "knows", "end_id": 31, "start_id": 32, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 31, "label": "", "properties": {"name": "Dave"}}::vertex, {"id": 16, "label": "knows", "end_id": 32, "start_id": 31, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 32, "label": "", "properties": {"name": "John"}}::vertex]::path
 (1 row)
 
 -- these are illegal and should fail
@@ -2387,24 +2387,24 @@ SELECT * FROM cypher('cypher_match', $$ MATCH (a {name:a.name}) MATCH (a {age:a.
 (3 rows)
 
 SELECT * FROM cypher('cypher_match', $$ MATCH p=(a)-[u {relationship: u.relationship}]->(b) RETURN p $$) as (a agtype);
-                                                                                                                                                                               a                                                                                                                                                                               
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 25, "label": "", "properties": {"age": 4, "name": "T"}}::vertex, {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 30, "label": "", "properties": {"age": 6}}::vertex]::path
- [{"id": 23, "label": "", "properties": {"age": 3, "name": "orphan"}}::vertex, {"id": 14, "label": "knows", "end_id": 30, "start_id": 23, "properties": {"years": 4, "relationship": "enemies"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 30, "label": "", "properties": {"age": 6}}::vertex]::path
+                                                                                                                                                                                 a                                                                                                                                                                                 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 23, "label": "", "properties": {"age": 3, "name": "orphan"}}::vertex, {"id": 14, "label": "knows", "end_id": 30, "start_id": 23, "properties": {"years": 4, "relationship": "enemies"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 30, "label": "", "properties": {"age": 6}}::vertex]::path
+ [{"id": 25, "label": "", "properties": {"age": 4, "name": "T"}}::vertex, {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 30, "label": "", "properties": {"age": 6}}::vertex]::path
 (2 rows)
 
 SELECT * FROM cypher('cypher_match', $$ MATCH p=(a)-[u {relationship: u.relationship, years: u.years}]->(b) RETURN p $$) as (a agtype);
-                                                                                                                                                                               a                                                                                                                                                                               
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 25, "label": "", "properties": {"age": 4, "name": "T"}}::vertex, {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 30, "label": "", "properties": {"age": 6}}::vertex]::path
- [{"id": 23, "label": "", "properties": {"age": 3, "name": "orphan"}}::vertex, {"id": 14, "label": "knows", "end_id": 30, "start_id": 23, "properties": {"years": 4, "relationship": "enemies"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 30, "label": "", "properties": {"age": 6}}::vertex]::path
+                                                                                                                                                                                 a                                                                                                                                                                                 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 23, "label": "", "properties": {"age": 3, "name": "orphan"}}::vertex, {"id": 14, "label": "knows", "end_id": 30, "start_id": 23, "properties": {"years": 4, "relationship": "enemies"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 30, "label": "", "properties": {"age": 6}}::vertex]::path
+ [{"id": 25, "label": "", "properties": {"age": 4, "name": "T"}}::vertex, {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 30, "label": "", "properties": {"age": 6}}::vertex]::path
 (2 rows)
 
 SELECT * FROM cypher('cypher_match', $$ MATCH p=(a {name:a.name})-[u {relationship: u.relationship}]->(b {age:b.age}) RETURN p $$) as (a agtype);
-                                                                                                                                                                               a                                                                                                                                                                               
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 25, "label": "", "properties": {"age": 4, "name": "T"}}::vertex, {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 30, "label": "", "properties": {"age": 6}}::vertex]::path
- [{"id": 23, "label": "", "properties": {"age": 3, "name": "orphan"}}::vertex, {"id": 14, "label": "knows", "end_id": 30, "start_id": 23, "properties": {"years": 4, "relationship": "enemies"}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 30, "label": "", "properties": {"age": 6}}::vertex]::path
+                                                                                                                                                                                 a                                                                                                                                                                                 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 25, "label": "", "properties": {"age": 4, "name": "T"}}::vertex, {"id": 13, "label": "knows", "end_id": 30, "start_id": 25, "properties": {"years": 3, "relationship": "friends"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 30, "label": "", "properties": {"age": 6}}::vertex]::path
+ [{"id": 23, "label": "", "properties": {"age": 3, "name": "orphan"}}::vertex, {"id": 14, "label": "knows", "end_id": 30, "start_id": 23, "properties": {"years": 4, "relationship": "enemies"}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 30, "label": "", "properties": {"age": 6}}::vertex]::path
 (2 rows)
 
 SELECT * FROM cypher('cypher_match', $$ CREATE () WITH * MATCH (x{n0:x.n1}) RETURN 0 $$) as (a agtype);

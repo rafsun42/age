@@ -159,7 +159,6 @@ static bool is_array_path(agtype_value *agtv);
 /* graph entity retrieval */
 static Datum get_vertex(const char *graph, const char *vertex_label,
                         int64 graphid);
-static char *get_label_name(const char *graph_name, int32 element_label_id);
 static float8 get_float_compatible_arg(Datum arg, Oid type, char *funcname,
                                        bool *is_null);
 static Numeric get_numeric_compatible_arg(Datum arg, Oid type, char *funcname,
@@ -745,7 +744,7 @@ static bool is_object_edge(agtype_value *agtv)
         /* check for an end_label_id of type integer */
         else if (key_len == strlen(edge_obj_end_label_id) &&
                  pg_strncasecmp(key_val, edge_obj_end_label_id, key_len) == 0 &&
-                 value->type == AGTV_INTEGER)
+                 value->type == AGTV_ARRAY)
         {
             has_end_label_id = true;
         }
@@ -759,7 +758,7 @@ static bool is_object_edge(agtype_value *agtv)
         /* check for a start_label_id of type integer */
         else if (key_len == strlen(edge_obj_start_label_id) &&
                  pg_strncasecmp(key_val, edge_obj_start_label_id, key_len) == 0 &&
-                 value->type == AGTV_INTEGER)
+                 value->type == AGTV_ARRAY)
         {
             has_start_label_id = true;
         }
@@ -2288,14 +2287,18 @@ PG_FUNCTION_INFO_V1(_agtype_build_edge);
 
 /*
  * SQL function agtype_build_edge
- * (int64, int64, int64, cstring, cstring, cstring, int32, int32, agtype)
+ * (int64, int64, int64, cstring, cstring, cstring, int[], int[], agtype)
  */
 Datum _agtype_build_edge(PG_FUNCTION_ARGS)
 {
     agtype_in_state result;
     int64 id, start_id, end_id;
+    ArrayType *start_label_id_arr, *end_label_id_arr;
+    agtype_in_state *start_label_id, *end_label_id;
 
     memset(&result, 0, sizeof(agtype_in_state));
+    start_label_id = palloc0(sizeof(agtype_in_state));
+    end_label_id = palloc0(sizeof(agtype_in_state));
 
     result.res = push_agtype_value(&result.parse_state, WAGT_BEGIN_OBJECT,
                                    NULL);
@@ -2370,9 +2373,21 @@ Datum _agtype_build_edge(PG_FUNCTION_ARGS)
                  errmsg("_agtype_build_edge() end_label_id cannot be NULL")));
     }
 
-    result.res =
-        push_agtype_value(&result.parse_state, WAGT_VALUE,
-                          integer_to_agtype_value(PG_GETARG_INT32(7)));
+    end_label_id_arr = PG_GETARG_ARRAYTYPE_P(7);
+    array_to_agtype_internal((Datum)end_label_id_arr, end_label_id);
+
+    result.res = push_agtype_value(&result.parse_state, WAGT_BEGIN_ARRAY,
+                                   NULL);
+
+    for (int i = 0; i < end_label_id->res->val.array.num_elems; i++)
+    {
+        agtype_value elem = end_label_id->res->val.array.elems[i];
+        result.res = push_agtype_value(&result.parse_state, WAGT_ELEM,
+                                       &elem);
+    }
+
+    result.res = push_agtype_value(&result.parse_state, WAGT_END_ARRAY,
+                                   NULL);
 
     /* process start_id */
     result.res = push_agtype_value(&result.parse_state, WAGT_KEY,
@@ -2415,9 +2430,21 @@ Datum _agtype_build_edge(PG_FUNCTION_ARGS)
                  errmsg("_agtype_build_edge() start_label_id cannot be NULL")));
     }
 
-    result.res =
-        push_agtype_value(&result.parse_state, WAGT_VALUE,
-                          integer_to_agtype_value(PG_GETARG_INT32(6)));
+    start_label_id_arr = PG_GETARG_ARRAYTYPE_P(6);
+    array_to_agtype_internal((Datum)start_label_id_arr, start_label_id);
+
+    result.res = push_agtype_value(&result.parse_state, WAGT_BEGIN_ARRAY,
+                                   NULL);
+
+    for (int i = 0; i < start_label_id->res->val.array.num_elems; i++)
+    {
+        agtype_value elem = start_label_id->res->val.array.elems[i];
+        result.res = push_agtype_value(&result.parse_state, WAGT_ELEM,
+                                       &elem);
+    }
+
+    result.res = push_agtype_value(&result.parse_state, WAGT_END_ARRAY,
+                                   NULL);
 
     /* process properties */
     result.res = push_agtype_value(&result.parse_state, WAGT_KEY,
@@ -3054,6 +3081,14 @@ Datum agtype_to_int4_array(PG_FUNCTION_ARGS)
     result = construct_array(array_value, element_size, INT4OID, 4, true, 'i');
 
     PG_RETURN_ARRAYTYPE_P(result);
+}
+
+ArrayType* agtype_to_int_array_func_call(agtype* agt_array)
+{
+    Datum res = DirectFunctionCall1(agtype_to_int4_array,
+                                    AGTYPE_P_GET_DATUM(agt_array));
+
+    return DatumGetArrayTypeP(res);
 }
 
 /*
@@ -4487,7 +4522,7 @@ Datum agtype_typecast_edge(PG_FUNCTION_ARGS)
     agtype_value *agtv_id, *agtv_label, *agtv_properties,
                  *agtv_startid, *agtv_endid, *agtv_startlabel, *agtv_endlabel,
                  *agtv_startlabelid, *agtv_endlabelid;
-    Datum result;
+    Datum start_label_id, end_label_id, result;
     int count;
 
     /* get the agtype equivalence of any convertable input type */
@@ -4584,7 +4619,9 @@ Datum agtype_typecast_edge(PG_FUNCTION_ARGS)
     agtv_key.val.string.len = strlen(edge_obj_start_label_id);
     agtv_startlabelid = find_agtype_value_from_container(&arg_agt->root,
                                                          AGT_FOBJECT, &agtv_key);
-    if (agtv_startlabelid == NULL || agtv_startlabelid->type != AGTV_INTEGER)
+    if (agtv_startlabelid == NULL ||
+        (agtv_startlabelid->type != AGTV_ARRAY &&
+         agtv_startlabelid->type != AGTV_BINARY))
         ereport(ERROR,
                 (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
                  errmsg("edge typecast object has an invalid or missing start_label_id")));
@@ -4593,10 +4630,18 @@ Datum agtype_typecast_edge(PG_FUNCTION_ARGS)
     agtv_key.val.string.len = strlen(edge_obj_end_label_id);
     agtv_endlabelid = find_agtype_value_from_container(&arg_agt->root,
                                                        AGT_FOBJECT, &agtv_key);
-    if (agtv_endlabelid == NULL || agtv_endlabelid->type != AGTV_INTEGER)
+    if (agtv_endlabelid == NULL ||
+        (agtv_endlabelid->type != AGTV_ARRAY &&
+         agtv_endlabelid->type != AGTV_BINARY))
         ereport(ERROR,
                 (errcode(ERRCODE_INVALID_PARAMETER_VALUE),
                  errmsg("edge typecast object has an invalid or missing end_label_id")));
+
+    start_label_id = DirectFunctionCall1(agtype_to_int4_array,
+                                         PointerGetDatum(agtype_value_to_agtype(agtv_startlabelid)));
+
+    end_label_id = DirectFunctionCall1(agtype_to_int4_array,
+                                       PointerGetDatum(agtype_value_to_agtype(agtv_endlabelid)));
 
     /* Hand it off to the build edge routine */
     result = DirectFunctionCall9(_agtype_build_edge,
@@ -4606,8 +4651,8 @@ Datum agtype_typecast_edge(PG_FUNCTION_ARGS)
                  CStringGetDatum(agtv_label->val.string.val),
                  CStringGetDatum(agtv_startlabel->val.string.val),
                  CStringGetDatum(agtv_endlabel->val.string.val),
-                 Int32GetDatum(agtv_startlabelid->val.int_value),
-                 Int32GetDatum(agtv_endlabelid->val.int_value),
+                 start_label_id,
+                 end_label_id,
                  PointerGetDatum(agtype_value_to_agtype(agtv_properties)));
 
     return result;
@@ -4850,66 +4895,6 @@ Datum column_get_datum(TupleDesc tupdesc, HeapTuple tuple, int column,
     return result;
 }
 
-/*
- * Function to retrieve a label name, given the graph name and graphid of the
- * node or edge. The function returns a pointer to a duplicated string that
- * needs to be freed when you are finished using it.
- */
-static char *get_label_name(const char *graph_name, int32 element_label_id)
-{
-    ScanKeyData scan_keys[2];
-    Relation ag_label;
-    SysScanDesc scan_desc;
-    HeapTuple tuple;
-    TupleDesc tupdesc;
-    char *result = NULL;
-    bool column_is_null = false;
-    Oid graph_oid = get_graph_oid(graph_name);
-    int32 label_id = element_label_id;
-
-    /* scankey for first match in ag_label, column 2, graphoid, BTEQ, OidEQ */
-    ScanKeyInit(&scan_keys[0], Anum_ag_label_graph, BTEqualStrategyNumber,
-                F_OIDEQ, ObjectIdGetDatum(graph_oid));
-    /* scankey for second match in ag_label, column 3, label id, BTEQ, Int4EQ */
-    ScanKeyInit(&scan_keys[1], Anum_ag_label_id, BTEqualStrategyNumber,
-                F_INT4EQ, Int32GetDatum(label_id));
-
-    ag_label = table_open(ag_label_relation_id(), ShareLock);
-    scan_desc = systable_beginscan(ag_label, ag_label_graph_oid_index_id(), true,
-                                   NULL, 2, scan_keys);
-
-    tuple = systable_getnext(scan_desc);
-    if (!HeapTupleIsValid(tuple))
-    {
-        ereport(ERROR,
-                (errcode(ERRCODE_UNDEFINED_SCHEMA),
-                 errmsg("label id does not exist")));
-    }
-
-    /* get the tupdesc - we don't need to release this one */
-    tupdesc = RelationGetDescr(ag_label);
-
-    /* bail if the number of columns differs */
-    if (tupdesc->natts != Natts_ag_label)
-    {
-        ereport(ERROR,
-                (errcode(ERRCODE_UNDEFINED_TABLE),
-                 errmsg("Invalid number of attributes for ag_catalog.ag_label")));
-    }
-
-    /* get the label name */
-    result = NameStr(*DatumGetName(heap_getattr(tuple, Anum_ag_label_name,
-                                                tupdesc, &column_is_null)));
-    /* duplicate it */
-    result = strdup(result);
-
-    /* end the scan and close the relation */
-    systable_endscan(scan_desc);
-    table_close(ag_label, ShareLock);
-
-    return result;
-}
-
 static Datum get_vertex(const char *graph, const char *vertex_label,
                         int64 graphid)
 {
@@ -4978,8 +4963,10 @@ Datum age_startnode(PG_FUNCTION_ARGS)
     agtype_value *agtv_value = NULL;
     char *graph_name = NULL;
     char *label_name = NULL;
+    Oid graph_oid;
     graphid start_id;
-    graphid start_label_id;
+    agtype_value *start_label_id;
+    Datum start_label_id_datum;
     Datum result;
 
     /* we need the graph name */
@@ -4997,6 +4984,7 @@ Datum age_startnode(PG_FUNCTION_ARGS)
     Assert(agtv_object->type == AGTV_STRING);
     graph_name = strndup(agtv_object->val.string.val,
                          agtv_object->val.string.len);
+    graph_oid = get_graph_oid(graph_name);
 
     /* get the edge */
     agt_arg = AG_GET_ARG_AGTYPE_P(1);
@@ -5022,22 +5010,24 @@ Datum age_startnode(PG_FUNCTION_ARGS)
     Assert(agtv_value != NULL);
     Assert(agtv_value->type = AGTV_INTEGER);
     start_id = agtv_value->val.int_value;
-    
+
     /* get the start label_id*/
     agtv_value = GET_AGTYPE_VALUE_OBJECT_VALUE(agtv_object, "start_label_id");
     /* it must not be null and must be an integer */
     Assert(agtv_value != NULL);
-    Assert(agtv_value->type = AGTV_INTEGER);
-    start_label_id = agtv_value->val.int_value;
+    Assert(agtv_value->type = AGTV_ARRAY);
+    start_label_id = agtv_value;
+
+    start_label_id_datum =
+        DirectFunctionCall1(agtype_to_int4_array,
+        PointerGetDatum(agtype_value_to_agtype(start_label_id)));
 
     /* get the label */
-    label_name = get_label_name(graph_name, start_label_id);
+    label_name = DatumGetCString(get_label_name_from_label_id(graph_oid, start_label_id_datum));
     /* it must not be null and must be a string */
     Assert(label_name != NULL);
 
     result = get_vertex(graph_name, label_name, start_id);
-
-    free(label_name);
 
     return result;
 }
@@ -5051,8 +5041,10 @@ Datum age_endnode(PG_FUNCTION_ARGS)
     agtype_value *agtv_value = NULL;
     char *graph_name = NULL;
     char *label_name = NULL;
+    Oid graph_oid;
     graphid end_id;
-    graphid end_label_id;
+    agtype_value *end_label_id;
+    Datum end_label_id_datum;
     Datum result;
 
     /* we need the graph name */
@@ -5070,6 +5062,7 @@ Datum age_endnode(PG_FUNCTION_ARGS)
     Assert(agtv_object->type == AGTV_STRING);
     graph_name = strndup(agtv_object->val.string.val,
                          agtv_object->val.string.len);
+    graph_oid = get_graph_oid(graph_name);
 
     /* get the edge */
     agt_arg = AG_GET_ARG_AGTYPE_P(1);
@@ -5095,22 +5088,24 @@ Datum age_endnode(PG_FUNCTION_ARGS)
     Assert(agtv_value != NULL);
     Assert(agtv_value->type = AGTV_INTEGER);
     end_id = agtv_value->val.int_value;
-    
+
     /* get the end label_id*/
     agtv_value = GET_AGTYPE_VALUE_OBJECT_VALUE(agtv_object, "end_label_id");
     /* it must not be null and must be an integer */
     Assert(agtv_value != NULL);
-    Assert(agtv_value->type = AGTV_INTEGER);
-    end_label_id = agtv_value->val.int_value;
+    Assert(agtv_value->type = AGTV_ARRAY);
+    end_label_id = agtv_value;
+
+    end_label_id_datum =
+        DirectFunctionCall1(agtype_to_int4_array,
+        PointerGetDatum(agtype_value_to_agtype(end_label_id)));
 
     /* get the label */
-    label_name = get_label_name(graph_name, end_label_id);
+    label_name = DatumGetCString(get_label_name_from_label_id(graph_oid, end_label_id_datum));
     /* it must not be null and must be a string */
     Assert(label_name != NULL);
 
     result = get_vertex(graph_name, label_name, end_id);
-
-    free(label_name);
 
     return result;
 }
@@ -5255,7 +5250,7 @@ Datum age_start_label_id(PG_FUNCTION_ARGS)
                                                 edge_obj_start_label_id);
 
     Assert(agtv_result != NULL);
-    Assert(agtv_result->type = AGTV_INTEGER);
+    Assert(agtv_result->type = AGTV_ARRAY);
 
     PG_RETURN_POINTER(agtype_value_to_agtype(agtv_result));
 }
@@ -5294,7 +5289,7 @@ Datum age_end_label_id(PG_FUNCTION_ARGS)
                                                 edge_obj_end_label_id);
 
     Assert(agtv_result != NULL);
-    Assert(agtv_result->type = AGTV_INTEGER);
+    Assert(agtv_result->type = AGTV_ARRAY);
 
     PG_RETURN_POINTER(agtype_value_to_agtype(agtv_result));
 }
@@ -10214,15 +10209,18 @@ agtype_value *agtype_value_build_vertex(graphid id, char *label,
 agtype_value *agtype_value_build_edge(int64 id, int64 end_id, int64 start_id,
                                       char* label, char* start_label_name,
                                       char* end_label_name,
-                                      int32 start_label_id,
-                                      int32 end_label_id, Datum properties)
+                                      Datum start_label_id,
+                                      Datum end_label_id, Datum properties)
 {
     agtype_in_state result;
+    agtype_in_state *start_label_id_agt, *end_label_id_agt;
 
     /* the label can't be NULL */
     Assert(label != NULL);
 
     memset(&result, 0, sizeof(agtype_in_state));
+    start_label_id_agt = palloc0(sizeof(agtype_in_state));
+    end_label_id_agt = palloc0(sizeof(agtype_in_state));
 
     /* push in the object beginning */
     result.res = push_agtype_value(&result.parse_state, WAGT_BEGIN_OBJECT,
@@ -10254,8 +10252,19 @@ agtype_value *agtype_value_build_edge(int64 id, int64 end_id, int64 start_id,
     /* push the end vertex label id key/value pair */
     result.res = push_agtype_value(&result.parse_state, WAGT_KEY,
                                    string_to_agtype_value(edge_obj_end_label_id));
-    result.res = push_agtype_value(&result.parse_state, WAGT_VALUE,
-                                   integer_to_agtype_value(end_label_id));
+    array_to_agtype_internal(end_label_id, end_label_id_agt);
+
+    result.res = push_agtype_value(&result.parse_state, WAGT_BEGIN_ARRAY,
+                                   NULL);
+
+    for (int i = 0; i < end_label_id_agt->res->val.array.num_elems; i++)
+    {
+        agtype_value elem = end_label_id_agt->res->val.array.elems[i];
+        result.res = push_agtype_value(&result.parse_state, WAGT_ELEM,
+                                       &elem);
+    }
+    result.res = push_agtype_value(&result.parse_state, WAGT_END_ARRAY,
+                                   NULL);
 
     /* push the end vertex label name key/value pair */
     result.res = push_agtype_value(&result.parse_state, WAGT_KEY,
@@ -10266,8 +10275,19 @@ agtype_value *agtype_value_build_edge(int64 id, int64 end_id, int64 start_id,
     /* push the start vertex label id key/value pair */
     result.res = push_agtype_value(&result.parse_state, WAGT_KEY,
                                    string_to_agtype_value(edge_obj_start_label_id));
-    result.res = push_agtype_value(&result.parse_state, WAGT_VALUE,
-                                   integer_to_agtype_value(start_label_id));
+    array_to_agtype_internal(start_label_id, start_label_id_agt);
+
+    result.res = push_agtype_value(&result.parse_state, WAGT_BEGIN_ARRAY,
+                                   NULL);
+
+    for (int i = 0; i < start_label_id_agt->res->val.array.num_elems; i++)
+    {
+        agtype_value elem = start_label_id_agt->res->val.array.elems[i];
+        result.res = push_agtype_value(&result.parse_state, WAGT_ELEM,
+                                       &elem);
+    }
+    result.res = push_agtype_value(&result.parse_state, WAGT_END_ARRAY,
+                                   NULL);
 
     /* push the start vertex label name key/value pair */
     result.res = push_agtype_value(&result.parse_state, WAGT_KEY,

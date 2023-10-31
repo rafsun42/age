@@ -1597,13 +1597,13 @@ SELECT agtype_in('{"id":0, "label": "v", "properties":{"i":0}}::vertex') < agtyp
  t
 (1 row)
 
-SELECT agtype_in('{"id":2, "start_id":0, "end_id":1, "label": "e", "properties":{"i":0}, "end_label_id": 3, "end_label_name": "vlabel", "start_label_id": 1, "start_label_name": ""}::edge') < agtype_in('{"id":0, "label": "v", "properties":{"i":0}}::vertex');
+SELECT agtype_in('{"id":2, "start_id":0, "end_id":1, "label": "e", "properties":{"i":0}, "end_label_id": [3], "end_label_name": "vlabel", "start_label_id": [1], "start_label_name": ""}::edge') < agtype_in('{"id":0, "label": "v", "properties":{"i":0}}::vertex');
  ?column? 
 ----------
  t
 (1 row)
 
-SELECT agtype_in('[{"id": 0, "label": "v", "properties": {"i": 0}}::vertex, {"id": 2, "start_id": 0, "end_id": 1, "label": "e", "properties": {"i": 0}, "end_label_id": 3, "end_label_name": "vlabel", "start_label_id": 1, "start_label_name": ""}::edge, {"id": 1, "label": "v", "properties": {"i": 0}}::vertex]::path') < agtype_in('{"id":2, "start_id":0, "end_id":1, "label": "e", "properties":{"i":0}, "end_label_id": 3, "end_label_name": "vlabel", "start_label_id": 1, "start_label_name": ""}::edge');
+SELECT agtype_in('[{"id": 0, "label": "v", "properties": {"i": 0}}::vertex, {"id": 2, "start_id": 0, "end_id": 1, "label": "e", "properties": {"i": 0}, "end_label_id": [3], "end_label_name": "vlabel", "start_label_id": [1], "start_label_name": ""}::edge, {"id": 1, "label": "v", "properties": {"i": 0}}::vertex]::path') < agtype_in('{"id":2, "start_id":0, "end_id":1, "label": "e", "properties":{"i":0}, "end_label_id": [3], "end_label_name": "vlabel", "start_label_id": [1], "start_label_name": ""}::edge');
  ?column? 
 ----------
  t
@@ -1629,16 +1629,16 @@ NOTICE:  graph "orderability_graph" has been created
  
 (1 row)
 
-SELECT * FROM cypher('orderability_graph', $$ CREATE (:vertex {prop: null}), (:vertex {prop: 1}), (:vertex {prop: 1.01}),(:vertex {prop: true}), (:vertex {prop:"string"}),(:vertex {prop:"string_2"}), (:vertex {prop:[1, 2, 3]}), (:vertex {prop:[1, 2, 3, 4, 5]}), (:vertex {prop:{bool:true, i:0}}), (:vertex {prop:{bool:true, i:null}}), (:vertex {prop: {id:0, label: "v", properties:{i:0}}::vertex}),  (:vertex {prop: {id: 2, start_id: 0, end_id: 1, label: "e", properties: {i: 0}, end_label_id: 3, end_label_name: "vertex", start_label_id: 3, start_label_name: "vertex"}::edge}), (:vertex {prop: [{id: 0, label: "v", properties: {i: 0}}::vertex, {id: 2, start_id: 0, end_id: 1, label: "e", properties: {i: 0}, end_label_id: 3, end_label_name: "vertex", start_label_id: 3, start_label_name: "vertex"}::edge, {id: 1, label: "v", properties: {i: 0}}::vertex]::path}) $$)  AS (x agtype);
+SELECT * FROM cypher('orderability_graph', $$ CREATE (:vertex {prop: null}), (:vertex {prop: 1}), (:vertex {prop: 1.01}),(:vertex {prop: true}), (:vertex {prop:"string"}),(:vertex {prop:"string_2"}), (:vertex {prop:[1, 2, 3]}), (:vertex {prop:[1, 2, 3, 4, 5]}), (:vertex {prop:{bool:true, i:0}}), (:vertex {prop:{bool:true, i:null}}), (:vertex {prop: {id:0, label: "v", properties:{i:0}}::vertex}),  (:vertex {prop: {id: 2, start_id: 0, end_id: 1, label: "e", properties: {i: 0}, end_label_id: [3], end_label_name: "vertex", start_label_id: [3], start_label_name: "vertex"}::edge}), (:vertex {prop: [{id: 0, label: "v", properties: {i: 0}}::vertex, {id: 2, start_id: 0, end_id: 1, label: "e", properties: {i: 0}, end_label_id: [3], end_label_name: "vertex", start_label_id: [3], start_label_name: "vertex"}::edge, {id: 1, label: "v", properties: {i: 0}}::vertex]::path}) $$)  AS (x agtype);
  x 
 ---
 (0 rows)
 
 SELECT * FROM cypher('orderability_graph', $$ MATCH (n) RETURN n ORDER BY n.prop $$) AS (sorted agtype);
-                                                                                                                                                                                    sorted                                                                                                                                                                                    
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 13, "label": "vertex", "properties": {"prop": [{"id": 0, "label": "v", "properties": {"i": 0}}::vertex, {"id": 2, "label": "e", "end_id": 1, "start_id": 0, "properties": {"i": 0}, "end_label_id": 3, "end_label_name": "vertex", "start_label_id": 3, "start_label_name": "vertex"}::edge, {"id": 1, "label": "v", "properties": {"i": 0}}::vertex]::path}}::vertex
- {"id": 12, "label": "vertex", "properties": {"prop": {"id": 2, "label": "e", "end_id": 1, "start_id": 0, "properties": {"i": 0}, "end_label_id": 3, "end_label_name": "vertex", "start_label_id": 3, "start_label_name": "vertex"}::edge}}::vertex
+                                                                                                                                                                                      sorted                                                                                                                                                                                      
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 13, "label": "vertex", "properties": {"prop": [{"id": 0, "label": "v", "properties": {"i": 0}}::vertex, {"id": 2, "label": "e", "end_id": 1, "start_id": 0, "properties": {"i": 0}, "end_label_id": [3], "end_label_name": "vertex", "start_label_id": [3], "start_label_name": "vertex"}::edge, {"id": 1, "label": "v", "properties": {"i": 0}}::vertex]::path}}::vertex
+ {"id": 12, "label": "vertex", "properties": {"prop": {"id": 2, "label": "e", "end_id": 1, "start_id": 0, "properties": {"i": 0}, "end_label_id": [3], "end_label_name": "vertex", "start_label_id": [3], "start_label_name": "vertex"}::edge}}::vertex
  {"id": 11, "label": "vertex", "properties": {"prop": {"id": 0, "label": "v", "properties": {"i": 0}}::vertex}}::vertex
  {"id": 10, "label": "vertex", "properties": {"prop": {"bool": true}}}::vertex
  {"id": 9, "label": "vertex", "properties": {"prop": {"i": 0, "bool": true}}}::vertex
@@ -1653,8 +1653,8 @@ SELECT * FROM cypher('orderability_graph', $$ MATCH (n) RETURN n ORDER BY n.prop
 (13 rows)
 
 SELECT * FROM cypher('orderability_graph', $$ MATCH (n) RETURN n ORDER BY n.prop DESC $$) AS (sorted agtype);
-                                                                                                                                                                                    sorted                                                                                                                                                                                    
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                                                                                                                                                                                      sorted                                                                                                                                                                                      
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  {"id": 1, "label": "vertex", "properties": {}}::vertex
  {"id": 3, "label": "vertex", "properties": {"prop": 1.01}}::vertex
  {"id": 2, "label": "vertex", "properties": {"prop": 1}}::vertex
@@ -1666,8 +1666,8 @@ SELECT * FROM cypher('orderability_graph', $$ MATCH (n) RETURN n ORDER BY n.prop
  {"id": 9, "label": "vertex", "properties": {"prop": {"i": 0, "bool": true}}}::vertex
  {"id": 10, "label": "vertex", "properties": {"prop": {"bool": true}}}::vertex
  {"id": 11, "label": "vertex", "properties": {"prop": {"id": 0, "label": "v", "properties": {"i": 0}}::vertex}}::vertex
- {"id": 12, "label": "vertex", "properties": {"prop": {"id": 2, "label": "e", "end_id": 1, "start_id": 0, "properties": {"i": 0}, "end_label_id": 3, "end_label_name": "vertex", "start_label_id": 3, "start_label_name": "vertex"}::edge}}::vertex
- {"id": 13, "label": "vertex", "properties": {"prop": [{"id": 0, "label": "v", "properties": {"i": 0}}::vertex, {"id": 2, "label": "e", "end_id": 1, "start_id": 0, "properties": {"i": 0}, "end_label_id": 3, "end_label_name": "vertex", "start_label_id": 3, "start_label_name": "vertex"}::edge, {"id": 1, "label": "v", "properties": {"i": 0}}::vertex]::path}}::vertex
+ {"id": 12, "label": "vertex", "properties": {"prop": {"id": 2, "label": "e", "end_id": 1, "start_id": 0, "properties": {"i": 0}, "end_label_id": [3], "end_label_name": "vertex", "start_label_id": [3], "start_label_name": "vertex"}::edge}}::vertex
+ {"id": 13, "label": "vertex", "properties": {"prop": [{"id": 0, "label": "v", "properties": {"i": 0}}::vertex, {"id": 2, "label": "e", "end_id": 1, "start_id": 0, "properties": {"i": 0}, "end_label_id": [3], "end_label_name": "vertex", "start_label_id": [3], "start_label_name": "vertex"}::edge, {"id": 1, "label": "v", "properties": {"i": 0}}::vertex]::path}}::vertex
 (13 rows)
 
 SELECT * FROM drop_graph('orderability_graph', true);
@@ -2544,37 +2544,37 @@ SELECT agtype_access_operator(
 --Basic Edge Creation
 /*
  * SQL function agtype_build_edge
- * (int64, int64, int64, cstring, cstring, cstring, int32, int32, agtype)
+ * (int64, int64, int64, cstring, cstring, cstring, int[], int[], agtype)
  */
 SELECT _agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
-			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '3'::int,
-			  '3'::int, agtype_build_map());
-                                                                                        _agtype_build_edge                                                                                        
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 1, "label": "label_name", "end_id": 3, "start_id": 2, "properties": {}, "end_label_id": 3, "end_label_name": "vertex_name", "start_label_id": 3, "start_label_name": "vertex_name"}::edge
+			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '{3}'::int[],
+			  '{3}'::int[], agtype_build_map());
+                                                                                          _agtype_build_edge                                                                                          
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "label_name", "end_id": 3, "start_id": 2, "properties": {}, "end_label_id": [3], "end_label_name": "vertex_name", "start_label_id": [3], "start_label_name": "vertex_name"}::edge
 (1 row)
 
 SELECT _agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
-			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '3'::int,
-			  '3'::int, agtype_build_map('id', 2));
-                                                                                           _agtype_build_edge                                                                                            
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 1, "label": "label_name", "end_id": 3, "start_id": 2, "properties": {"id": 2}, "end_label_id": 3, "end_label_name": "vertex_name", "start_label_id": 3, "start_label_name": "vertex_name"}::edge
+			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '{3}'::int[],
+			  '{3}'::int[], agtype_build_map('id', 2));
+                                                                                             _agtype_build_edge                                                                                              
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "label_name", "end_id": 3, "start_id": 2, "properties": {"id": 2}, "end_label_id": [3], "end_label_name": "vertex_name", "start_label_id": [3], "start_label_name": "vertex_name"}::edge
 (1 row)
 
 --Null properties
 SELECT _agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
-			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '3'::int,
-			  '3'::int, NULL);
-                                                                                        _agtype_build_edge                                                                                        
---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 1, "label": "label_name", "end_id": 3, "start_id": 2, "properties": {}, "end_label_id": 3, "end_label_name": "vertex_name", "start_label_id": 3, "start_label_name": "vertex_name"}::edge
+			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '{3}'::int[],
+			  '{3}'::int[], NULL);
+                                                                                          _agtype_build_edge                                                                                          
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "label_name", "end_id": 3, "start_id": 2, "properties": {}, "end_label_id": [3], "end_label_name": "vertex_name", "start_label_id": [3], "start_label_name": "vertex_name"}::edge
 (1 row)
 
 --Test access operator
 SELECT agtype_access_operator(_agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
-			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '3'::int,
-			  '3'::int, agtype_build_map('id', 2)),'"id"');
+			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '{3}'::int[],
+			  '{3}'::int[], agtype_build_map('id', 2)),'"id"');
  agtype_access_operator 
 ------------------------
  2
@@ -2584,112 +2584,112 @@ SELECT agtype_access_operator(_agtype_build_edge('1'::bigint, '2'::bigint, '3'::
 SELECT agtype_build_map(
 	'edge',
 	_agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
-		$$label_name$$, $$vertex_name$$, $$vertex_name$$, '3'::int,
-		'3'::int, agtype_build_map())
+		$$label_name$$, $$vertex_name$$, $$vertex_name$$, '{3}'::int[],
+		'{3}'::int[], agtype_build_map())
 );
-                                                                                              agtype_build_map                                                                                              
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"edge": {"id": 1, "label": "label_name", "end_id": 3, "start_id": 2, "properties": {}, "end_label_id": 3, "end_label_name": "vertex_name", "start_label_id": 3, "start_label_name": "vertex_name"}::edge}
+                                                                                                agtype_build_map                                                                                                
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"edge": {"id": 1, "label": "label_name", "end_id": 3, "start_id": 2, "properties": {}, "end_label_id": [3], "end_label_name": "vertex_name", "start_label_id": [3], "start_label_name": "vertex_name"}::edge}
 (1 row)
 
 SELECT agtype_access_operator(
         agtype_build_map(
             'edge',
 			_agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
-			$$label_name$$, $$vertex_name$$, $$vertex_name$$, '3'::int,
-			'3'::int, agtype_build_map('key', 'value')),
+			$$label_name$$, $$vertex_name$$, $$vertex_name$$, '{3}'::int[],
+			'{3}'::int[], agtype_build_map('key', 'value')),
             'other_edge',
 			_agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
-			$$label_name$$, $$vertex_name$$, $$vertex_name$$, '3'::int,
-			'3'::int, agtype_build_map('key', 'other_value'))),
+			$$label_name$$, $$vertex_name$$, $$vertex_name$$, '{3}'::int[],
+			'{3}'::int[], agtype_build_map('key', 'other_value'))),
         '"edge"');
-                                                                                             agtype_access_operator                                                                                             
-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 1, "label": "label_name", "end_id": 3, "start_id": 2, "properties": {"key": "value"}, "end_label_id": 3, "end_label_name": "vertex_name", "start_label_id": 3, "start_label_name": "vertex_name"}::edge
+                                                                                               agtype_access_operator                                                                                               
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "label_name", "end_id": 3, "start_id": 2, "properties": {"key": "value"}, "end_label_id": [3], "end_label_name": "vertex_name", "start_label_id": [3], "start_label_name": "vertex_name"}::edge
 (1 row)
 
 --Edge in a list
 SELECT agtype_build_list(
 	_agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
-			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '3'::int,
-			  '3'::int, agtype_build_map()),
+			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '{3}'::int[],
+			  '{3}'::int[], agtype_build_map()),
 	_agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
-			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '3'::int,
-			  '3'::int, agtype_build_map()));
-                                                                                                                                                                                          agtype_build_list                                                                                                                                                                                           
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 1, "label": "label_name", "end_id": 3, "start_id": 2, "properties": {}, "end_label_id": 3, "end_label_name": "vertex_name", "start_label_id": 3, "start_label_name": "vertex_name"}::edge, {"id": 1, "label": "label_name", "end_id": 3, "start_id": 2, "properties": {}, "end_label_id": 3, "end_label_name": "vertex_name", "start_label_id": 3, "start_label_name": "vertex_name"}::edge]
+			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '{3}'::int[],
+			  '{3}'::int[], agtype_build_map()));
+                                                                                                                                                                                              agtype_build_list                                                                                                                                                                                               
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 1, "label": "label_name", "end_id": 3, "start_id": 2, "properties": {}, "end_label_id": [3], "end_label_name": "vertex_name", "start_label_id": [3], "start_label_name": "vertex_name"}::edge, {"id": 1, "label": "label_name", "end_id": 3, "start_id": 2, "properties": {}, "end_label_id": [3], "end_label_name": "vertex_name", "start_label_id": [3], "start_label_name": "vertex_name"}::edge]
 (1 row)
 
 SELECT agtype_access_operator(
 	agtype_build_list(
 		_agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
-			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '3'::int,
-			  '3'::int, agtype_build_map('id', 3)),
+			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '{3}'::int[],
+			  '{3}'::int[], agtype_build_map('id', 3)),
 		_agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
-			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '3'::int,
-			  '3'::int, agtype_build_map('id', 4))), '0');
-                                                                                         agtype_access_operator                                                                                          
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 1, "label": "label_name", "end_id": 3, "start_id": 2, "properties": {"id": 3}, "end_label_id": 3, "end_label_name": "vertex_name", "start_label_id": 3, "start_label_name": "vertex_name"}::edge
+			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '{3}'::int[],
+			  '{3}'::int[], agtype_build_map('id', 4))), '0');
+                                                                                           agtype_access_operator                                                                                            
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 1, "label": "label_name", "end_id": 3, "start_id": 2, "properties": {"id": 3}, "end_label_id": [3], "end_label_name": "vertex_name", "start_label_id": [3], "start_label_name": "vertex_name"}::edge
 (1 row)
 
 -- Path
 SELECT _agtype_build_path(
 	_agtype_build_vertex('2'::graphid, $$label_name$$, agtype_build_map()),
 	_agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
-			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '3'::int,
-			  '3'::int, agtype_build_map('id', 2)),
+			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '{3}'::int[],
+			  '{3}'::int[], agtype_build_map('id', 2)),
 	_agtype_build_vertex('3'::graphid, $$label_name$$, agtype_build_map())
 );
-                                                                                                                                                           _agtype_build_path                                                                                                                                                            
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 2, "label": "label_name", "properties": {}}::vertex, {"id": 1, "label": "label_name", "end_id": 3, "start_id": 2, "properties": {"id": 2}, "end_label_id": 3, "end_label_name": "vertex_name", "start_label_id": 3, "start_label_name": "vertex_name"}::edge, {"id": 3, "label": "label_name", "properties": {}}::vertex]::path
+                                                                                                                                                             _agtype_build_path                                                                                                                                                              
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 2, "label": "label_name", "properties": {}}::vertex, {"id": 1, "label": "label_name", "end_id": 3, "start_id": 2, "properties": {"id": 2}, "end_label_id": [3], "end_label_name": "vertex_name", "start_label_id": [3], "start_label_name": "vertex_name"}::edge, {"id": 3, "label": "label_name", "properties": {}}::vertex]::path
 (1 row)
 
 --All these paths should produce Errors
 SELECT _agtype_build_path(
 	_agtype_build_vertex('2'::graphid, $$label_name$$, agtype_build_map()),
 	_agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
-			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '3'::int,
-			  '3'::int, agtype_build_map('id', 2))
+			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '{3}'::int[],
+			  '{3}'::int[], agtype_build_map('id', 2))
 );
 ERROR:  a path is of the form: [vertex, (edge, vertex)*i] where i >= 0
 SELECT _agtype_build_path(
        _agtype_build_vertex('2'::graphid, $$label_name$$, agtype_build_map()),
        _agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
-			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '3'::int,
-			  '3'::int, agtype_build_map('id', 2)),
+			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '{3}'::int[],
+			  '{3}'::int[], agtype_build_map('id', 2)),
        _agtype_build_vertex('3'::graphid, $$label_name$$, agtype_build_map()),
        _agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
-			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '3'::int,
-			  '3'::int, agtype_build_map('id', 2))
+			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '{3}'::int[],
+			  '{3}'::int[], agtype_build_map('id', 2))
 );
 ERROR:  a path is of the form: [vertex, (edge, vertex)*i] where i >= 0
 SELECT _agtype_build_path(
 	_agtype_build_vertex('2'::graphid, $$label_name$$, agtype_build_map()),
 	_agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
-			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '3'::int,
-			  '3'::int, agtype_build_map('id', 2)),
+			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '{3}'::int[],
+			  '{3}'::int[], agtype_build_map('id', 2)),
 	NULL
 );
 ERROR:  argument 3 must not be null
 SELECT _agtype_build_path(
 	_agtype_build_vertex('2'::graphid, $$label_name$$, agtype_build_map()),
 	_agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
-			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '3'::int,
-			  '3'::int, agtype_build_map('id', 2)),
+			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '{3}'::int[],
+			  '{3}'::int[], agtype_build_map('id', 2)),
 	1
 );
 ERROR:  argument 3 must be an agtype
 SELECT _agtype_build_path(
 	_agtype_build_vertex('2'::graphid, $$label_name$$, agtype_build_map()),
 	_agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
-			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '3'::int,
-			  '3'::int, agtype_build_map('id', 2)),
+			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '{3}'::int[],
+			  '{3}'::int[], agtype_build_map('id', 2)),
 	_agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
-			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '3'::int,
-			  '3'::int, agtype_build_map('id', 2))
+			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '{3}'::int[],
+			  '{3}'::int[], agtype_build_map('id', 2))
 );
 ERROR:  paths consist of alternating vertices and edges
 HINT:  argument 3 must be an vertex
@@ -2703,24 +2703,24 @@ SELECT age_id(_agtype_build_vertex('1'::graphid, $$label_name$$, agtype_build_ma
 (1 row)
 
 SELECT age_id(_agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
-			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '3'::int,
-			  '3'::int, agtype_build_map('id', 2)));
+			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '{3}'::int[],
+			  '{3}'::int[], agtype_build_map('id', 2)));
  age_id 
 --------
  1
 (1 row)
 
 SELECT age_start_id(_agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
-			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '3'::int,
-			  '3'::int, agtype_build_map('id', 2)));
+			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '{3}'::int[],
+			  '{3}'::int[], agtype_build_map('id', 2)));
  age_start_id 
 --------------
  2
 (1 row)
 
 SELECT age_end_id(_agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
-			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '3'::int,
-			  '3'::int, agtype_build_map('id', 2)));
+			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '{3}'::int[],
+			  '{3}'::int[], agtype_build_map('id', 2)));
  age_end_id 
 ------------
  3
@@ -2729,8 +2729,8 @@ SELECT age_end_id(_agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
 SELECT age_id(_agtype_build_path(
 	_agtype_build_vertex('2'::graphid, $$label_name$$, agtype_build_map()),
 	_agtype_build_edge('1'::bigint, '2'::bigint, '3'::bigint,
-			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '3'::int,
-			  '3'::int, agtype_build_map('id', 2)),
+			  $$label_name$$, $$vertex_name$$, $$vertex_name$$, '{3}'::int[],
+			  '{3}'::int[], agtype_build_map('id', 2)),
 	_agtype_build_vertex('3'::graphid, $$label$$, agtype_build_map('id', 2))
 ));
 ERROR:  id() argument must be a vertex, an edge or null
@@ -3059,7 +3059,7 @@ SELECT agtype_hash_cmp('{"id":2, "start_id":1, "end_id": 3, "label":"elabel", "p
       1064722414
 (1 row)
 
-SELECT agtype_hash_cmp('{"id":2, "start_id":1, "end_id": 3, "label":"elabel", "properties":{}, "end_label_id": 3, "end_label_name": "vlabel", "start_label_id": 1, "start_label_name": ""}::edge'::agtype);
+SELECT agtype_hash_cmp('{"id":2, "start_id":1, "end_id": 3, "label":"elabel", "properties":{}, "end_label_id": [3], "end_label_name": "vlabel", "start_label_id": [1], "start_label_name": ""}::edge'::agtype);
  agtype_hash_cmp 
 -----------------
      -1790838958
@@ -3067,7 +3067,7 @@ SELECT agtype_hash_cmp('{"id":2, "start_id":1, "end_id": 3, "label":"elabel", "p
 
 SELECT agtype_hash_cmp('
 	[{"id":1, "label":"test", "properties":{"id":100}}::vertex,
-	 {"id":2, "start_id":1, "end_id": 3, "label":"elabel", "properties":{}, "end_label_id": 3, "end_label_name": "vlabel", "start_label_id": 1, "start_label_name": ""}::edge,
+	 {"id":2, "start_id":1, "end_id": 3, "label":"elabel", "properties":{}, "end_label_id": [3], "end_label_name": "vlabel", "start_label_id": [1], "start_label_name": ""}::edge,
 	 {"id":5, "label":"vlabel", "properties":{}}::vertex]'::agtype);
  agtype_hash_cmp 
 -----------------
@@ -3076,7 +3076,7 @@ SELECT agtype_hash_cmp('
 
 SELECT agtype_hash_cmp('
 	[{"id":1, "label":"test", "properties":{"id":100}}::vertex,
-	 {"id":2, "start_id":1, "end_id": 3, "label":"elabel", "properties":{}, "end_label_id": 3, "end_label_name": "vlabel", "start_label_id": 1, "start_label_name": ""}::edge,
+	 {"id":2, "start_id":1, "end_id": 3, "label":"elabel", "properties":{}, "end_label_id": [3], "end_label_name": "vlabel", "start_label_id": [1], "start_label_name": ""}::edge,
 	 {"id":5, "label":"vlabel", "properties":{}}::vertex]::path'::agtype);
  agtype_hash_cmp 
 -----------------
@@ -3179,24 +3179,24 @@ SELECT agtype_btree_cmp(
 (1 row)
 
 SELECT agtype_btree_cmp(
-	'{"id":2, "start_id":1, "end_id": 3, "label":"elabel", "properties":{}, "end_label_id": 3, "end_label_name": "vlabel", "start_label_id": 1, "start_label_name": ""}::edge'::agtype,
-	'{"id":2, "start_id":1, "end_id": 3, "label":"elabel", "properties":{}, "end_label_id": 3, "end_label_name": "vlabel", "start_label_id": 1, "start_label_name": ""}::edge'::agtype);
+	'{"id":2, "start_id":1, "end_id": 3, "label":"elabel", "properties":{}, "end_label_id": [3], "end_label_name": "vlabel", "start_label_id": [1], "start_label_name": ""}::edge'::agtype,
+	'{"id":2, "start_id":1, "end_id": 3, "label":"elabel", "properties":{}, "end_label_id": [3], "end_label_name": "vlabel", "start_label_id": [1], "start_label_name": ""}::edge'::agtype);
  agtype_btree_cmp 
 ------------------
                 0
 (1 row)
 
 SELECT agtype_btree_cmp(
-	'{"id":2, "start_id":1, "end_id": 3, "label":"elabel", "properties":{"prop1": 1}, "end_label_id": 3, "end_label_name": "vlabel", "start_label_id": 1, "start_label_name": ""}::edge'::agtype,
-	'{"id":2, "start_id":4, "end_id": 5, "label":"elabel", "properties":{"prop2": 2}, "end_label_id": 3, "end_label_name": "vlabel", "start_label_id": 1, "start_label_name": ""}::edge'::agtype);
+	'{"id":2, "start_id":1, "end_id": 3, "label":"elabel", "properties":{"prop1": 1}, "end_label_id": [3], "end_label_name": "vlabel", "start_label_id": [1], "start_label_name": ""}::edge'::agtype,
+	'{"id":2, "start_id":4, "end_id": 5, "label":"elabel", "properties":{"prop2": 2}, "end_label_id": [3], "end_label_name": "vlabel", "start_label_id": [1], "start_label_name": ""}::edge'::agtype);
  agtype_btree_cmp 
 ------------------
                 0
 (1 row)
 
 SELECT agtype_btree_cmp(
-	'{"id":2, "start_id":1, "end_id": 3, "label":"elabel", "properties":{"prop1": 1}, "end_label_id": 3, "end_label_name": "vlabel", "start_label_id": 1, "start_label_name": ""}::edge'::agtype,
-	'{"id":8, "start_id":4, "end_id": 5, "label":"elabel", "properties":{"prop2": 2}, "end_label_id": 3, "end_label_name": "vlabel", "start_label_id": 1, "start_label_name": ""}::edge'::agtype);
+	'{"id":2, "start_id":1, "end_id": 3, "label":"elabel", "properties":{"prop1": 1}, "end_label_id": [3], "end_label_name": "vlabel", "start_label_id": [1], "start_label_name": ""}::edge'::agtype,
+	'{"id":8, "start_id":4, "end_id": 5, "label":"elabel", "properties":{"prop2": 2}, "end_label_id": [3], "end_label_name": "vlabel", "start_label_id": [1], "start_label_name": ""}::edge'::agtype);
  agtype_btree_cmp 
 ------------------
                -1
@@ -3204,10 +3204,10 @@ SELECT agtype_btree_cmp(
 
 SELECT agtype_btree_cmp(
 	'[{"id":1, "label":"test", "properties":{"id":100}}::vertex,
-	  {"id":2, "start_id":1, "end_id": 3, "label":"elabel", "properties":{}, "end_label_id": 3, "end_label_name": "vlabel", "start_label_id": 1, "start_label_name": ""}::edge,
+	  {"id":2, "start_id":1, "end_id": 3, "label":"elabel", "properties":{}, "end_label_id": [3], "end_label_name": "vlabel", "start_label_id": [1], "start_label_name": ""}::edge,
 	  {"id":3, "label":"vlabel", "properties":{}}::vertex]::path'::agtype,
 	'[{"id":1, "label":"test", "properties":{"id":100}}::vertex,
-	  {"id":2, "start_id":1, "end_id": 3, "label":"elabel", "properties":{}, "end_label_id": 3, "end_label_name": "vlabel", "start_label_id": 1, "start_label_name": ""}::edge,
+	  {"id":2, "start_id":1, "end_id": 3, "label":"elabel", "properties":{}, "end_label_id": [3], "end_label_name": "vlabel", "start_label_id": [1], "start_label_name": ""}::edge,
 	  {"id":3, "label":"vlabel", "properties":{}}::vertex]::path'::agtype);
  agtype_btree_cmp 
 ------------------
@@ -3216,10 +3216,10 @@ SELECT agtype_btree_cmp(
 
 SELECT agtype_btree_cmp(
 	'[{"id":1, "label":"test", "properties":{"id":100}}::vertex,
-	  {"id":2, "start_id":1, "end_id": 3, "label":"elabel", "properties":{}, "end_label_id": 3, "end_label_name": "vlabel", "start_label_id": 1, "start_label_name": ""}::edge,
+	  {"id":2, "start_id":1, "end_id": 3, "label":"elabel", "properties":{}, "end_label_id": [3], "end_label_name": "vlabel", "start_label_id": [1], "start_label_name": ""}::edge,
 	  {"id":3, "label":"vlabel", "properties":{}}::vertex]::path'::agtype,
 	'[{"id":1, "label":"test", "properties":{"id":100}}::vertex,
-	  {"id":2, "start_id":1, "end_id": 3, "label":"elabel", "properties":{}, "end_label_id": 3, "end_label_name": "vlabel", "start_label_id": 1, "start_label_name": ""}::edge,
+	  {"id":2, "start_id":1, "end_id": 3, "label":"elabel", "properties":{}, "end_label_id": [3], "end_label_name": "vlabel", "start_label_id": [1], "start_label_name": ""}::edge,
 	  {"id":4, "label":"vlabel", "properties":{}}::vertex]::path'::agtype);
  agtype_btree_cmp 
 ------------------

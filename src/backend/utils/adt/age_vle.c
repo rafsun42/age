@@ -1510,7 +1510,7 @@ static agtype_value *build_edge_list(VLE_path_container *vpc)
 
     for (index = 1; index < graphid_array_size - 1; index += 2)
     {
-        int32 start_label_id, end_label_id;
+        Datum start_label_id, end_label_id;
         char *label_name = NULL, *start_label_name, *end_label_name;
         edge_entry *ee = NULL;
         agtype_value *agtv_edge = NULL;
@@ -1584,7 +1584,7 @@ static agtype_value *build_path(VLE_path_container *vpc)
 
     for (index = 0; index < graphid_array_size; index += 2)
     {
-        int32 start_label_id, end_label_id;
+        Datum start_label_id, end_label_id;
         char *label_name = NULL, *start_label_name, *end_label_name;
         vertex_entry *ve = NULL;
         edge_entry *ee = NULL;

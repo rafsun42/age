@@ -93,9 +93,9 @@ SELECT * FROM cypher('cypher_remove', $$CREATE (:test_3 { i : 20 } )-[:test_3_ed
 (0 rows)
 
 SELECT * FROM cypher('cypher_remove', $$MATCH p=(n)-[:test_3_edge]->() REMOVE n.i RETURN p$$) AS (a agtype);
-                                                                                                                                                               a                                                                                                                                                               
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- [{"id": 7, "label": "test_3", "properties": {}}::vertex, {"id": 1, "label": "test_3_edge", "end_id": 8, "start_id": 7, "properties": {"j": 20}, "end_label_id": 5, "end_label_name": "test_3", "start_label_id": 5, "start_label_name": "test_3"}::edge, {"id": 8, "label": "test_3", "properties": {"i": 10}}::vertex]::path
+                                                                                                                                                                 a                                                                                                                                                                 
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [{"id": 7, "label": "test_3", "properties": {}}::vertex, {"id": 1, "label": "test_3_edge", "end_id": 8, "start_id": 7, "properties": {"j": 20}, "end_label_id": [5], "end_label_name": "test_3", "start_label_id": [5], "start_label_name": "test_3"}::edge, {"id": 8, "label": "test_3", "properties": {"i": 10}}::vertex]::path
 (1 row)
 
 --test 4 Edges
@@ -105,15 +105,15 @@ SELECT * FROM cypher('cypher_remove', $$CREATE (:test_4 { i : 20 } )-[:test_4_ed
 (0 rows)
 
 SELECT * FROM cypher('cypher_remove', $$MATCH ()-[n]->(:test_4) REMOVE n.i RETURN n$$) AS (a agtype);
-                                                                                                a                                                                                                
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 2, "label": "test_4_edge", "end_id": 10, "start_id": 9, "properties": {"j": 20}, "end_label_id": 7, "end_label_name": "test_4", "start_label_id": 7, "start_label_name": "test_4"}::edge
+                                                                                                  a                                                                                                  
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 2, "label": "test_4_edge", "end_id": 10, "start_id": 9, "properties": {"j": 20}, "end_label_id": [7], "end_label_name": "test_4", "start_label_id": [7], "start_label_name": "test_4"}::edge
 (1 row)
 
 SELECT * FROM cypher('cypher_remove', $$MATCH ()-[n]->(:test_4) RETURN n$$) AS (a agtype);
-                                                                                                a                                                                                                
--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 2, "label": "test_4_edge", "end_id": 10, "start_id": 9, "properties": {"j": 20}, "end_label_id": 7, "end_label_name": "test_4", "start_label_id": 7, "start_label_name": "test_4"}::edge
+                                                                                                  a                                                                                                  
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 2, "label": "test_4_edge", "end_id": 10, "start_id": 9, "properties": {"j": 20}, "end_label_id": [7], "end_label_name": "test_4", "start_label_id": [7], "start_label_name": "test_4"}::edge
 (1 row)
 
 --test 5 two REMOVE clauses
@@ -154,10 +154,10 @@ SELECT * FROM cypher('cypher_remove', $$
 	REMOVE n.y
 	RETURN n, p
 $$) AS (a agtype, b agtype);
-                                  a                                   |                                                                                                                                                                    b                                                                                                                                                                     
-----------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 2, "label": "test_1", "properties": {"a": 0, "j": 5}}::vertex | [{"id": 2, "label": "test_1", "properties": {"a": 0, "j": 5}}::vertex, {"id": 3, "label": "e", "end_id": 2, "start_id": 2, "properties": {"j": 34}, "end_label_id": 3, "end_label_name": "test_1", "start_label_id": 3, "start_label_name": "test_1"}::edge, {"id": 2, "label": "test_1", "properties": {"a": 0, "j": 5}}::vertex]::path
- {"id": 12, "label": "test_6", "properties": {"j": 5}}::vertex        | [{"id": 12, "label": "test_6", "properties": {"j": 5}}::vertex, {"id": 4, "label": "e", "end_id": 12, "start_id": 12, "properties": {"j": 34}, "end_label_id": 10, "end_label_name": "test_6", "start_label_id": 10, "start_label_name": "test_6"}::edge, {"id": 12, "label": "test_6", "properties": {"j": 5}}::vertex]::path
+                                  a                                   |                                                                                                                                                                      b                                                                                                                                                                       
+----------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 2, "label": "test_1", "properties": {"a": 0, "j": 5}}::vertex | [{"id": 2, "label": "test_1", "properties": {"a": 0, "j": 5}}::vertex, {"id": 3, "label": "e", "end_id": 2, "start_id": 2, "properties": {"j": 34}, "end_label_id": [3], "end_label_name": "test_1", "start_label_id": [3], "start_label_name": "test_1"}::edge, {"id": 2, "label": "test_1", "properties": {"a": 0, "j": 5}}::vertex]::path
+ {"id": 12, "label": "test_6", "properties": {"j": 5}}::vertex        | [{"id": 12, "label": "test_6", "properties": {"j": 5}}::vertex, {"id": 4, "label": "e", "end_id": 12, "start_id": 12, "properties": {"j": 34}, "end_label_id": [10], "end_label_name": "test_6", "start_label_id": [10], "start_label_name": "test_6"}::edge, {"id": 12, "label": "test_6", "properties": {"j": 5}}::vertex]::path
 (2 rows)
 
 SELECT * FROM cypher('cypher_remove', $$MATCH (n:test_6) RETURN n$$) AS (a agtype);
@@ -172,9 +172,9 @@ SELECT * FROM cypher('cypher_remove', $$
 	REMOVE e.y
 	RETURN e
 $$) AS (a agtype);
-                                                                                         a                                                                                         
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 5, "label": "e", "end_id": 14, "start_id": 13, "properties": {"j": 34}, "end_label_id": 1, "end_label_name": "", "start_label_id": 12, "start_label_name": "test_7"}::edge
+                                                                                           a                                                                                           
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 5, "label": "e", "end_id": 14, "start_id": 13, "properties": {"j": 34}, "end_label_id": [1], "end_label_name": "", "start_label_id": [12], "start_label_name": "test_7"}::edge
 (1 row)
 
 SELECT * FROM cypher('cypher_remove', $$MATCH (n:test_7) RETURN n$$) AS (a agtype);
@@ -444,17 +444,17 @@ SELECT * FROM cypher('cypher_remove', $$CREATE ()-[:edge_multi_property { i: 5, 
 (0 rows)
 
 SELECT * FROM cypher('cypher_remove', $$MATCH ()-[e:edge_multi_property]-() RETURN e$$) AS (a agtype);
-                                                                                                  a                                                                                                   
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 6, "label": "edge_multi_property", "end_id": 21, "start_id": 20, "properties": {"i": 5, "j": 20}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
- {"id": 6, "label": "edge_multi_property", "end_id": 21, "start_id": 20, "properties": {"i": 5, "j": 20}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
+                                                                                                    a                                                                                                     
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 6, "label": "edge_multi_property", "end_id": 21, "start_id": 20, "properties": {"i": 5, "j": 20}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
+ {"id": 6, "label": "edge_multi_property", "end_id": 21, "start_id": 20, "properties": {"i": 5, "j": 20}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
 (2 rows)
 
 SELECT * FROM cypher('cypher_remove', $$MATCH ()-[e:edge_multi_property]-() REMOVE e.i, e.j RETURN e$$) AS (a agtype);
-                                                                                           a                                                                                           
----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- {"id": 6, "label": "edge_multi_property", "end_id": 21, "start_id": 20, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
- {"id": 6, "label": "edge_multi_property", "end_id": 21, "start_id": 20, "properties": {}, "end_label_id": 1, "end_label_name": "", "start_label_id": 1, "start_label_name": ""}::edge
+                                                                                             a                                                                                             
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ {"id": 6, "label": "edge_multi_property", "end_id": 21, "start_id": 20, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
+ {"id": 6, "label": "edge_multi_property", "end_id": 21, "start_id": 20, "properties": {}, "end_label_id": [1], "end_label_name": "", "start_label_id": [1], "start_label_name": ""}::edge
 (2 rows)
 
 --Errors

@@ -153,22 +153,26 @@ int32 get_label_id(const char *label_name, Oid graph_oid)
  * instead of AG_DEFAULT_LABEL_VERTEX\EDGE. This funciton provides
  * the extra steps required to retrieve the label ID.
  */
-int32 get_label_id_from_entity(agtype_value *entity, const char *graph_name)
+ArrayType* get_label_id_from_entity(agtype_value *entity, const char *graph_name)
 {
-    Oid graph_oid;
+    ArrayType *label_id;
     graph_cache_data *gcd;
 
     gcd = search_graph_name_cache(graph_name);
-    graph_oid = get_label_id_from_entity_by_oid(entity, gcd->oid);
+    label_id = get_label_id_from_entity_by_oid(entity, gcd->oid);
 
-    return graph_oid;
+    return label_id;
 }
 
-int32 get_label_id_from_entity_by_oid(agtype_value *entity, Oid graph_oid)
+ArrayType* get_label_id_from_entity_by_oid(agtype_value *entity, Oid graph_oid)
 {
     char *label_name;
     label_cache_data *lcd;
     agtype_value *agtv_label;
+    Datum *label_id_datum;
+    ArrayType *label_id_array;
+    // TODO: remove this hard coding when "label" is an array
+    int num_labels = 1;
 
     if (entity->type != AGTV_VERTEX && entity->type != AGTV_EDGE)
     {
@@ -180,15 +184,25 @@ int32 get_label_id_from_entity_by_oid(agtype_value *entity, Oid graph_oid)
     label_name = pnstrdup(agtv_label->val.string.val,
                           agtv_label->val.string.len);
 
-    // turns empty string into default label name
-    if (strcmp(label_name, "") == 0)
+    label_id_datum = (Datum *) palloc(sizeof(Datum) * num_labels);
+
+    // TODO: iterate over the elems of "label" array
+    for (int i = 0; i < num_labels; i++)
     {
-        label_name = entity->type == AGTV_VERTEX ? AG_DEFAULT_LABEL_VERTEX :
-                                                   AG_DEFAULT_LABEL_EDGE;
+        // turns empty string into default label name
+        if (strcmp(label_name, "") == 0)
+        {
+            label_name = entity->type == AGTV_VERTEX ? AG_DEFAULT_LABEL_VERTEX :
+                                                    AG_DEFAULT_LABEL_EDGE;
+        }
+
+        lcd = search_label_name_graph_cache(label_name, graph_oid);
+        label_id_datum[i] = lcd->id;
     }
 
-    lcd = search_label_name_graph_cache(label_name, graph_oid);
-    return lcd->id;
+    label_id_array = construct_array(label_id_datum, num_labels, INT4OID, 4, true, 'i');
+
+    return label_id_array;
 }
 
 Oid get_label_relation(const char *label_name, Oid graph_oid)
@@ -260,13 +274,22 @@ PG_FUNCTION_INFO_V1(_label_name_from_label_id);
 /*
  * Using the graph and label id, find
  * the correct label name from ag_catalog.label
+ * TODO: return array of label names
  */
 Datum _label_name_from_label_id(PG_FUNCTION_ARGS)
 {
     char *label_name;
-    label_cache_data *label_cache;
+    label_cache_data *label_cache = NULL;
     Oid graph;
-    uint32 label_id;
+    ArrayType *label_id;
+    int num_elems;
+    Oid element_type = InvalidOid;
+    bool typbyval = false;
+    char typalign = 0;
+    int16 typlen = 0;
+    int nargs = 0;
+    bool *nulls_res = NULL;
+    Datum *elements = NULL;
 
     if (PG_ARGISNULL(0) || PG_ARGISNULL(1))
     {
@@ -276,9 +299,19 @@ Datum _label_name_from_label_id(PG_FUNCTION_ARGS)
 
     graph = PG_GETARG_OID(0);
 
-    label_id = PG_GETARG_INT32(1);
+    label_id = PG_GETARG_ARRAYTYPE_P(1);
+    num_elems = ArrayGetNItems(ARR_NDIM(label_id), ARR_DIMS(label_id));
 
-    label_cache = search_label_graph_oid_cache(graph, label_id);
+    element_type = ARR_ELEMTYPE(label_id);
+
+    get_typlenbyvalalign(element_type, &typlen, &typbyval, &typalign);
+    deconstruct_array(label_id, element_type, typlen, typbyval, typalign,
+                      &elements, &nulls_res, &nargs);
+
+    for (int i = 0; i < num_elems; i++)
+    {
+        label_cache = search_label_graph_oid_cache(graph, elements[i]);
+    }
 
     label_name = NameStr(label_cache->name);
 
@@ -290,10 +323,10 @@ Datum _label_name_from_label_id(PG_FUNCTION_ARGS)
     PG_RETURN_CSTRING(label_name);
 }
 
-Datum get_label_name_from_label_id(Oid graph_oid, int32 label_id)
+Datum get_label_name_from_label_id(Oid graph_oid, Datum label_id)
 {
     return DirectFunctionCall2(_label_name_from_label_id,
-                                           graph_oid, label_id);
+                               graph_oid, label_id);
 }
 
 PG_FUNCTION_INFO_V1(_label_id);

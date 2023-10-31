@@ -816,7 +816,7 @@ static Datum merge_vertex(cypher_merge_custom_scan_state *css,
         }
 
         // extract the label id
-        label_id = get_label_id_from_entity_by_oid(v, css->graph_oid);
+        label_id = PointerGetDatum(get_label_id_from_entity_by_oid(v, css->graph_oid));
 
         /* extract the id agtype field */
         id_value = GET_AGTYPE_VALUE_OBJECT_VALUE(v, "id");

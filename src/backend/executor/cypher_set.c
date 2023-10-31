@@ -415,7 +415,7 @@ static void process_update_list(CustomScanState *node)
         HeapTuple heap_tuple;
         char *clause_name = css->set_list->clause_name;
         int cid;
-        int32 label_id;
+        ArrayType *label_id;
 
         update_item = (cypher_update_item *)lfirst(lc);
 
@@ -535,6 +535,7 @@ static void process_update_list(CustomScanState *node)
         }
         else if (original_entity_value->type == AGTV_EDGE)
         {
+            ArrayType *start_label_id_arr, *end_label_id_arr;
             agtype_value *start_id = GET_AGTYPE_VALUE_OBJECT_VALUE(original_entity_value, edge_obj_start_id);
             agtype_value *end_id = GET_AGTYPE_VALUE_OBJECT_VALUE(original_entity_value, edge_obj_end_id);
             agtype_value *start_label = GET_AGTYPE_VALUE_OBJECT_VALUE(original_entity_value, edge_obj_start_label_name);
@@ -545,19 +546,25 @@ static void process_update_list(CustomScanState *node)
             char *start_label_name = pnstrdup(start_label->val.string.val, start_label->val.string.len);
             char *end_label_name = pnstrdup(end_label->val.string.val, end_label->val.string.len);
 
+            start_label_id_arr =
+                agtype_to_int_array_func_call(agtype_value_to_agtype(start_label_id));
+
+            end_label_id_arr =
+                agtype_to_int_array_func_call(agtype_value_to_agtype(end_label_id));
+
             new_entity = make_edge(Int64GetDatum(id->val.int_value),
                                    Int64GetDatum(start_id->val.int_value),
                                    Int64GetDatum(end_id->val.int_value),
                                    CStringGetDatum(label_name),
                                    CStringGetDatum(start_label_name),
                                    CStringGetDatum(end_label_name),
-                                   Int32GetDatum(start_label_id->val.int_value),
-                                   Int32GetDatum(end_label_id->val.int_value),
+                                   PointerGetDatum(start_label_id_arr),
+                                   PointerGetDatum(end_label_id_arr),
                                    AGTYPE_P_GET_DATUM(agtype_value_to_agtype(altered_properties)));
 
             slot = populate_edge_tts(slot, id, start_id, end_id,
                                      altered_properties, label_id,
-                                     start_label_id->val.int_value, end_label_id->val.int_value);
+                                     start_label_id_arr, end_label_id_arr);
         }
         else
         {

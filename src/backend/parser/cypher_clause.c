@@ -3560,15 +3560,18 @@ static A_Expr *filter_vertices_on_label_id(cypher_parsestate *cpstate,
 {
     label_cache_data *lcd = search_label_name_graph_cache(label,
                                                           cpstate->graph_oid);
-    A_Const *n;
-    int32 label_id = lcd->id;
+    A_ArrayExpr *n;
 
-    n = makeNode(A_Const);
-    n->val.ival.type = T_Integer;
-    n->val.ival.ival = label_id;
+    A_Const *label_id = makeNode(A_Const);
+    label_id->val.ival.type = T_Integer;
+    label_id->val.ival.ival = lcd->id;
+    label_id->location = -1;
+
+    n = makeNode(A_ArrayExpr);
+    n->elements = list_make1((Node *)label_id);
     n->location = -1;
 
-    return makeSimpleA_Expr(AEXPR_OP, "=", id_field, (Node *)n, -1);
+    return makeSimpleA_Expr(AEXPR_OP, "@>", id_field, (Node *)n, -1);
 }
 
 /*
@@ -4934,7 +4937,7 @@ static Node *make_edge_expr(cypher_parsestate *cpstate,
 
     func_oid = get_ag_func_oid("_agtype_build_edge", 9, INT8OID, INT8OID,
                                INT8OID, CSTRINGOID, CSTRINGOID, CSTRINGOID,
-                               INT4OID, INT4OID, AGTYPEOID);
+                               INT4ARRAYOID, INT4ARRAYOID, AGTYPEOID);
 
     id = scanNSItemForColumn(pstate, pnsi, 0, AG_EDGE_COLNAME_ID, -1);
 
@@ -4952,7 +4955,7 @@ static Node *make_edge_expr(cypher_parsestate *cpstate,
     end_label_id = scanNSItemForColumn(pstate, pnsi, 0,
                                        AG_EDGE_COLNAME_END_LABEL_ID, -1);
 
-    label_name_func_oid = get_ag_func_oid("_label_name", 2, OIDOID, INT4OID);
+    label_name_func_oid = get_ag_func_oid("_label_name", 2, OIDOID, INT4ARRAYOID);
 
     graph_oid_const = makeConst(OIDOID, -1, InvalidOid, sizeof(Oid),
                                 ObjectIdGetDatum(cpstate->graph_oid), false,
@@ -5019,7 +5022,7 @@ static Node *make_vertex_expr(cypher_parsestate *cpstate,
     label_id = scanNSItemForColumn(pstate, pnsi, 0, AG_VERTEX_COLNAME_LABEL_ID,
                                    -1);
 
-    label_name_func_oid = get_ag_func_oid("_label_name", 2, OIDOID, INT4OID);
+    label_name_func_oid = get_ag_func_oid("_label_name", 2, OIDOID, INT4ARRAYOID);
 
     graph_oid_const = makeConst(OIDOID, -1, InvalidOid, sizeof(Oid),
                                 ObjectIdGetDatum(cpstate->graph_oid), false,

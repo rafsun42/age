@@ -95,18 +95,18 @@ typedef struct cypher_merge_custom_scan_state
 
 TupleTableSlot *populate_vertex_tts(TupleTableSlot *elemTupleSlot,
                                     agtype_value *id, agtype_value *properties,
-                                    int32 label_id);
+                                    ArrayType* label_id);
 TupleTableSlot *populate_edge_tts(TupleTableSlot *elemTupleSlot,
                                   agtype_value *id, agtype_value *startid,
                                   agtype_value *endid,
-                                  agtype_value *properties, int32 label_id,
-                                  int32 start_label_id, int32 end_label_id);
+                                  agtype_value *properties, ArrayType *label_id,
+                                  ArrayType *start_label_id, ArrayType *end_label_id);
 
 ResultRelInfo *create_entity_result_rel_info(EState *estate, char *graph_name,
                                              char *label_name);
 void destroy_entity_result_rel_info(ResultRelInfo *result_rel_info);
 
-bool entity_exists(EState *estate, Oid graph_oid, int64 id, int32 label_id);
+bool entity_exists(EState *estate, Oid graph_oid, int64 id, Datum label_id);
 HeapTuple insert_entity_tuple(ResultRelInfo *resultRelInfo,
                               TupleTableSlot *elemTupleSlot,
                               EState *estate);

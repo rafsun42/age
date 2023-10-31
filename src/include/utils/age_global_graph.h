@@ -60,6 +60,6 @@ Oid get_edge_entry_label_table_oid(edge_entry *ee);
 Datum get_edge_entry_properties(edge_entry *ee);
 graphid get_edge_entry_start_vertex_id(edge_entry *ee);
 graphid get_edge_entry_end_vertex_id(edge_entry *ee);
-int32 get_edge_entry_start_label_id(edge_entry *ee);
-int32 get_edge_entry_end_label_id(edge_entry *ee);
+Datum get_edge_entry_start_label_id(edge_entry *ee);
+Datum get_edge_entry_end_label_id(edge_entry *ee);
 #endif

@@ -71,9 +71,9 @@ typedef struct edge_entry
     Datum edge_properties;         /* datum property value */
     graphid start_vertex_id;       /* start vertex */
     graphid end_vertex_id;         /* end vertex */
-    int32 edge_label_id;           /* label id */
-    int32 start_label_id;          /* start vertex label id */
-    int32 end_label_id;            /* end vertex label id */
+    Datum edge_label_id;           /* label id */
+    Datum start_label_id;          /* start vertex label id */
+    Datum end_label_id;            /* end vertex label id */
 } edge_entry;
 
 /*
@@ -114,8 +114,8 @@ static List *get_ag_labels_names(Snapshot snapshot, Oid graph_oid,
 static bool insert_edge(GRAPH_global_context *ggctx, graphid edge_id,
                         Datum edge_properties, graphid start_vertex_id,
                         graphid end_vertex_id, Oid edge_label_table_oid,
-                        int32 edge_label_id, int32 start_label_id,
-                        int32 end_label_id);
+                        Datum edge_label_id, Datum start_label_id,
+                        Datum end_label_id);
 static bool insert_vertex_edge(GRAPH_global_context *ggctx,
                                graphid start_vertex_id, graphid end_vertex_id,
                                graphid edge_id);
@@ -258,8 +258,8 @@ static List *get_ag_labels_names(Snapshot snapshot, Oid graph_oid,
 static bool insert_edge(GRAPH_global_context *ggctx, graphid edge_id,
                         Datum edge_properties, graphid start_vertex_id,
                         graphid end_vertex_id, Oid edge_label_table_oid,
-                        int32 edge_label_id, int32 start_label_id,
-                        int32 end_label_id)
+                        Datum edge_label_id, Datum start_label_id,
+                        Datum end_label_id)
 {
     edge_entry *value = NULL;
     bool found = false;
@@ -466,7 +466,7 @@ static void load_vertex_hashtable(GRAPH_global_context *ggctx)
 
             /* get the vertex label id */
             vertex_label_id = DatumGetInt32(column_get_datum(
-                tupdesc, tuple, 2, "label_id", INT4OID, true));
+                tupdesc, tuple, 2, "label_id", INT4ARRAYOID, true));
 
             /* insert vertex into vertex hashtable */
             inserted = insert_vertex_entry(ggctx, vertex_id,
@@ -558,9 +558,9 @@ static void load_edge_hashtable(GRAPH_global_context *ggctx)
             graphid edge_vertex_start_id;
             graphid edge_vertex_end_id;
             Datum edge_properties;
-            int32 edge_label_id;
-            int32 start_label_id;
-            int32 end_label_id;
+            Datum edge_label_id;
+            Datum start_label_id;
+            Datum end_label_id;
             bool inserted = false;
 
             /* something is wrong if this isn't true */
@@ -584,16 +584,16 @@ static void load_edge_hashtable(GRAPH_global_context *ggctx)
                                                AGTYPEOID, true);
 
             /* get the edge label id */
-            edge_label_id = DatumGetInt32(column_get_datum(
-                tupdesc, tuple, 4, "label_id", INT4OID, true));
+            edge_label_id = column_get_datum(
+                tupdesc, tuple, 4, "label_id", INT4ARRAYOID, true);
 
             /* get the start vertex label id */
-            start_label_id = DatumGetInt32(column_get_datum(
-                tupdesc, tuple, 5, "start_label_id", INT4OID, true));
+            start_label_id = column_get_datum(
+                tupdesc, tuple, 5, "start_label_id", INT4ARRAYOID, true);
 
             /* get the end vertex label id */
-            end_label_id = DatumGetInt32(column_get_datum(
-                tupdesc, tuple, 6, "end_label_id", INT4OID, true));
+            end_label_id = column_get_datum(
+                tupdesc, tuple, 6, "end_label_id", INT4ARRAYOID, true);
 
             /* insert edge into edge hashtable */
             inserted = insert_edge(ggctx, edge_id, edge_properties,
@@ -1034,12 +1034,12 @@ graphid get_edge_entry_end_vertex_id(edge_entry *ee)
     return ee->end_vertex_id;
 }
 
-int32 get_edge_entry_start_label_id(edge_entry *ee)
+Datum get_edge_entry_start_label_id(edge_entry *ee)
 {
     return ee->start_label_id;
 }
 
-int32 get_edge_entry_end_label_id(edge_entry *ee)
+Datum get_edge_entry_end_label_id(edge_entry *ee)
 {
     return ee->end_label_id;
 }

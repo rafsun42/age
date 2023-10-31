@@ -400,9 +400,9 @@ static void create_table_for_label(char *graph_name, char *label_name,
    "start_id" eid NOT NULL
    "end_id" eid NOT NULL
    "properties" agtype NOT NULL DEFAULT "ag_catalog"."agtype_build_map"()
-   "label_id" integer NOT NULL DEFAULT "ag_catalog"."_label_id(...)"
-   "start_label_id" integer NOT NULL
-   "end_label_id" integer NOT NULL
+   "label_id" integer array NOT NULL DEFAULT "ag_catalog"."_label_id(...)"
+   "start_label_id" integer array NOT NULL
+   "end_label_id" integer array NOT NULL
  */
 static List *create_edge_table_elements(char *graph_name, char *label_name,
                                         char *schema_name, char *rel_name,
@@ -438,21 +438,21 @@ static List *create_edge_table_elements(char *graph_name, char *label_name,
     props->constraints = list_make2(build_not_null_constraint(),
                                     build_properties_default());
 
-    // "label_id" integer NOT NULL DEFAULT "ag_catalog"."_label_id(...)"
-    label_id = makeColumnDef(AG_EDGE_COLNAME_LABEL_ID, INT4OID, -1,
+    // "label_id" integer array NOT NULL DEFAULT "ag_catalog"."_label_id(...)"
+    label_id = makeColumnDef(AG_EDGE_COLNAME_LABEL_ID, INT4ARRAYOID, -1,
                              InvalidOid);
     label_id->constraints =
         list_make2(build_not_null_constraint(),
                    build_label_id_default(graph_name, label_name));
 
-    // "start_label_id" integer NOT NULL
-    start_label_id = makeColumnDef(AG_EDGE_COLNAME_START_LABEL_ID, INT4OID, -1,
-                                   InvalidOid);
+    // "start_label_id" integer array NOT NULL
+    start_label_id = makeColumnDef(AG_EDGE_COLNAME_START_LABEL_ID,
+                                   INT4ARRAYOID, -1, InvalidOid);
     start_label_id->constraints = list_make1(build_not_null_constraint());
 
-    // "end_label_id" integer NOT NULL
-    end_label_id = makeColumnDef(AG_EDGE_COLNAME_END_LABEL_ID, INT4OID, -1,
-                                 InvalidOid);
+    // "end_label_id" integer array NOT NULL
+    end_label_id = makeColumnDef(AG_EDGE_COLNAME_END_LABEL_ID, INT4ARRAYOID,
+                                 -1, InvalidOid);
     end_label_id->constraints = list_make1(build_not_null_constraint());
 
     column_defs = list_make4(id, start_id, end_id, props);
@@ -466,7 +466,7 @@ static List *create_edge_table_elements(char *graph_name, char *label_name,
 // CREATE TABLE `schema_name`.`rel_name` (
 //   "id" eid PRIMARY KEY DEFAULT nextval(...),
 //   "properties" agtype NOT NULL DEFAULT "ag_catalog"."agtype_build_map"()
-//   "label_id" integer NOT NULL DEFAULT "ag_catalog"."_label_id(...)"
+//   "label_id" integer array NOT NULL DEFAULT "ag_catalog"."_label_id(...)"
 // )
 static List *create_vertex_table_elements(char *graph_name, char *label_name,
                                           char *schema_name, char *rel_name,
@@ -488,8 +488,8 @@ static List *create_vertex_table_elements(char *graph_name, char *label_name,
     props->constraints = list_make2(build_not_null_constraint(),
                                     build_properties_default());
 
-    // "label_id" integer NOT NULL DEFAULT "ag_catalog"."_label_id(...)"
-    label_id = makeColumnDef(AG_VERTEX_COLNAME_LABEL_ID, INT4OID, -1,
+    // "label_id" integer array NOT NULL DEFAULT "ag_catalog"."_label_id(...)"
+    label_id = makeColumnDef(AG_VERTEX_COLNAME_LABEL_ID, INT4ARRAYOID, -1,
                              InvalidOid);
     label_id->constraints =
         list_make2(build_not_null_constraint(),
@@ -637,6 +637,14 @@ static FuncCall *build_label_id_default_func_call(char *graph_name,
     List *label_id_func_args;
     FuncCall *label_id_func;
 
+    List *agtype_list_func_name;
+    List *agtype_list_func_args;
+    FuncCall *agtype_list_func;
+
+    List *int_list_func_name;
+    List *int_list_func_args;
+    FuncCall *int_list_func;
+
     graph_name_const = makeNode(A_Const);
     graph_name_const->val.sval.type = T_String;
     graph_name_const->val.sval.sval = graph_name;
@@ -653,7 +661,23 @@ static FuncCall *build_label_id_default_func_call(char *graph_name,
     label_id_func = makeFuncCall(label_id_func_name, label_id_func_args,
                                  COERCE_SQL_SYNTAX, -1);
 
-    return label_id_func;
+    agtype_list_func_name = list_make2(makeString("ag_catalog"),
+                                makeString("agtype_build_list"));
+
+    agtype_list_func_args = list_make1(label_id_func);
+
+    agtype_list_func = makeFuncCall(agtype_list_func_name, agtype_list_func_args,
+                                    COERCE_SQL_SYNTAX, -1);
+
+    int_list_func_name = list_make2(makeString("ag_catalog"),
+                                     makeString("agtype_to_int4_array"));
+
+    int_list_func_args = list_make1(agtype_list_func);
+
+    int_list_func = makeFuncCall(int_list_func_name, int_list_func_args,
+                                  COERCE_SQL_SYNTAX, -1);
+
+    return int_list_func;
 }
 
 // DEFAULT "ag_catalog"."_label_id(...)"

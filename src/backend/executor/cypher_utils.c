@@ -38,6 +38,7 @@
 #include "parser/parsetree.h"
 #include "parser/parse_relation.h"
 #include "storage/procarray.h"
+#include "utils/lsyscache.h"
 #include "utils/rel.h"
 
 #include "catalog/ag_label.h"
@@ -100,7 +101,7 @@ void destroy_entity_result_rel_info(ResultRelInfo *result_rel_info)
 
 TupleTableSlot *populate_vertex_tts(TupleTableSlot *elemTupleSlot,
                                     agtype_value *id, agtype_value *properties,
-                                    int32 label_id)
+                                    ArrayType* label_id)
 {
     bool properties_isnull;
 
@@ -119,7 +120,7 @@ TupleTableSlot *populate_vertex_tts(TupleTableSlot *elemTupleSlot,
         AGTYPE_P_GET_DATUM(agtype_value_to_agtype(properties));
     elemTupleSlot->tts_isnull[vertex_tuple_properties] = properties_isnull;
 
-    elemTupleSlot->tts_values[vertex_tuple_label_id] = Int32GetDatum(label_id);
+    elemTupleSlot->tts_values[vertex_tuple_label_id] = PointerGetDatum(label_id);
     elemTupleSlot->tts_isnull[vertex_tuple_label_id] = false;
 
     return elemTupleSlot;
@@ -128,8 +129,8 @@ TupleTableSlot *populate_vertex_tts(TupleTableSlot *elemTupleSlot,
 TupleTableSlot *populate_edge_tts(TupleTableSlot *elemTupleSlot,
                                   agtype_value *id, agtype_value *startid,
                                   agtype_value *endid,
-                                  agtype_value *properties, int32 label_id,
-                                  int32 start_label_id, int32 end_label_id)
+                                  agtype_value *properties, ArrayType *label_id,
+                                  ArrayType *start_label_id, ArrayType *end_label_id)
 {
     bool properties_isnull;
 
@@ -168,15 +169,15 @@ TupleTableSlot *populate_edge_tts(TupleTableSlot *elemTupleSlot,
         AGTYPE_P_GET_DATUM(agtype_value_to_agtype(properties));
     elemTupleSlot->tts_isnull[edge_tuple_properties] = properties_isnull;
 
-    elemTupleSlot->tts_values[edge_tuple_label_id] = Int32GetDatum(label_id);
+    elemTupleSlot->tts_values[edge_tuple_label_id] = PointerGetDatum(label_id);
     elemTupleSlot->tts_isnull[edge_tuple_label_id] = false;
 
     elemTupleSlot->tts_values[edge_tuple_start_label_id] =
-        Int32GetDatum(start_label_id);
+        PointerGetDatum(start_label_id);
     elemTupleSlot->tts_isnull[edge_tuple_label_id] = false;
 
     elemTupleSlot->tts_values[edge_tuple_end_label_id] =
-        Int32GetDatum(end_label_id);
+        PointerGetDatum(end_label_id);
     elemTupleSlot->tts_isnull[edge_tuple_label_id] = false;
 
     return elemTupleSlot;
@@ -186,7 +187,7 @@ TupleTableSlot *populate_edge_tts(TupleTableSlot *elemTupleSlot,
  * Find out if the entity still exists. This is for 'implicit' deletion
  * of an entity.
  */
-bool entity_exists(EState *estate, Oid graph_oid, int64 id, int32 label_id)
+bool entity_exists(EState *estate, Oid graph_oid, int64 id, Datum label_id)
 {
     label_cache_data *label;
     ScanKeyData scan_keys[1];
@@ -194,32 +195,55 @@ bool entity_exists(EState *estate, Oid graph_oid, int64 id, int32 label_id)
     HeapTuple tuple;
     Relation rel;
     bool result = true;
+    ArrayType *label_id_arr = DatumGetArrayTypeP(label_id);
+    int num_elems;
+    Oid element_type = InvalidOid;
+    bool typbyval = false;
+    char typalign = 0;
+    int16 typlen = 0;
+    int nargs = 0;
+    bool *nulls_res = NULL;
+    Datum *elements = NULL;
 
     /*
      * Extract the label id from the graph id and get the table name
      * the entity is part of.
      */
 
-    label = search_label_graph_oid_cache(graph_oid, label_id);
-    ScanKeyInit(&scan_keys[0], 1, BTEqualStrategyNumber,
-                F_GRAPHIDEQ, GRAPHID_GET_DATUM(id));
+    num_elems = ArrayGetNItems(ARR_NDIM(label_id_arr), ARR_DIMS(label_id_arr));
 
-    rel = table_open(label->relation, RowExclusiveLock);
-    scan_desc = table_beginscan(rel, estate->es_snapshot, 1, scan_keys);
+    element_type = ARR_ELEMTYPE(label_id_arr);
 
-    tuple = heap_getnext(scan_desc, ForwardScanDirection);
+    get_typlenbyvalalign(element_type, &typlen, &typbyval, &typalign);
+    deconstruct_array(label_id_arr, element_type, typlen, typbyval, typalign,
+                      &elements, &nulls_res, &nargs);
 
-    /*
-     * If a single tuple was returned, the tuple is still valid, otherwise'
-     * set to false.
-     */
-    if (!HeapTupleIsValid(tuple))
+    for (int i = 0; i < num_elems; i++)
     {
-        result = false;
+        label = search_label_graph_oid_cache(graph_oid, elements[i]);
+
+        ScanKeyInit(&scan_keys[0], 1, BTEqualStrategyNumber,
+                    F_GRAPHIDEQ, GRAPHID_GET_DATUM(id));
+
+        rel = table_open(label->relation, RowExclusiveLock);
+        scan_desc = table_beginscan(rel, estate->es_snapshot, 1, scan_keys);
+
+        tuple = heap_getnext(scan_desc, ForwardScanDirection);
+
+        /*
+         * If a single tuple was returned, the tuple is still valid, otherwise'
+         * set to false.
+         */
+        if (!HeapTupleIsValid(tuple))
+        {
+            result = false;
+            break;
+        }
+
+        table_endscan(scan_desc);
+        table_close(rel, RowExclusiveLock);
     }
 
-    table_endscan(scan_desc);
-    table_close(rel, RowExclusiveLock);
     return result;
 }
 
