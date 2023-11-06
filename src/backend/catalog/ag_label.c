@@ -271,6 +271,21 @@ RangeVar *get_label_range_var(char *graph_name, Oid graph_oid,
     return makeRangeVar(graph_name, relname, 2);
 }
 
+static HeapTuple get_next_relation_tuple(Relation relation, TableScanDesc scan_desc) 
+{
+    TupleTableSlot* slot;
+    HeapTuple tuple = NULL;
+
+    slot = MakeSingleTupleTableSlot(RelationGetDescr(relation), &TTSOpsBufferHeapTuple);
+    table_scan_getnextslot(scan_desc, ForwardScanDirection, slot);
+    if (!TupIsNull(slot))
+    {
+        tuple = ExecFetchSlotHeapTuple(slot, false, NULL);
+    }
+    ExecDropSingleTupleTableSlot(slot);
+    return tuple;
+}
+
 /*
  * Retrieves a list of all the names of a graph.
  *
@@ -312,7 +327,7 @@ List *get_all_edge_labels_per_graph(EState *estate, Oid graph_oid)
         bool isNull;
         Datum datum;
 
-        tuple = heap_getnext(scan_desc, ForwardScanDirection);
+        tuple = get_next_relation_tuple(ag_label, scan_desc);
 
         // no more labels to process
         if (!HeapTupleIsValid(tuple))

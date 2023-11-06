@@ -4847,6 +4847,19 @@ static char *get_label_name(const char *graph_name, graphid element_graphid)
     return result;
 }
 
+static HeapTuple get_next_relation_tuple(Relation relation, TableScanDesc scan_desc) 
+{
+    TupleTableSlot* slot;
+    HeapTuple tuple;
+    
+    slot = table_slot_create(relation, NULL);
+    table_scan_getnextslot(scan_desc, ForwardScanDirection, slot);
+    tuple = ExecFetchSlotHeapTuple(slot, false, NULL);
+    ExecDropSingleTupleTableSlot(slot);
+
+    return tuple;
+}
+
 static Datum get_vertex(const char *graph, const char *vertex_label,
                         int64 graphid)
 {
@@ -4872,7 +4885,8 @@ static Datum get_vertex(const char *graph, const char *vertex_label,
     /* open the relation (table), begin the scan, and get the tuple  */
     graph_vertex_label = table_open(vertex_label_table_oid, ShareLock);
     scan_desc = table_beginscan(graph_vertex_label, snapshot, 1, scan_keys);
-    tuple = heap_getnext(scan_desc, ForwardScanDirection);
+    
+    tuple = get_next_relation_tuple(graph_vertex_label, scan_desc);
 
     /* bail if the tuple isn't valid */
     if (!HeapTupleIsValid(tuple))

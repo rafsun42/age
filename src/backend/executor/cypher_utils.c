@@ -166,6 +166,21 @@ TupleTableSlot *populate_edge_tts(
 }
 
 
+static HeapTuple get_next_relation_tuple(Relation relation, TableScanDesc scan_desc) 
+{
+    TupleTableSlot* slot;
+    HeapTuple tuple = NULL;
+
+    slot = MakeSingleTupleTableSlot(RelationGetDescr(relation), &TTSOpsBufferHeapTuple);
+    table_scan_getnextslot(scan_desc, ForwardScanDirection, slot);
+    if (!TupIsNull(slot))
+    {
+        tuple = ExecFetchSlotHeapTuple(slot, false, NULL);
+    }
+    ExecDropSingleTupleTableSlot(slot);
+    return tuple;
+}
+
 /*
  * Find out if the entity still exists. This is for 'implicit' deletion
  * of an entity.
@@ -192,7 +207,7 @@ bool entity_exists(EState *estate, Oid graph_oid, graphid id)
     rel = table_open(label->relation, RowExclusiveLock);
     scan_desc = table_beginscan(rel, estate->es_snapshot, 1, scan_keys);
 
-    tuple = heap_getnext(scan_desc, ForwardScanDirection);
+    tuple = get_next_relation_tuple(rel, scan_desc);
 
     /*
      * If a single tuple was returned, the tuple is still valid, otherwise'

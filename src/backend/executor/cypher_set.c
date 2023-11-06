@@ -358,6 +358,21 @@ static void update_all_paths(CustomScanState *node, graphid id,
     }
 }
 
+static HeapTuple get_next_relation_tuple(Relation relation, TableScanDesc scan_desc) 
+{
+    TupleTableSlot* slot;
+    HeapTuple tuple = NULL;
+
+    slot = MakeSingleTupleTableSlot(RelationGetDescr(relation), &TTSOpsBufferHeapTuple);
+    table_scan_getnextslot(scan_desc, ForwardScanDirection, slot);
+    if (!TupIsNull(slot))
+    {
+        tuple = ExecFetchSlotHeapTuple(slot, false, NULL);
+    }
+    ExecDropSingleTupleTableSlot(slot);
+    return tuple;
+}
+
 static void process_update_list(CustomScanState *node)
 {
     cypher_set_custom_scan_state *css = (cypher_set_custom_scan_state *)node;
@@ -583,7 +598,7 @@ static void process_update_list(CustomScanState *node)
             scan_desc = table_beginscan(resultRelInfo->ri_RelationDesc,
                                         estate->es_snapshot, 1, scan_keys);
             /* Retrieve the tuple. */
-            heap_tuple = heap_getnext(scan_desc, ForwardScanDirection);
+            heap_tuple = get_next_relation_tuple(resultRelInfo->ri_RelationDesc, scan_desc);
 
             /*
              * If the heap tuple still exists (It wasn't deleted between the

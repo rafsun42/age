@@ -192,6 +192,21 @@ static void create_GRAPH_global_hashtables(GRAPH_global_context *ggctx)
     pfree(ehn);
 }
 
+static HeapTuple get_next_relation_tuple(Relation relation, TableScanDesc scan_desc) 
+{
+    TupleTableSlot* slot;
+    HeapTuple tuple = NULL;
+
+    slot = MakeSingleTupleTableSlot(RelationGetDescr(relation), &TTSOpsBufferHeapTuple);
+    table_scan_getnextslot(scan_desc, ForwardScanDirection, slot);
+    if (!TupIsNull(slot))
+    {
+        tuple = ExecFetchSlotHeapTuple(slot, false, NULL);
+    }
+    ExecDropSingleTupleTableSlot(slot);
+    return tuple;
+}
+
 /* helper function to get a List of all label names for the specified graph */
 static List *get_ag_labels_names(Snapshot snapshot, Oid graph_oid,
                                  char label_type)
@@ -222,7 +237,7 @@ static List *get_ag_labels_names(Snapshot snapshot, Oid graph_oid,
     Assert(tupdesc->natts == Natts_ag_label);
 
     /* get all of the label names */
-    while((tuple = heap_getnext(scan_desc, ForwardScanDirection)) != NULL)
+    while((tuple = get_next_relation_tuple(ag_label, scan_desc)) != NULL)
     {
         Name label;
         bool is_null = false;
@@ -434,7 +449,7 @@ static void load_vertex_hashtable(GRAPH_global_context *ggctx)
                      ggctx->graph_name, vertex_label_name)));
         }
         /* get all tuples in table and insert them into graph hashtables */
-        while((tuple = heap_getnext(scan_desc, ForwardScanDirection)) != NULL)
+        while((tuple = get_next_relation_tuple(graph_vertex_label, scan_desc)) != NULL)
         {
             graphid vertex_id;
             Datum vertex_properties;
@@ -533,7 +548,7 @@ static void load_edge_hashtable(GRAPH_global_context *ggctx)
                      ggctx->graph_name, edge_label_name)));
         }
         /* get all tuples in table and insert them into graph hashtables */
-        while((tuple = heap_getnext(scan_desc, ForwardScanDirection)) != NULL)
+        while((tuple = get_next_relation_tuple(graph_edge_label, scan_desc)) != NULL)
         {
             graphid edge_id;
             graphid edge_vertex_start_id;

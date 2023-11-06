@@ -369,6 +369,21 @@ static void delete_entity(EState *estate, ResultRelInfo *resultRelInfo,
     estate->es_result_relations = saved_resultRels;
 }
 
+static HeapTuple get_next_relation_tuple(Relation relation, TableScanDesc scan_desc) 
+{
+    TupleTableSlot* slot;
+    HeapTuple tuple = NULL;
+
+    slot = MakeSingleTupleTableSlot(RelationGetDescr(relation), &TTSOpsBufferHeapTuple);
+    table_scan_getnextslot(scan_desc, ForwardScanDirection, slot);
+    if (!TupIsNull(slot))
+    {
+        tuple = ExecFetchSlotHeapTuple(slot, false, NULL);
+    }
+    ExecDropSingleTupleTableSlot(slot);
+    return tuple;
+}
+
 /*
  * After the delete's subtress has been processed, we then go through the list
  * of variables to be deleted.
@@ -441,7 +456,7 @@ static void process_delete_list(CustomScanState *node)
                                     estate->es_snapshot, 1, scan_keys);
 
         /* Retrieve the tuple. */
-        heap_tuple = heap_getnext(scan_desc, ForwardScanDirection);
+        heap_tuple = get_next_relation_tuple(resultRelInfo->ri_RelationDesc, scan_desc);
 
         /*
          * If the heap tuple still exists (It wasn't deleted after this variable
@@ -516,7 +531,7 @@ static void check_for_connected_edges(CustomScanState *node)
             bool found_startid = false;
             bool found_endid = false;
 
-            tuple = heap_getnext(scan_desc, ForwardScanDirection);
+            tuple = get_next_relation_tuple(resultRelInfo->ri_RelationDesc, scan_desc);
 
             /* no more tuples to process, break and scan the next label. */
             if (!HeapTupleIsValid(tuple))
