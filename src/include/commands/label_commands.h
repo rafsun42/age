@@ -21,6 +21,7 @@
 #define AG_LABEL_COMMANDS_H
 
 #include "postgres.h"
+#include "nodes/cypher_nodes.h" // TODO: maybe dont use cypher_label_expr as parameter name
 
 #define LABEL_TYPE_VERTEX 'v'
 #define LABEL_TYPE_EDGE 'e'
@@ -56,6 +57,10 @@
 
 void create_label(char *graph_name, char *label_name, char label_type,
                   List *parents);
+
+void create_label_expr_relations(Oid graphoid, char *graphname,
+                                 cypher_label_expr *label_expr,
+                                 char label_expr_kind);
 
 Datum create_vlabel(PG_FUNCTION_ARGS);
 

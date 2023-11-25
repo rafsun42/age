@@ -37,8 +37,9 @@ typedef struct label_cache_data
     Oid graph;
     int32 id;
     char kind;
-    Oid relation;
+    Oid relation; // primary
     NameData seq_name;
+    List *clusters; // List of Oids
 } label_cache_data;
 
 // callers of these functions must not modify the returned struct

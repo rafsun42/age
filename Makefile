@@ -101,9 +101,9 @@ REGRESS = scan \
           index \
           analyze \
           graph_generation \
+          multiple_label \
           name_validation \
           jsonb_operators \
-          multiple_label \
           drop
 
 srcdir=`pwd`

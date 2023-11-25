@@ -20,6 +20,7 @@
 #include "postgres.h"
 
 #include "access/heapam.h"
+#include "access/genam.h"
 #include "access/xact.h"
 #include "catalog/dependency.h"
 #include "catalog/namespace.h"
@@ -53,6 +54,7 @@
 #include "utils/agtype.h"
 #include "utils/graphid.h"
 #include "utils/name_validation.h"
+#include "parser/cypher_label_expr.h"
 
 /*
  * Relation name doesn't have to be label name but the same name is used so
@@ -86,6 +88,8 @@ static int32 get_new_label_id(Oid graph_oid, Oid nsp_id);
 static void change_label_id_default(char *graph_name, char *label_name,
                                     char *schema_name, char *seq_name,
                                     Oid relid);
+static void append_to_allrelations(Relation ag_label, char *label_name,
+                                   char *intr_relname, Oid graphoid);
 
 // drop
 static void remove_relation(List *qname);
@@ -253,6 +257,194 @@ Datum create_elabel(PG_FUNCTION_ARGS)
             (errmsg("ELabel \"%s\" has been created", NameStr(*label_name))));
 
     PG_RETURN_VOID();
+}
+
+/*
+ * Creates ag_label entries and relations required for this label_expr.
+ *
+ * The label_expr contains either single label or multiple labels. For single
+ * label, an ag_label entry is added and the primary relation is created
+ * (ag_label.relation column). The primary relation of a label contains all
+ * elements that has exactly that label (not multiple labels). This concept is
+ * not new. But, an additional concept is needed for multiple labels which is
+ * explained below.
+ *
+ * For multiple labels, the type of label expression must be AND only in this
+ * context. First, an intersection relation is created and an ag_label entry
+ * is added for it. For example, for CREATE(:A:B), there will be a separate
+ * intersection relation for :A:B containing elements that have exactly those
+ * two labels. Next, for each individual labels (i.e. A and B), the ag_label
+ * entry and the primary relation is created if does not exists already. Then,
+ * the intersection relation name is appended to the ag_label.allrelations
+ * column. The allrelations column of a label contains all relation names that
+ * has at least that label.
+ *
+ * There is a reason why an ag_label entry is created for an interseciton
+ * relation, despite not being a label. This is due to the concept of graphid,
+ * which is an entity (vertex\edge) ID has its label ID encoded in it. But, for
+ * entities with multiple labels, it is hard to encode multiple label IDs. So,
+ * the intersection relation is treated as a label by creating an ag_label
+ * entry for it so that it gets a label ID. This ID is used to generate entity
+ * IDs that belong to that intersection. Later, given an entity ID, we can
+ * extract its intersection relation's ag_label.label_id, and use that to find
+ * out which labels it has. To use this system, intersection relation names
+ * must not conflict with actual label names.
+ *
+ * See MATCH's transformation to see how these concepts are used for queries.
+ *
+ * Note: existence check for relations is done here. Caller does not need to
+ * do it.
+ */
+void create_label_expr_relations(Oid graphoid, char *graphname,
+                                 cypher_label_expr *label_expr,
+                                 char label_expr_kind)
+{
+    List *parents;
+    char *ag_label_relation;
+
+    Assert(LABEL_EXPR_TYPE(label_expr) != LABEL_EXPR_TYPE_OR);
+
+    /* set default labels as parent unless it is the default label itself */
+    if (LABEL_EXPR_TYPE(label_expr) == LABEL_EXPR_TYPE_EMPTY)
+    {
+        parents = NIL;
+    }
+    else
+    {
+        char *parent_label_name;
+        RangeVar *parent_rv;
+
+        parent_label_name = label_expr_kind == LABEL_KIND_VERTEX ?
+                                AG_DEFAULT_LABEL_VERTEX :
+                                AG_DEFAULT_LABEL_EDGE;
+        parent_rv = get_label_range_var(graphname, graphoid, parent_label_name);
+        parents = list_make1(parent_rv);
+    }
+
+    /*
+     * Content for the column: ag_label.relation. For empty and single labels,
+     * this is a primary relation. For multiple labels (AND expr), this is the
+     * intersection relation name. Note that, although intersection relations
+     * are not labels, they have ag_label entries where the relation column
+     * holds the intersection relation name.
+     */
+    ag_label_relation = label_expr_relname(label_expr, label_expr_kind);
+
+    /*
+     * If the relation exists, it can be assumed that all required ag_label
+     * entries and relations also exists.
+     */
+    if (ag_relation_exists(ag_label_relation, graphoid))
+    {
+        return;
+    }
+
+    /* this function creates ag_label entry and relation */
+    create_label(graphname, ag_label_relation, label_expr_kind, parents);
+
+    /*
+     * For multiple labels (AND expression), processes each individual labels
+     * as described above.
+     */
+    if (LABEL_EXPR_TYPE(label_expr) == LABEL_EXPR_TYPE_AND)
+    {
+        ListCell *lc;
+        Relation ag_label;
+
+        Assert(list_length(label_expr->label_names) > 1);
+
+        ag_label = table_open(ag_label_relation_id(), RowShareLock);
+
+        foreach (lc, label_expr->label_names)
+        {
+            char *label_name;
+
+            label_name = strVal(lfirst(lc));
+
+            if (!label_exists(label_name, graphoid))
+            {
+                create_label(graphname, label_name, label_expr_kind, parents);
+            }
+
+            /*
+             * appends intersection relation name the individual label's
+             * allrelations column
+             */
+            append_to_allrelations(ag_label, label_name, ag_label_relation,
+                                   graphoid);
+        }
+        table_close(ag_label, NoLock);
+
+        /* signals to rebuild the ag_label cache */
+        CacheInvalidateRelcacheAll();
+        CommandCounterIncrement();
+    }
+}
+
+#include "catalog/indexing.h"
+
+/*
+ * Helper function for `create_label_expr_relations`. Appends intersection
+ * relation name to label_name's ag_label.allrelations column.
+ *
+ * `ag_label` must an opened table.
+ *
+ * UPDATE ag_label
+ * SET ag_label.allrelations = ag_label.allrelations || `intr_relname`
+ * WHERE name = `label_name`;
+ */
+static void append_to_allrelations(Relation ag_label, char *label_name,
+                                   char *intr_relname, Oid graphoid)
+{
+    SysScanDesc ag_label_scan;
+    Name label_name_data;
+    ScanKey skeys;
+    TupleDesc ag_label_tupdesc;
+    HeapTuple ag_label_tup;
+    bool isNull;
+    Datum intr_relid;
+    Datum lhs_arraycat;
+    Datum rhs_arraycat;
+    Datum res_arraycat;
+    HeapTuple new_ag_label_tup;
+    int replCols;
+    bool replIsNull;
+
+    /* gets ag_label tuple for name=label_name */
+    ag_label_tupdesc = RelationGetDescr(ag_label);
+    label_name_data = (NameData *)palloc(sizeof(NameData));
+    namestrcpy(label_name_data, label_name);
+
+    skeys = (ScanKeyData *)palloc(sizeof(ScanKeyData) * 2);
+    ScanKeyInit(&skeys[0], Anum_ag_label_name, BTEqualStrategyNumber, F_NAMEEQ,
+                NameGetDatum(label_name_data));
+    ScanKeyInit(&skeys[1], Anum_ag_label_graph, BTEqualStrategyNumber,
+                F_INT4EQ, ObjectIdGetDatum(graphoid));
+
+    ag_label_scan = systable_beginscan(
+        ag_label, ag_label_name_graph_index_id(), true, NULL, 2, skeys);
+    ag_label_tup = systable_getnext(ag_label_scan);
+    Assert(HeapTupleIsValid(ag_label_tup));
+
+    /* creates new datum for the allrelations column */
+    lhs_arraycat = heap_getattr(ag_label_tup, Anum_ag_label_allrelations,
+                                ag_label_tupdesc, &isNull);
+    Assert(!isNull);
+    intr_relid = ObjectIdGetDatum(get_relname_relid(intr_relname, graphoid));
+    rhs_arraycat = PointerGetDatum(
+        construct_array(&intr_relid, 1, REGCLASSOID, 4, true, TYPALIGN_INT));
+    res_arraycat = DirectFunctionCall2(array_cat, lhs_arraycat, rhs_arraycat);
+
+    /* update tuple */
+    replCols = Anum_ag_label_allrelations;
+    replIsNull = false;
+    new_ag_label_tup =
+        heap_modify_tuple_by_cols(ag_label_tup, ag_label_tupdesc, 1, &replCols,
+                                  &res_arraycat, &replIsNull);
+    simple_heap_update(ag_label, &ag_label_tup->t_data->t_ctid,
+                       new_ag_label_tup);
+    CommandCounterIncrement();
+    systable_endscan(ag_label_scan);
 }
 
 /*
